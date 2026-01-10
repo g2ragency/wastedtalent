@@ -5,6 +5,8 @@
 !.gitignore
 !wp-content/
 !wp-content/**
+!homepage-nextjs/
+!homepage-nextjs/**
 
 # Escludi cose che NON vanno versionate
 wp-content/uploads/
