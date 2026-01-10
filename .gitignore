@@ -1,0 +1,23 @@
+# WordPress core
+wp-admin/
+wp-includes/
+*.php
+!wp-content/
+
+# Upload
+wp-content/uploads/
+
+# Cache
+wp-content/cache/
+wp-content/wflogs/
+
+# Config
+wp-config.php
+
+# OS & editor
+.DS_Store
+.idea
+.vscode
+
+# Local
+.local/
