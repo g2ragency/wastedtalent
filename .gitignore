@@ -1,23 +1,30 @@
-# WordPress core
-wp-admin/
-wp-includes/
-*.php
+# Ignora tutto di default
+*
+
+# Tieni traccia di quello che ci serve
+!.gitignore
 !wp-content/
+!wp-content/**
 
-# Upload
+# Escludi cose che NON vanno versionate
 wp-content/uploads/
-
-# Cache
 wp-content/cache/
 wp-content/wflogs/
 
-# Config
+# Plugin: ignoriamo tutto
+wp-content/plugins/*
+
+# ...ma includiamo SOLO i nostri
+!wp-content/plugins/elementor_addons
+
+# Config sensibile (non va mai in Git)
 wp-config.php
 
-# OS & editor
+# OS/Editor
 .DS_Store
-.idea
-.vscode
+.idea/
+.vscode/
 
-# Local
+# Local (se presente)
 .local/
+
