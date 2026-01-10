@@ -96,6 +96,10 @@ export async function getHomepageData(): Promise<HomepageData> {
   } catch (error) {
     console.error("Error fetching homepage data:", error);
     return {
+      header: {
+        left_menu: [],
+        right_menu: [],
+      },
       hero: {
         slides: [],
       },
