@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["localhost", "wasted-talent.local"], // Aggiungi il dominio del tuo sito WordPress
+    domains: ["localhost", "wasted-talent.local", "wt.g2rdev.it"],
     remotePatterns: [
       {
         protocol: "https",
@@ -12,10 +12,6 @@ const nextConfig = {
         hostname: "**",
       },
     ],
-  },
-  env: {
-    WORDPRESS_API_URL:
-      process.env.WORDPRESS_API_URL || "http://wasted-talent.local/wp-json",
   },
   // Configurazione per coesistere con WordPress
   trailingSlash: false,
