@@ -17,6 +17,9 @@ const nextConfig = {
     WORDPRESS_API_URL:
       process.env.WORDPRESS_API_URL || "http://wasted-talent.local/wp-json",
   },
+  // Configurazione per coesistere con WordPress
+  trailingSlash: false,
+  skipTrailingSlashRedirect: true,
 };
 
 module.exports = nextConfig;
