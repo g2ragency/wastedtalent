@@ -55,6 +55,7 @@ export interface HomepageData {
   header: HeaderData;
   hero: HeroData;
   featured_products: FeaturedProductsData;
+  about_section: AboutData;
 }
 
 // Fetch header
