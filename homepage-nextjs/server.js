@@ -13,14 +13,6 @@ app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
       const parsedUrl = parse(req.url, true);
-      
-      // Non gestire le richieste a /wp/ - lascia che Apache le gestisca
-      if (parsedUrl.pathname.startsWith('/wp/') || parsedUrl.pathname === '/wp') {
-        res.statusCode = 404;
-        res.end('Not found');
-        return;
-      }
-      
       await handle(req, res, parsedUrl);
     } catch (err) {
       console.error("Error occurred handling", req.url, err);
