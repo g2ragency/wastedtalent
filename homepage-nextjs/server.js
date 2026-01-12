@@ -1,26 +1,34 @@
-const { createServer } = require('http')
-const { parse } = require('url')
-const next = require('next')
+const { createServer } = require("http");
+const { parse } = require("url");
+const next = require("next");
 
-const dev = false
-const hostname = process.env.HOSTNAME || 'localhost'
-const port = process.env.PORT || 3001
+const dev = false;
+const hostname = process.env.HOSTNAME || "localhost";
+const port = process.env.PORT || 3001;
 
-const app = next({ dev, hostname, port })
-const handle = app.getRequestHandler()
+const app = next({ dev, hostname, port });
+const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
   createServer(async (req, res) => {
     try {
-      const parsedUrl = parse(req.url, true)
-      await handle(req, res, parsedUrl)
+      const parsedUrl = parse(req.url, true);
+      
+      // Non gestire le richieste a /wp/ - lascia che Apache le gestisca
+      if (parsedUrl.pathname.startsWith('/wp/') || parsedUrl.pathname === '/wp') {
+        res.statusCode = 404;
+        res.end('Not found');
+        return;
+      }
+      
+      await handle(req, res, parsedUrl);
     } catch (err) {
-      console.error('Error occurred handling', req.url, err)
-      res.statusCode = 500
-      res.end('internal server error')
+      console.error("Error occurred handling", req.url, err);
+      res.statusCode = 500;
+      res.end("internal server error");
     }
   }).listen(port, (err) => {
-    if (err) throw err
-    console.log(`> Ready on http://${hostname}:${port}`)
-  })
-})
+    if (err) throw err;
+    console.log(`> Ready on http://${hostname}:${port}`);
+  });
+});
