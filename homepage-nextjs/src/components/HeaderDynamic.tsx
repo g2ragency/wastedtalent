@@ -7,6 +7,17 @@ interface HeaderProps {
   data: HeaderData;
 }
 
+// Funzione per convertire URL assoluti WordPress in path relativi
+function getRelativePath(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    return urlObj.pathname;
+  } catch {
+    // Se non è un URL valido, restituisci così com'è
+    return url;
+  }
+}
+
 export default function Header({ data }: HeaderProps) {
   const leftMenuItems = data.left_menu || [];
   const rightMenuItems = data.right_menu || [];
@@ -19,7 +30,7 @@ export default function Header({ data }: HeaderProps) {
           {leftMenuItems.map((item) => (
             <Link
               key={item.id}
-              href={item.url}
+              href={getRelativePath(item.url)}
               target={item.target || "_self"}
               className="uppercase transition-opacity hover:opacity-60"
               style={{
@@ -53,7 +64,7 @@ export default function Header({ data }: HeaderProps) {
           {rightMenuItems.map((item) => (
             <Link
               key={item.id}
-              href={item.url}
+              href={getRelativePath(item.url)}
               target={item.target || "_self"}
               className="uppercase transition-opacity hover:opacity-60"
               style={{
