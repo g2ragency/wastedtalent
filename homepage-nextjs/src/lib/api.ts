@@ -217,10 +217,16 @@ const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
 // Fetch all products from WooCommerce via API route
 export async function getProducts(): Promise<WooCommerceProduct[]> {
   try {
+    // During build time, return empty array
+    if (typeof window === 'undefined' && !process.env.VERCEL) {
+      console.log('Build time - skipping product fetch');
+      return [];
+    }
+    
     // Use our API route instead of calling WooCommerce directly
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://wasted.wt.g2rdev.it';
     const res = await fetch(`${baseUrl}/api/products`, {
-      next: { revalidate: 60 },
+      cache: 'no-store',
     });
 
     if (!res.ok) {
@@ -230,6 +236,7 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
     }
 
     const products = await res.json();
+    console.log('Products fetched via API route:', products.length);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
