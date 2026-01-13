@@ -220,10 +220,17 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
     const consumerKey = process.env.WC_CONSUMER_KEY || '';
     const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
     
+    console.log('WooCommerce API URL:', WC_API_URL);
+    console.log('Consumer Key exists:', !!consumerKey);
+    console.log('Consumer Secret exists:', !!consumerSecret);
+    
     // Create Basic Auth token
     const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
     
-    const res = await fetch(`${WC_API_URL}/products?per_page=100`, {
+    const url = `${WC_API_URL}/products?per_page=100`;
+    console.log('Fetching products from:', url);
+    
+    const res = await fetch(url, {
       next: { revalidate: 60 },
       headers: {
         'Content-Type': 'application/json',
@@ -231,6 +238,8 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
       },
     });
 
+    console.log('Response status:', res.status);
+    
     if (!res.ok) {
       const errorText = await res.text();
       console.error('WooCommerce API Error:', res.status, errorText);
@@ -238,6 +247,7 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
     }
 
     const products = await res.json();
+    console.log('Products fetched:', products.length);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
