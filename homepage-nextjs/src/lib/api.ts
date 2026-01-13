@@ -223,18 +223,16 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
     console.log('WooCommerce API URL:', WC_API_URL);
     console.log('Consumer Key exists:', !!consumerKey);
     console.log('Consumer Secret exists:', !!consumerSecret);
+    console.log('Consumer Key (first 10 chars):', consumerKey.substring(0, 10));
     
-    // Create Basic Auth token
-    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
-    
-    const url = `${WC_API_URL}/products?per_page=100`;
-    console.log('Fetching products from:', url);
+    // Use query parameters for authentication (alternative to Basic Auth)
+    const url = `${WC_API_URL}/products?per_page=100&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+    console.log('Fetching products from:', WC_API_URL + '/products?per_page=100&consumer_key=***');
     
     const res = await fetch(url, {
       next: { revalidate: 60 },
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${auth}`,
       },
     });
 
@@ -261,14 +259,12 @@ export async function getProductBySlug(slug: string): Promise<WooCommerceProduct
     const consumerKey = process.env.WC_CONSUMER_KEY || '';
     const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
     
-    // Create Basic Auth token
-    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+    const url = `${WC_API_URL}/products?slug=${slug}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
     
-    const res = await fetch(`${WC_API_URL}/products?slug=${slug}`, {
+    const res = await fetch(url, {
       next: { revalidate: 60 },
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Basic ${auth}`,
       },
     });
 
