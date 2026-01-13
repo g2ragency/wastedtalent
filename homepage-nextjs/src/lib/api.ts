@@ -217,15 +217,24 @@ const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
 // Fetch all products from WooCommerce
 export async function getProducts(): Promise<WooCommerceProduct[]> {
   try {
+    const consumerKey = process.env.WC_CONSUMER_KEY || '';
+    const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
+    
+    // Create Basic Auth token
+    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+    
     const res = await fetch(`${WC_API_URL}/products?per_page=100`, {
       next: { revalidate: 60 },
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Basic ${auth}`,
       },
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch products");
+      const errorText = await res.text();
+      console.error('WooCommerce API Error:', res.status, errorText);
+      throw new Error(`Failed to fetch products: ${res.status}`);
     }
 
     const products = await res.json();
@@ -239,12 +248,24 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
 // Fetch single product by slug
 export async function getProductBySlug(slug: string): Promise<WooCommerceProduct | null> {
   try {
+    const consumerKey = process.env.WC_CONSUMER_KEY || '';
+    const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
+    
+    // Create Basic Auth token
+    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+    
     const res = await fetch(`${WC_API_URL}/products?slug=${slug}`, {
       next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${auth}`,
+      },
     });
 
     if (!res.ok) {
-      throw new Error("Failed to fetch product");
+      const errorText = await res.text();
+      console.error('WooCommerce API Error:', res.status, errorText);
+      throw new Error(`Failed to fetch product: ${res.status}`);
     }
 
     const products = await res.json();
