@@ -181,3 +181,76 @@ export async function getAboutData(): Promise<AboutData> {
     };
   }
 }
+
+// WooCommerce Product Interface
+export interface WooCommerceProduct {
+  id: number;
+  name: string;
+  slug: string;
+  permalink: string;
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  price_html: string;
+  description: string;
+  short_description: string;
+  images: Array<{
+    id: number;
+    src: string;
+    name: string;
+    alt: string;
+  }>;
+  categories: Array<{
+    id: number;
+    name: string;
+    slug: string;
+  }>;
+  stock_status: string;
+  in_stock: boolean;
+}
+
+// Get WooCommerce API base URL
+const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
+  ? process.env.NEXT_PUBLIC_WP_API_URL.replace('/site-manager/v1', '/wc/v3')
+  : "http://wasted-talent.local/wp-json/wc/v3";
+
+// Fetch all products from WooCommerce
+export async function getProducts(): Promise<WooCommerceProduct[]> {
+  try {
+    const res = await fetch(`${WC_API_URL}/products?per_page=100`, {
+      next: { revalidate: 60 },
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch products");
+    }
+
+    const products = await res.json();
+    return products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+}
+
+// Fetch single product by slug
+export async function getProductBySlug(slug: string): Promise<WooCommerceProduct | null> {
+  try {
+    const res = await fetch(`${WC_API_URL}/products?slug=${slug}`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch product");
+    }
+
+    const products = await res.json();
+    return products[0] || null;
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    return null;
+  }
+}
