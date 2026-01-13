@@ -214,38 +214,22 @@ const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
   ? process.env.NEXT_PUBLIC_WP_API_URL.replace('/site-manager/v1', '/wc/v3')
   : "http://wasted-talent.local/wp-json/wc/v3";
 
-// Fetch all products from WooCommerce
+// Fetch all products from WooCommerce via API route
 export async function getProducts(): Promise<WooCommerceProduct[]> {
   try {
-    const consumerKey = process.env.WC_CONSUMER_KEY || '';
-    const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
-    
-    console.log('WooCommerce API URL:', WC_API_URL);
-    console.log('Consumer Key exists:', !!consumerKey);
-    console.log('Consumer Secret exists:', !!consumerSecret);
-    console.log('Consumer Key (first 10 chars):', consumerKey.substring(0, 10));
-    
-    // Use query parameters for authentication (alternative to Basic Auth)
-    const url = `${WC_API_URL}/products?per_page=100&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
-    console.log('Fetching products from:', WC_API_URL + '/products?per_page=100&consumer_key=***');
-    
-    const res = await fetch(url, {
+    // Use our API route instead of calling WooCommerce directly
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://wasted.wt.g2rdev.it';
+    const res = await fetch(`${baseUrl}/api/products`, {
       next: { revalidate: 60 },
-      headers: {
-        'Content-Type': 'application/json',
-      },
     });
 
-    console.log('Response status:', res.status);
-    
     if (!res.ok) {
-      const errorText = await res.text();
-      console.error('WooCommerce API Error:', res.status, errorText);
-      throw new Error(`Failed to fetch products: ${res.status}`);
+      const error = await res.json();
+      console.error('API Route Error:', error);
+      return [];
     }
 
     const products = await res.json();
-    console.log('Products fetched:', products.length);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
