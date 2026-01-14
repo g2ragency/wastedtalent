@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState, useEffect } from "react";
 import { HeaderData } from "@/lib/api";
 
 interface HeaderProps {
@@ -19,11 +21,28 @@ function getRelativePath(url: string): string {
 }
 
 export default function Header({ data }: HeaderProps) {
+  const pathname = usePathname();
+  const isHomepage = pathname === "/";
+  const [scrolled, setScrolled] = useState(false);
   const leftMenuItems = data.left_menu || [];
   const rightMenuItems = data.right_menu || [];
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
-    <header className="fixed top-0 z-50 w-full bg-transparent">
+    <header 
+      className="fixed top-0 z-50 w-full transition-colors duration-300"
+      style={{ 
+        backgroundColor: scrolled ? '#FFFFFF' : 'transparent'
+      }}
+    >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-6">
         {/* Left Menu */}
         <nav className="flex flex-1 items-center gap-8">
@@ -37,9 +56,9 @@ export default function Header({ data }: HeaderProps) {
                 fontSize: "14px",
                 fontWeight: "bold",
                 lineHeight: "0.95",
-                color: "white",
+                color: isHomepage ? "white" : "black",
                 letterSpacing: "-0.1px",
-                mixBlendMode: "difference",
+                mixBlendMode: isHomepage ? "difference" : "normal",
               }}
             >
               {item.title}
@@ -71,9 +90,9 @@ export default function Header({ data }: HeaderProps) {
                 fontSize: "14px",
                 fontWeight: "bold",
                 lineHeight: "0.95",
-                color: "white",
+                color: isHomepage ? "white" : "black",
                 letterSpacing: "-0.1px",
-                mixBlendMode: "difference",
+                mixBlendMode: isHomepage ? "difference" : "normal",
               }}
             >
               {item.title}
