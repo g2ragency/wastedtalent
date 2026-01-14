@@ -35,7 +35,7 @@ export default function ShopContent({ products }: ShopContentProps) {
         className="flex items-center justify-between py-4 px-6"
         style={{
           position: scrolled ? 'fixed' : 'static',
-          top: scrolled ? '79px' : 'auto',
+          top: scrolled ? '96px' : 'auto',
           left: '0',
           right: '0',
           width: '100%',
