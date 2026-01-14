@@ -4,37 +4,24 @@ import { useEffect } from "react";
 
 export default function SmoothScroll() {
   useEffect(() => {
-    // Smooth scroll implementation
+    let targetScroll = window.scrollY;
     let currentScroll = window.scrollY;
-    let isScrolling = false;
+    let rafId: number | null = null;
 
-    const smoothScrollTo = (targetY: number) => {
-      const startY = window.scrollY;
-      const distance = targetY - startY;
-      const duration = 1200; // Aumentato per rendere lo scroll più lento
-      let startTime: number | null = null;
+    const lerp = (start: number, end: number, factor: number) => {
+      return start + (end - start) * factor;
+    };
 
-      const easeInOutQuad = (t: number): number => {
-        return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-      };
-
-      const animation = (currentTime: number) => {
-        if (startTime === null) startTime = currentTime;
-        const timeElapsed = currentTime - startTime;
-        const progress = Math.min(timeElapsed / duration, 1);
-        const ease = easeInOutQuad(progress);
-
-        window.scrollTo(0, startY + distance * ease);
-
-        if (timeElapsed < duration) {
-          requestAnimationFrame(animation);
-        } else {
-          isScrolling = false;
-        }
-      };
-
-      isScrolling = true;
-      requestAnimationFrame(animation);
+    const smoothScroll = () => {
+      currentScroll = lerp(currentScroll, targetScroll, 0.1);
+      
+      if (Math.abs(targetScroll - currentScroll) < 0.5) {
+        currentScroll = targetScroll;
+        rafId = null;
+      } else {
+        window.scrollTo(0, currentScroll);
+        rafId = requestAnimationFrame(smoothScroll);
+      }
     };
 
     const handleWheel = (e: WheelEvent) => {
@@ -42,14 +29,12 @@ export default function SmoothScroll() {
       
       e.preventDefault();
       
-      if (!isScrolling) {
-        currentScroll = window.scrollY;
+      targetScroll += e.deltaY;
+      targetScroll = Math.max(0, Math.min(targetScroll, document.body.scrollHeight - window.innerHeight));
+      
+      if (!rafId) {
+        rafId = requestAnimationFrame(smoothScroll);
       }
-      
-      currentScroll += e.deltaY * 0.5; // Ridotto il moltiplicatore per rendere lo scroll più graduale
-      currentScroll = Math.max(0, Math.min(currentScroll, document.body.scrollHeight - window.innerHeight));
-      
-      smoothScrollTo(currentScroll);
     };
 
     // Apply only on desktop
@@ -59,6 +44,9 @@ export default function SmoothScroll() {
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+      }
     };
   }, []);
 
