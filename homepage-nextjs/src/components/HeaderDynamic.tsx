@@ -48,7 +48,7 @@ export default function Header({ data }: HeaderProps) {
         transition: isHomepage ? "background-color 0.3s" : "none",
       }}
     >
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-6">
+      <div className="flex items-center justify-between px-6 py-6">
         {/* Left Menu */}
         <nav className="flex flex-1 items-center gap-8">
           {leftMenuItems.map((item) => (

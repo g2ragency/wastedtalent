@@ -22,7 +22,8 @@ html {
   scroll-padding-top: 100px;
 }
 
-html.lenis, html.lenis body {
+html.lenis,
+html.lenis body {
   height: auto;
 }
 
