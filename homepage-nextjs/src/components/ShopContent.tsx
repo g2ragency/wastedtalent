@@ -23,46 +23,45 @@ export default function ShopContent({ products }: ShopContentProps) {
 
   return (
     <main className="min-h-screen bg-white pt-24 pb-16">
-      <div className="max-w-[1400px] mx-auto px-6">
+      <div className="w-full px-6">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light mb-4">F/W 2026</h1>
-          
-          {/* Sticky Filters Bar */}
-          <div 
-            className="flex items-center justify-between py-4"
-            style={{
-              position: scrolled ? 'fixed' : 'static',
-              top: scrolled ? '80px' : 'auto',
-              left: scrolled ? '0' : 'auto',
-              right: scrolled ? '0' : 'auto',
-              backgroundColor: '#FFFFFF',
-              zIndex: scrolled ? 40 : 'auto',
-              borderTop: '1px solid #DDDDDD',
-              borderBottom: '1px solid #DDDDDD',
-              maxWidth: scrolled ? '1400px' : 'none',
-              margin: scrolled ? '0 auto' : '0',
-              paddingLeft: scrolled ? '24px' : '0',
-              paddingRight: scrolled ? '24px' : '0',
-              color: '#999999',
-            }}
-          >
-            <button className="text-sm flex items-center gap-2" style={{ color: '#999999' }}>
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <path d="M2 8h12M8 2v12" stroke="currentColor" strokeWidth="1.5"/>
-              </svg>
-              Filters
-            </button>
-            <p className="text-sm" style={{ color: '#999999' }}>{products.length} products</p>
-            <button className="text-sm" style={{ color: '#999999' }}>
-              Sort by
-              <svg className="inline ml-1" width="12" height="8" viewBox="0 0 12 8" fill="none">
-                <path d="M1 1l5 5 5-5" stroke="currentColor" strokeWidth="1.5"/>
-              </svg>
-            </button>
-          </div>
         </div>
+      </div>
+          
+      {/* Sticky Filters Bar - Full Width */}
+      <div 
+        className="flex items-center justify-between py-4 px-6"
+        style={{
+          position: scrolled ? 'fixed' : 'static',
+          top: scrolled ? '80px' : 'auto',
+          left: '0',
+          right: '0',
+          width: '100%',
+          backgroundColor: '#FFFFFF',
+          zIndex: scrolled ? 40 : 'auto',
+          borderTop: '1px solid #DDDDDD',
+          borderBottom: '1px solid #DDDDDD',
+          color: '#999999',
+        }}
+      >
+        <button className="text-sm flex items-center gap-2" style={{ color: '#999999' }}>
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 8h12M8 2v12" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+          Filters
+        </button>
+        <p className="text-sm" style={{ color: '#999999' }}>{products.length} products</p>
+        <button className="text-sm" style={{ color: '#999999' }}>
+          Sort by
+          <svg className="inline ml-1" width="12" height="8" viewBox="0 0 12 8" fill="none">
+            <path d="M1 1l5 5 5-5" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+        </button>
+      </div>
 
+      <div className="w-full px-6">
         {/* Spacer when filters are sticky */}
         {scrolled && <div style={{ height: '60px' }} />}
 
@@ -126,7 +125,7 @@ export default function ShopContent({ products }: ShopContentProps) {
       </div>
 
       {/* Footer */}
-      <footer className="max-w-[1400px] mx-auto px-6 mt-20 pt-12 border-t">
+      <footer className="w-full px-6 mt-20 pt-12 border-t">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
             <h4 className="font-bold text-xs mb-4 uppercase">Join our newsletter</h4>
