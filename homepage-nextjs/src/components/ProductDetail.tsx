@@ -20,7 +20,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
         <div className="flex gap-12">
           {/* Left: Scrollable Images */}
           <div className="w-1/2">
-            <div className="space-y-4">
+            <div>
               {product.images && product.images.length > 0 ? (
                 product.images.map((image, index) => (
                   <div key={image.id} className="bg-gray-100 w-full">
@@ -29,7 +29,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                       alt={image.alt || `${product.name} ${index + 1}`}
                       width={800}
                       height={1067}
-                      className="w-full h-auto object-cover"
+                      className="w-full h-auto object-cover block"
                     />
                   </div>
                 ))
