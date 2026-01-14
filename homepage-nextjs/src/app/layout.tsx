@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import SmoothScroll from "@/components/SmoothScroll";
 
 export const metadata: Metadata = {
   title: "Wasted Talent United",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body>
+        <SmoothScroll />
         {children}
       </body>
     </html>
