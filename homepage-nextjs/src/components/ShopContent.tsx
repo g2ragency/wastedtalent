@@ -30,29 +30,31 @@ export default function ShopContent({ products }: ShopContentProps) {
           
           {/* Sticky Filters Bar */}
           <div 
-            className="flex items-center justify-between py-4 transition-all duration-300"
+            className="flex items-center justify-between py-4"
             style={{
               position: scrolled ? 'fixed' : 'static',
               top: scrolled ? '80px' : 'auto',
               left: scrolled ? '0' : 'auto',
               right: scrolled ? '0' : 'auto',
-              backgroundColor: scrolled ? '#FFFFFF' : 'transparent',
+              backgroundColor: '#FFFFFF',
               zIndex: scrolled ? 40 : 'auto',
-              borderBottom: scrolled ? '1px solid #e5e5e5' : 'none',
+              borderTop: '1px solid #DDDDDD',
+              borderBottom: '1px solid #DDDDDD',
               maxWidth: scrolled ? '1400px' : 'none',
               margin: scrolled ? '0 auto' : '0',
               paddingLeft: scrolled ? '24px' : '0',
               paddingRight: scrolled ? '24px' : '0',
+              color: '#999999',
             }}
           >
-            <button className="text-sm flex items-center gap-2">
+            <button className="text-sm flex items-center gap-2" style={{ color: '#999999' }}>
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M2 8h12M8 2v12" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
               Filters
             </button>
-            <p className="text-sm">{products.length} products</p>
-            <button className="text-sm">
+            <p className="text-sm" style={{ color: '#999999' }}>{products.length} products</p>
+            <button className="text-sm" style={{ color: '#999999' }}>
               Sort by
               <svg className="inline ml-1" width="12" height="8" viewBox="0 0 12 8" fill="none">
                 <path d="M1 1l5 5 5-5" stroke="currentColor" strokeWidth="1.5"/>
@@ -104,7 +106,7 @@ export default function ShopContent({ products }: ShopContentProps) {
               <h3 className="font-bold mb-1" style={{ fontSize: '18px', fontFamily: 'Helvetica Neue, sans-serif' }}>
                 {product.name}
               </h3>
-              <p style={{ fontSize: '18px', fontFamily: 'Helvetica Neue, sans-serif', color: '#999999' }}>
+              <p className="font-bold" style={{ fontSize: '18px', fontFamily: 'Helvetica Neue, sans-serif', color: '#999999' }}>
                 {product.price_html ? (
                   <span dangerouslySetInnerHTML={{ __html: product.price_html }} />
                 ) : (

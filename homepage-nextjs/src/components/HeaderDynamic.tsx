@@ -38,9 +38,10 @@ export default function Header({ data }: HeaderProps) {
 
   return (
     <header 
-      className="fixed top-0 z-50 w-full transition-colors duration-300"
+      className="fixed top-0 z-50 w-full"
       style={{ 
-        backgroundColor: scrolled ? '#FFFFFF' : 'transparent'
+        backgroundColor: scrolled ? '#FFFFFF' : 'transparent',
+        transition: isHomepage ? 'background-color 0.3s' : 'none'
       }}
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-6">
