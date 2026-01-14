@@ -23,18 +23,6 @@ html {
   scroll-padding-top: 100px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: auto;
-  }
-  
-  * {
-    scroll-behavior: smooth;
-    scroll-timeline: --page-scroll block;
-    animation-timeline: --page-scroll;
-  }
-}
-
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: var(--lightlightgrey);
@@ -45,6 +33,32 @@ body {
   -moz-osx-font-smoothing: grayscale;
   font-weight: 400;
   overflow-x: hidden;
+}
+
+/* Smooth scrolling enhancement */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #999999 transparent;
+  }
+}
+
+/* WebKit browsers smooth scrolling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #999999;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666666;
 }
 
 h1,
