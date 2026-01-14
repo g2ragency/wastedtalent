@@ -35,7 +35,7 @@ export default function ShopContent({ products }: ShopContentProps) {
         className="flex items-center justify-between py-4 px-6"
         style={{
           position: scrolled ? 'fixed' : 'static',
-          top: scrolled ? '80px' : 'auto',
+          top: scrolled ? '79px' : 'auto',
           left: '0',
           right: '0',
           width: '100%',
@@ -44,7 +44,6 @@ export default function ShopContent({ products }: ShopContentProps) {
           borderTop: '1px solid #DDDDDD',
           borderBottom: '1px solid #DDDDDD',
           color: '#999999',
-          marginTop: scrolled ? '-1px' : '0',
         }}
       >
         <button className="text-sm flex items-center gap-2" style={{ color: '#999999' }}>
@@ -67,7 +66,7 @@ export default function ShopContent({ products }: ShopContentProps) {
         {scrolled && <div style={{ height: '60px' }} />}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
           {products.map((product) => (
             <Link
               key={product.id}
