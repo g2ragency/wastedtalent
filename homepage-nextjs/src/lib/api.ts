@@ -211,32 +211,33 @@ export interface WooCommerceProduct {
 
 // Get WooCommerce API base URL
 const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
-  ? process.env.NEXT_PUBLIC_WP_API_URL.replace('/site-manager/v1', '/wc/v3')
+  ? process.env.NEXT_PUBLIC_WP_API_URL.replace("/site-manager/v1", "/wc/v3")
   : "http://wasted-talent.local/wp-json/wc/v3";
 
 // Fetch all products from WooCommerce via API route
 export async function getProducts(): Promise<WooCommerceProduct[]> {
   try {
     // During build time, return empty array
-    if (typeof window === 'undefined' && !process.env.VERCEL) {
-      console.log('Build time - skipping product fetch');
+    if (typeof window === "undefined" && !process.env.VERCEL) {
+      console.log("Build time - skipping product fetch");
       return [];
     }
-    
+
     // Use our API route instead of calling WooCommerce directly
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://wasted.wt.g2rdev.it';
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL || "https://wasted.wt.g2rdev.it";
     const res = await fetch(`${baseUrl}/api/products`, {
-      cache: 'no-store',
+      cache: "no-store",
     });
 
     if (!res.ok) {
       const error = await res.json();
-      console.error('API Route Error:', error);
+      console.error("API Route Error:", error);
       return [];
     }
 
     const products = await res.json();
-    console.log('Products fetched via API route:', products.length);
+    console.log("Products fetched via API route:", products.length);
     return products;
   } catch (error) {
     console.error("Error fetching products:", error);
@@ -245,23 +246,25 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
 }
 
 // Fetch single product by slug
-export async function getProductBySlug(slug: string): Promise<WooCommerceProduct | null> {
+export async function getProductBySlug(
+  slug: string
+): Promise<WooCommerceProduct | null> {
   try {
-    const consumerKey = process.env.WC_CONSUMER_KEY || '';
-    const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
-    
+    const consumerKey = process.env.WC_CONSUMER_KEY || "";
+    const consumerSecret = process.env.WC_CONSUMER_SECRET || "";
+
     const url = `${WC_API_URL}/products?slug=${slug}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
-    
+
     const res = await fetch(url, {
       next: { revalidate: 60 },
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error('WooCommerce API Error:', res.status, errorText);
+      console.error("WooCommerce API Error:", res.status, errorText);
       throw new Error(`Failed to fetch product: ${res.status}`);
     }
 

@@ -4,7 +4,7 @@ import ShopContent from "@/components/ShopContent";
 import { getHeaderData } from "@/lib/api";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function ShopPage() {
@@ -18,4 +18,3 @@ export default async function ShopPage() {
     </>
   );
 }
-

@@ -32,16 +32,20 @@ export default function Header({ data }: HeaderProps) {
       setScrolled(window.scrollY > 50);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <header 
+    <header
       className="fixed top-0 z-50 w-full"
-      style={{ 
-        backgroundColor: isHomepage ? (scrolled ? '#FFFFFF' : 'transparent') : '#FFFFFF',
-        transition: isHomepage ? 'background-color 0.3s' : 'none'
+      style={{
+        backgroundColor: isHomepage
+          ? scrolled
+            ? "#FFFFFF"
+            : "transparent"
+          : "#FFFFFF",
+        transition: isHomepage ? "background-color 0.3s" : "none",
       }}
     >
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-6">

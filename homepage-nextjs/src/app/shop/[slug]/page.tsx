@@ -4,7 +4,7 @@ import HeaderDynamic from "@/components/HeaderDynamic";
 import ProductDetail from "@/components/ProductDetail";
 
 // Force dynamic rendering
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 interface ProductPageProps {
