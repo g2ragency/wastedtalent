@@ -40,7 +40,7 @@ export default function Header({ data }: HeaderProps) {
     <header 
       className="fixed top-0 z-50 w-full"
       style={{ 
-        backgroundColor: scrolled ? '#FFFFFF' : 'transparent',
+        backgroundColor: isHomepage ? (scrolled ? '#FFFFFF' : 'transparent') : '#FFFFFF',
         transition: isHomepage ? 'background-color 0.3s' : 'none'
       }}
     >

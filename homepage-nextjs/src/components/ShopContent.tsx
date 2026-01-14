@@ -44,6 +44,7 @@ export default function ShopContent({ products }: ShopContentProps) {
           borderTop: '1px solid #DDDDDD',
           borderBottom: '1px solid #DDDDDD',
           color: '#999999',
+          marginTop: scrolled ? '-1px' : '0',
         }}
       >
         <button className="text-sm flex items-center gap-2" style={{ color: '#999999' }}>
