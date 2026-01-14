@@ -6,8 +6,8 @@ const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
 
 export async function GET() {
   try {
-    const consumerKey = process.env.NEXT_PUBLIC_WC_CONSUMER_KEY || '';
-    const consumerSecret = process.env.NEXT_PUBLIC_WC_CONSUMER_SECRET || '';
+    const consumerKey = process.env.WC_CONSUMER_KEY || '';
+    const consumerSecret = process.env.WC_CONSUMER_SECRET || '';
     
     console.log('API Route - Consumer Key exists:', !!consumerKey);
     console.log('API Route - Consumer Secret exists:', !!consumerSecret);
