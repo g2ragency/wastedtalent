@@ -15,7 +15,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
   return (
-    <main className="min-h-screen bg-white pt-24">
+    <main className="min-h-screen bg-white pt-24 pb-16">
       <div className="w-full px-6">
         {/* Breadcrumb */}
         <div className="mb-8">
@@ -26,17 +26,17 @@ export default function ProductDetail({ product }: ProductDetailProps) {
 
         <div className="flex gap-12">
           {/* Left: Scrollable Images */}
-          <div className="w-1/2 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="w-1/2">
             <div className="space-y-4">
               {product.images && product.images.length > 0 ? (
                 product.images.map((image, index) => (
-                  <div key={image.id} className="bg-gray-100" style={{ height: '600px' }}>
+                  <div key={image.id} className="bg-gray-100 w-full">
                     <Image
                       src={image.src}
                       alt={image.alt || `${product.name} ${index + 1}`}
                       width={800}
-                      height={600}
-                      className="w-full h-full object-cover"
+                      height={1067}
+                      className="w-full h-auto object-cover"
                     />
                   </div>
                 ))
@@ -48,8 +48,9 @@ export default function ProductDetail({ product }: ProductDetailProps) {
             </div>
           </div>
 
-          {/* Right: Fixed Product Info */}
-          <div className="w-1/2 sticky top-24" style={{ height: 'fit-content' }}>
+          {/* Right: Sticky Product Info */}
+          <div className="w-1/2">
+            <div className="sticky top-24">
             <h1 className="font-bold mb-2" style={{ fontSize: '32px', fontFamily: 'Helvetica Neue, sans-serif' }}>
               {product.name}
             </h1>
@@ -97,6 +98,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                 />
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>
