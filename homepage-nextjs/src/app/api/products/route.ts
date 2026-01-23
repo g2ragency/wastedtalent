@@ -16,16 +16,21 @@ export async function GET() {
     if (!consumerKey || !consumerSecret) {
       return NextResponse.json(
         { error: "Missing WooCommerce credentials" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
-    const url = `${WC_API_URL}/products?per_page=100&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+    // Use Basic Auth for local development
+    const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString(
+      "base64",
+    );
+    const url = `${WC_API_URL}/products?per_page=100`;
 
     const res = await fetch(url, {
       cache: "no-store",
       headers: {
         "Content-Type": "application/json",
+        Authorization: `Basic ${auth}`,
       },
     });
 
@@ -34,7 +39,7 @@ export async function GET() {
       console.error("WooCommerce API Error:", res.status, errorText);
       return NextResponse.json(
         { error: "Failed to fetch products", details: errorText },
-        { status: res.status }
+        { status: res.status },
       );
     }
 
@@ -44,7 +49,7 @@ export async function GET() {
     console.error("API Route Error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

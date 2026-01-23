@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { WooCommerceProduct } from "@/lib/api";
+import { useCart } from "@/context/CartContext";
 
 interface ProductDetailProps {
   product: WooCommerceProduct;
@@ -11,8 +12,22 @@ interface ProductDetailProps {
 
 export default function ProductDetail({ product }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState("");
+  const { addItem } = useCart();
+  const [added, setAdded] = useState(false);
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
+
+  const handleAddToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      slug: product.slug,
+      image: product.images?.[0]?.src,
+    });
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   return (
     <main className="min-h-screen bg-white pt-24 pb-16">
@@ -95,8 +110,11 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               </div>
 
               {/* Add to Cart Button */}
-              <button className="w-full bg-black text-white py-4 font-bold text-sm uppercase mb-4 hover:bg-gray-800 transition-colors">
-                Add to cart
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-black text-white py-4 font-bold text-sm uppercase mb-4 hover:bg-gray-800 transition-colors"
+              >
+                {added ? "Added to cart!" : "Add to cart"}
               </button>
 
               {/* Product Description */}

@@ -1,3 +1,39 @@
+import { cache } from "react";
+
+const API_URL =
+  process.env.NEXT_PUBLIC_WP_API_URL ||
+  "http://wasted-talent.local/wp-json/site-manager/v1";
+
+const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
+  ? process.env.NEXT_PUBLIC_WP_API_URL.replace("/site-manager/v1", "/wc/v3")
+  : "http://wasted-talent.local/wp-json/wc/v3";
+
+// Fetch all products from WooCommerce via API route
+export async function getProducts(): Promise<WooCommerceProduct[]> {
+  try {
+    // Use localhost for local development, production URL otherwise
+    const baseUrl = process.env.NODE_ENV === 'production' 
+      ? (process.env.NEXT_PUBLIC_SITE_URL || "https://wasted.wt.g2rdev.it")
+      : "http://localhost:3000";
+      
+    const res = await fetch(`${baseUrl}/api/products`, {
+      cache: "no-store",
+    });
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ error: 'Unknown error' }));
+      console.error("API Route Error:", error);
+      return [];
+    }
+
+    const products = await res.json();
+    console.log("Products fetched via API route:", products.length);
+    return products;
+  } catch (error) {
+    console.error("Error fetching products:", error);
+    return [];
+  }
+}
 const API_URL =
   process.env.NEXT_PUBLIC_WP_API_URL ||
   "http://wasted-talent.local/wp-json/site-manager/v1";
@@ -215,46 +251,35 @@ const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
   : "http://wasted-talent.local/wp-json/wc/v3";
 
 // Fetch all products from WooCommerce via API route
-export async function getProducts(): Promise<WooCommerceProduct[]> {
-  try {
-    // Use Site Manager API endpoint instead of WooCommerce directly
-    const res = await fetch(`${API_URL}/products`, {
-      cache: "no-store",
-    });
-
-    if (!res.ok) {
-      const error = await res.json();
-      console.error("API Route Error:", error);
-      return [];
-    }
-
-    const products = await res.json();
-    console.log("Products fetched via API route:", products.length);
-    return products;
-  } catch (error) {
-    console.error("Error fetching products:", error);
     return [];
   }
 }
 
 // Fetch single product by slug
 export async function getProductBySlug(
-  slug: string,
+  slug: string
 ): Promise<WooCommerceProduct | null> {
   try {
-    // Use Site Manager API endpoint
-    const res = await fetch(`${API_URL}/products/${slug}`, {
+    const consumerKey = process.env.WC_CONSUMER_KEY || "";
+    const consumerSecret = process.env.WC_CONSUMER_SECRET || "";
+
+    const url = `${WC_API_URL}/products?slug=${slug}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+
+    const res = await fetch(url, {
       next: { revalidate: 60 },
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     if (!res.ok) {
       const errorText = await res.text();
-      console.error("Product API Error:", res.status, errorText);
+      console.error("WooCommerce API Error:", res.status, errorText);
       throw new Error(`Failed to fetch product: ${res.status}`);
     }
 
-    const product = await res.json();
-    return product || null;
+    const products = await res.json();
+    return products[0] || null;
   } catch (error) {
     console.error("Error fetching product:", error);
     return null;

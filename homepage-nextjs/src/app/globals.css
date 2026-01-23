@@ -99,3 +99,27 @@ p {
   line-height: 1.6;
   font-weight: 400;
 }
+
+/* Custom form validation styles */
+input:required:invalid,
+select:required:invalid {
+  box-shadow: none;
+}
+
+input:required:invalid:focus,
+select:required:invalid:focus {
+  border-color: #ef4444;
+  outline: none;
+}
+
+/* Remove default browser validation tooltips */
+input:invalid,
+select:invalid {
+  box-shadow: none;
+}
+
+/* Custom validation message styling */
+input:user-invalid,
+select:user-invalid {
+  border-color: #ef4444;
+}

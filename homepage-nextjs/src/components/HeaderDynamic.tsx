@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { HeaderData } from "@/lib/api";
+import { useCart } from "@/context/CartContext";
 
 interface HeaderProps {
   data: HeaderData;
@@ -24,6 +25,7 @@ export default function Header({ data }: HeaderProps) {
   const pathname = usePathname();
   const isHomepage = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
+  const { totalItems } = useCart();
   const leftMenuItems = data.left_menu || [];
   const rightMenuItems = data.right_menu || [];
 
@@ -103,6 +105,22 @@ export default function Header({ data }: HeaderProps) {
               {item.title}
             </Link>
           ))}
+
+          {/* Cart */}
+          <Link
+            href="/cart"
+            className="uppercase transition-opacity hover:opacity-60"
+            style={{
+              fontSize: "14px",
+              fontWeight: "bold",
+              lineHeight: "0.95",
+              color: isHomepage ? "white" : "black",
+              letterSpacing: "-0.1px",
+              mixBlendMode: isHomepage ? "difference" : "normal",
+            }}
+          >
+            Cart {totalItems > 0 && `(${totalItems})`}
+          </Link>
         </nav>
       </div>
     </header>

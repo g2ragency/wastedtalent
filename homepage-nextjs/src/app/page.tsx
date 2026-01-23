@@ -15,8 +15,7 @@ export default async function Home() {
         <HeaderDynamic data={headerData} />
         <main className="min-h-screen">
           <HeroSection data={homepageData.hero} />
-          {/* Uncomment per mostrare prodotti */}
-          {/* <FeaturedProducts data={homepageData.featured_products} /> */}
+          <FeaturedProducts data={homepageData.featured_products} />
         </main>
       </>
     );
