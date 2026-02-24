@@ -1,0 +1,349 @@
+<?php
+/**
+ * REST API Endpoints
+ */
+
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class HPM_REST_API {
+    
+    private $namespace = 'site-manager/v1';
+    
+    public function register_routes() {
+        // Endpoint per ottenere tutte le impostazioni sito
+        register_rest_route($this->namespace, '/settings', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_site_settings'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per header
+        register_rest_route($this->namespace, '/header', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_header'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per footer
+        register_rest_route($this->namespace, '/footer', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_footer'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per ottenere solo hero section
+        register_rest_route($this->namespace, '/hero', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_hero_section'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per ottenere prodotti in evidenza
+        register_rest_route($this->namespace, '/featured-products', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_featured_products'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per ottenere tutti i prodotti
+        register_rest_route($this->namespace, '/products', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_all_products'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per ottenere un singolo prodotto per slug
+        register_rest_route($this->namespace, '/products/(?P<slug>[a-zA-Z0-9-]+)', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_product_by_slug'),
+            'permission_callback' => '__return_true'
+        ));
+    }
+    
+    public function get_site_settings($request) {
+        $settings = get_option('hpm_site_settings', array());
+        
+        // Aggiungi i prodotti completi se WooCommerce è attivo
+        if (class_exists('WooCommerce') && !empty($settings['featured_products']['product_ids'])) {
+            $settings['featured_products']['products'] = $this->get_products_data($settings['featured_products']['product_ids']);
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $settings
+        ));
+    }
+    
+    public function get_header($request) {
+        $settings = get_option('hpm_site_settings', array());
+        
+        // Recupera i menu WordPress
+        $left_menu_items = array();
+        $right_menu_items = array();
+        
+        if (!empty($settings['header']['left_menu_id'])) {
+            $left_menu_items = $this->get_menu_items($settings['header']['left_menu_id']);
+        }
+        
+        if (!empty($settings['header']['right_menu_id'])) {
+            $right_menu_items = $this->get_menu_items($settings['header']['right_menu_id']);
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'left_menu' => $left_menu_items,
+                'right_menu' => $right_menu_items
+            )
+        ));
+    }
+    
+    private function get_menu_items($menu_id) {
+        $menu_items = wp_get_nav_menu_items($menu_id);
+        $items = array();
+        
+        if ($menu_items) {
+            foreach ($menu_items as $item) {
+                $items[] = array(
+                    'id' => $item->ID,
+                    'title' => $item->title,
+                    'url' => $item->url,
+                    'target' => $item->target,
+                    'classes' => implode(' ', $item->classes)
+                );
+            }
+        }
+        
+        return $items;
+    }
+    
+    public function get_footer($request) {
+        $settings = get_option('hpm_site_settings', array());
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $settings['footer'] ?? array()
+        ));
+    }
+    
+    public function get_hero_section($request) {
+        $settings = get_option('hpm_site_settings', array());
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $settings['hero'] ?? array()
+        ));
+    }
+    
+    public function get_featured_products($request) {
+        $settings = get_option('hpm_site_settings', array());
+        $product_ids = $settings['featured_products']['product_ids'] ?? array();
+        
+        $products = array();
+        if (class_exists('WooCommerce') && !empty($product_ids)) {
+            $products = $this->get_products_data($product_ids);
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'title' => $settings['featured_products']['title'] ?? '',
+                'products' => $products
+            )
+        ));
+    }
+    
+    private function get_products_data($product_ids) {
+        $products_data = array();
+        
+        foreach ($product_ids as $product_id) {
+            $product = wc_get_product($product_id);
+            
+            if ($product) {
+                $image_id = $product->get_image_id();
+                $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'large') : '';
+                
+                $products_data[] = array(
+                    'id' => $product->get_id(),
+                    'name' => $product->get_name(),
+                    'slug' => $product->get_slug(),
+                    'price' => $product->get_price(),
+                    'regular_price' => $product->get_regular_price(),
+                    'sale_price' => $product->get_sale_price(),
+                    'description' => $product->get_short_description(),
+                    'image' => $image_url,
+                    'permalink' => get_permalink($product->get_id()),
+                    'in_stock' => $product->is_in_stock()
+                );
+            }
+        }
+        
+        return $products_data;
+    }
+    
+    public function get_all_products($request) {
+        if (!class_exists('WooCommerce')) {
+            return rest_ensure_response(array(
+                'success' => false,
+                'message' => 'WooCommerce not active',
+                'data' => array()
+            ));
+        }
+        
+        $args = array(
+            'post_type' => 'product',
+            'posts_per_page' => -1,
+            'post_status' => 'publish'
+        );
+        
+        $products_query = new WP_Query($args);
+        $products_data = array();
+        
+        if ($products_query->have_posts()) {
+            while ($products_query->have_posts()) {
+                $products_query->the_post();
+                $product = wc_get_product(get_the_ID());
+                
+                if ($product) {
+                    $image_id = $product->get_image_id();
+                    $image_url = $image_id ? wp_get_attachment_image_url($image_id, 'large') : '';
+                    
+                    // Get all product images
+                    $images = array();
+                    if ($image_id) {
+                        $images[] = array(
+                            'id' => $image_id,
+                            'src' => $image_url,
+                            'name' => get_the_title($image_id),
+                            'alt' => get_post_meta($image_id, '_wp_attachment_image_alt', true)
+                        );
+                    }
+                    
+                    // Get gallery images
+                    $gallery_ids = $product->get_gallery_image_ids();
+                    foreach ($gallery_ids as $gallery_id) {
+                        $gallery_url = wp_get_attachment_image_url($gallery_id, 'large');
+                        if ($gallery_url) {
+                            $images[] = array(
+                                'id' => $gallery_id,
+                                'src' => $gallery_url,
+                                'name' => get_the_title($gallery_id),
+                                'alt' => get_post_meta($gallery_id, '_wp_attachment_image_alt', true)
+                            );
+                        }
+                    }
+                    
+                    $products_data[] = array(
+                        'id' => $product->get_id(),
+                        'name' => $product->get_name(),
+                        'slug' => $product->get_slug(),
+                        'price' => $product->get_price(),
+                        'regular_price' => $product->get_regular_price(),
+                        'sale_price' => $product->get_sale_price(),
+                        'description' => $product->get_short_description(),
+                        'images' => $images,
+                        'permalink' => get_permalink($product->get_id()),
+                        'in_stock' => $product->is_in_stock(),
+                        'stock_status' => $product->get_stock_status()
+                    );
+                }
+            }
+            wp_reset_postdata();
+        }
+        
+        return rest_ensure_response($products_data);
+    }
+    
+    public function get_product_by_slug($request) {
+        if (!class_exists('WooCommerce')) {
+            return rest_ensure_response(array(
+                'success' => false,
+                'message' => 'WooCommerce not active'
+            ));
+        }
+        
+        $slug = $request['slug'];
+        
+        $args = array(
+            'post_type' => 'product',
+            'name' => $slug,
+            'posts_per_page' => 1,
+            'post_status' => 'publish'
+        );
+        
+        $products_query = new WP_Query($args);
+        
+        if ($products_query->have_posts()) {
+            $products_query->the_post();
+            $product = wc_get_product(get_the_ID());
+            
+            if ($product) {
+                $image_id = $product->get_image_id();
+                
+                // Get all product images
+                $images = array();
+                if ($image_id) {
+                    $image_url = wp_get_attachment_image_url($image_id, 'large');
+                    $images[] = array(
+                        'id' => $image_id,
+                        'src' => $image_url,
+                        'name' => get_the_title($image_id),
+                        'alt' => get_post_meta($image_id, '_wp_attachment_image_alt', true)
+                    );
+                }
+                
+                // Get gallery images
+                $gallery_ids = $product->get_gallery_image_ids();
+                foreach ($gallery_ids as $gallery_id) {
+                    $gallery_url = wp_get_attachment_image_url($gallery_id, 'large');
+                    if ($gallery_url) {
+                        $images[] = array(
+                            'id' => $gallery_id,
+                            'src' => $gallery_url,
+                            'name' => get_the_title($gallery_id),
+                            'alt' => get_post_meta($gallery_id, '_wp_attachment_image_alt', true)
+                        );
+                    }
+                }
+                
+                // Get categories
+                $categories = array();
+                $terms = get_the_terms(get_the_ID(), 'product_cat');
+                if ($terms && !is_wp_error($terms)) {
+                    foreach ($terms as $term) {
+                        $categories[] = array(
+                            'id' => $term->term_id,
+                            'name' => $term->name,
+                            'slug' => $term->slug
+                        );
+                    }
+                }
+                
+                $product_data = array(
+                    'id' => $product->get_id(),
+                    'name' => $product->get_name(),
+                    'slug' => $product->get_slug(),
+                    'price' => $product->get_price(),
+                    'regular_price' => $product->get_regular_price(),
+                    'sale_price' => $product->get_sale_price(),
+                    'price_html' => $product->get_price_html(),
+                    'description' => $product->get_description(),
+                    'short_description' => $product->get_short_description(),
+                    'images' => $images,
+                    'categories' => $categories,
+                    'permalink' => get_permalink($product->get_id()),
+                    'in_stock' => $product->is_in_stock(),
+                    'stock_status' => $product->get_stock_status()
+                );
+                
+                wp_reset_postdata();
+                return rest_ensure_response($product_data);
+            }
+        }
+        
+        wp_reset_postdata();
+        return new WP_Error('product_not_found', 'Product not found', array('status' => 404));
+    }
+}
