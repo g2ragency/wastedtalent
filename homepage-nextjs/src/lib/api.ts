@@ -114,9 +114,8 @@ export async function getHomepageData(): Promise<HomepageData> {
         products: [],
       },
       about_section: {
-        title: "Chi siamo",
-        description: "",
-        image: "",
+        manifesto: { text: '', images: [], gallery: [], products: [] },
+        visione: { text: '', images: [], gallery: [], products: [] },
       },
     };
   }
