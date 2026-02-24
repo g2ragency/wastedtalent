@@ -67,6 +67,20 @@ class HPM_REST_API {
             'callback' => array($this, 'get_product_by_slug'),
             'permission_callback' => '__return_true'
         ));
+        
+        // Endpoint per ottenere i lookbook (lista)
+        register_rest_route($this->namespace, '/lookbooks', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_lookbooks'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint per ottenere un singolo lookbook per slug
+        register_rest_route($this->namespace, '/lookbooks/(?P<slug>[a-zA-Z0-9-]+)', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_lookbook_by_slug'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -387,5 +401,86 @@ class HPM_REST_API {
         
         wp_reset_postdata();
         return new WP_Error('product_not_found', 'Product not found', array('status' => 404));
+    }
+    
+    /**
+     * Get lookbooks list (selected in Site Manager)
+     */
+    public function get_lookbooks($request) {
+        $settings = get_option('hpm_site_settings', array());
+        $lookbook_ids = $settings['lookbook']['lookbook_ids'] ?? array();
+        
+        $lookbooks = array();
+        
+        if (!empty($lookbook_ids)) {
+            // Get lookbooks in the order they were selected
+            foreach ($lookbook_ids as $lb_id) {
+                $post = get_post($lb_id);
+                if ($post && $post->post_status === 'publish') {
+                    $cover_image = get_post_meta($lb_id, '_lookbook_cover_image', true);
+                    $year = get_post_meta($lb_id, '_lookbook_year', true);
+                    
+                    $lookbooks[] = array(
+                        'id' => $post->ID,
+                        'title' => $post->post_title,
+                        'slug' => $post->post_name,
+                        'year' => $year ?: '',
+                        'cover_image' => $cover_image ?: '',
+                    );
+                }
+            }
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $lookbooks
+        ));
+    }
+    
+    /**
+     * Get single lookbook by slug
+     */
+    public function get_lookbook_by_slug($request) {
+        $slug = $request['slug'];
+        
+        $args = array(
+            'post_type' => 'lookbook',
+            'name' => $slug,
+            'posts_per_page' => 1,
+            'post_status' => 'publish'
+        );
+        
+        $query = new WP_Query($args);
+        
+        if ($query->have_posts()) {
+            $query->the_post();
+            $post_id = get_the_ID();
+            
+            $cover_image = get_post_meta($post_id, '_lookbook_cover_image', true);
+            $year = get_post_meta($post_id, '_lookbook_year', true);
+            $gallery = get_post_meta($post_id, '_lookbook_gallery', true);
+            
+            if (!is_array($gallery)) {
+                $gallery = array();
+            }
+            
+            $lookbook_data = array(
+                'id' => $post_id,
+                'title' => get_the_title(),
+                'slug' => $slug,
+                'year' => $year ?: '',
+                'cover_image' => $cover_image ?: '',
+                'gallery' => $gallery,
+            );
+            
+            wp_reset_postdata();
+            return rest_ensure_response(array(
+                'success' => true,
+                'data' => $lookbook_data
+            ));
+        }
+        
+        wp_reset_postdata();
+        return new WP_Error('lookbook_not_found', 'Lookbook not found', array('status' => 404));
     }
 }

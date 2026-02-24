@@ -114,8 +114,8 @@ export async function getHomepageData(): Promise<HomepageData> {
         products: [],
       },
       about_section: {
-        manifesto: { text: '', images: [], gallery: [], products: [] },
-        visione: { text: '', images: [], gallery: [], products: [] },
+        manifesto: { text: "", images: [], gallery: [], products: [] },
+        visione: { text: "", images: [], gallery: [], products: [] },
       },
     };
   }
@@ -180,8 +180,8 @@ export async function getAboutData(): Promise<AboutData> {
   } catch (error) {
     console.error("Error fetching about data:", error);
     return {
-      manifesto: { text: '', images: [], gallery: [], products: [] },
-      visione: { text: '', images: [], gallery: [], products: [] },
+      manifesto: { text: "", images: [], gallery: [], products: [] },
+      visione: { text: "", images: [], gallery: [], products: [] },
     };
   }
 }
@@ -261,6 +261,64 @@ export async function getProductBySlug(
     return product || null;
   } catch (error) {
     console.error("Error fetching product:", error);
+    return null;
+  }
+}
+
+// Lookbook interfaces
+export interface LookbookItem {
+  id: number;
+  title: string;
+  slug: string;
+  year: string;
+  cover_image: string;
+}
+
+export interface LookbookDetail {
+  id: number;
+  title: string;
+  slug: string;
+  year: string;
+  cover_image: string;
+  gallery: string[];
+}
+
+// Fetch lookbooks list
+export async function getLookbooks(): Promise<LookbookItem[]> {
+  try {
+    const res = await fetch(`${API_URL}/lookbooks`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch lookbooks");
+    }
+
+    const response = await res.json();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching lookbooks:", error);
+    return [];
+  }
+}
+
+// Fetch single lookbook by slug
+export async function getLookbookBySlug(
+  slug: string,
+): Promise<LookbookDetail | null> {
+  try {
+    const res = await fetch(`${API_URL}/lookbooks/${slug}`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch lookbook: ${res.status}`);
+    }
+
+    const response = await res.json();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching lookbook:", error);
     return null;
   }
 }

@@ -11,10 +11,12 @@ class Homepage_Manager {
     
     private $admin_menu;
     private $rest_api;
+    private $lookbook_cpt;
     
     public function __construct() {
         $this->admin_menu = new HPM_Admin_Menu();
         $this->rest_api = new HPM_REST_API();
+        $this->lookbook_cpt = new HPM_Lookbook_CPT();
     }
     
     public function init() {

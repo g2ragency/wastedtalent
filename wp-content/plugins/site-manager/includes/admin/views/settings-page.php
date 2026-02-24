@@ -25,6 +25,9 @@ if (!defined('ABSPATH')) {
                 <a href="#about" class="hpm-nav-item" data-tab="about">
                     <span class="dashicons dashicons-groups"></span> About Us
                 </a>
+                <a href="#lookbook" class="hpm-nav-item" data-tab="lookbook">
+                    <span class="dashicons dashicons-images-alt2"></span> Lookbook
+                </a>
                 <a href="#footer" class="hpm-nav-item" data-tab="footer">
                     <span class="dashicons dashicons-layout"></span> Footer
                 </a>
@@ -608,6 +611,70 @@ if (!defined('ABSPATH')) {
                     </table>
                 </div>
                 
+                <!-- Lookbook Section -->
+                <div id="lookbook" class="hpm-tab-content">
+                    <h2>Lookbook</h2>
+                    <p class="description">Seleziona quali Lookbook mostrare nella pagina generale. I Lookbook vanno creati dalla sezione <a href="<?php echo admin_url('edit.php?post_type=lookbook'); ?>">Lookbook</a> nel menu WordPress.</p>
+                    
+                    <div style="margin: 15px 0;">
+                        <a href="<?php echo admin_url('edit.php?post_type=lookbook'); ?>" class="button">Gestisci Lookbook</a>
+                        <a href="<?php echo admin_url('post-new.php?post_type=lookbook'); ?>" class="button button-primary">+ Nuovo Lookbook</a>
+                    </div>
+
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Lookbook da mostrare</label></th>
+                            <td>
+                                <?php
+                                $selected_lookbook_ids = $settings['lookbook']['lookbook_ids'] ?? array();
+                                $all_lookbooks = get_posts(array(
+                                    'post_type' => 'lookbook',
+                                    'posts_per_page' => -1,
+                                    'post_status' => 'publish',
+                                    'orderby' => 'date',
+                                    'order' => 'DESC'
+                                ));
+                                
+                                if (!empty($all_lookbooks)) {
+                                    echo '<select name="hpm_site_settings[lookbook][lookbook_ids][]" multiple class="hpm-product-select" style="width:100%; min-height:200px;">';
+                                    foreach ($all_lookbooks as $lb) {
+                                        $lb_year = get_post_meta($lb->ID, '_lookbook_year', true);
+                                        $selected = in_array($lb->ID, $selected_lookbook_ids) ? 'selected' : '';
+                                        echo '<option value="' . $lb->ID . '" ' . $selected . '>' . esc_html($lb->post_title) . ($lb_year ? ' — ' . $lb_year : '') . '</option>';
+                                    }
+                                    echo '</select>';
+                                    echo '<p class="description">Tieni premuto Ctrl/Cmd per selezionare più Lookbook. L\'ordine di selezione determina l\'ordine di visualizzazione.</p>';
+                                    
+                                    // Preview lookbook selezionati
+                                    if (!empty($selected_lookbook_ids)) {
+                                        echo '<div style="margin-top:15px; display:flex; gap:15px; flex-wrap:wrap;">';
+                                        foreach ($selected_lookbook_ids as $lb_id) {
+                                            $lb_post = get_post($lb_id);
+                                            if ($lb_post) {
+                                                $lb_cover = get_post_meta($lb_id, '_lookbook_cover_image', true);
+                                                $lb_year = get_post_meta($lb_id, '_lookbook_year', true);
+                                                echo '<div style="border:1px solid #ddd; padding:10px; text-align:center; width:150px;">';
+                                                if ($lb_cover) {
+                                                    echo '<img src="' . esc_url($lb_cover) . '" style="width:130px; height:130px; object-fit:cover;">';
+                                                } else {
+                                                    echo '<div style="width:130px; height:130px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#999;">No cover</div>';
+                                                }
+                                                echo '<p style="margin:5px 0 0; font-size:12px; font-weight:600;">' . esc_html($lb_post->post_title) . '</p>';
+                                                if ($lb_year) echo '<p style="margin:0; font-size:11px; color:#666;">' . esc_html($lb_year) . '</p>';
+                                                echo '</div>';
+                                            }
+                                        }
+                                        echo '</div>';
+                                    }
+                                } else {
+                                    echo '<p>Nessun Lookbook creato. <a href="' . admin_url('post-new.php?post_type=lookbook') . '">Crea il primo Lookbook</a></p>';
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
                 <!-- Footer Section -->
                 <div id="footer" class="hpm-tab-content">
                     <h2>Impostazioni Footer</h2>

@@ -97,6 +97,13 @@ class HPM_Admin_Menu {
             );
         }
         
+        // Lookbook
+        if (isset($input['lookbook'])) {
+            $sanitized['lookbook'] = array(
+                'lookbook_ids' => array_map('absint', (array)($input['lookbook']['lookbook_ids'] ?? [])),
+            );
+        }
+        
         return $sanitized;
     }
     

@@ -1,8 +1,8 @@
-'use client'
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { AboutData } from "@/lib/api"
+import Image from "next/image";
+import Link from "next/link";
+import { AboutData } from "@/lib/api";
 
 interface AboutContentProps {
   data: AboutData;
@@ -11,14 +11,20 @@ interface AboutContentProps {
 export default function AboutContent({ data }: AboutContentProps) {
   return (
     <main className="min-h-screen bg-white">
-
       {/* ======================== MANIFESTO ======================== */}
       <section className="pt-32 pb-16 px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-
           {/* Left: Title */}
           <div>
-            <h1 style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", fontWeight: 300, fontSize: '60px', lineHeight: '95%', letterSpacing: '0%' }}>
+            <h1
+              style={{
+                fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontWeight: 300,
+                fontSize: "60px",
+                lineHeight: "95%",
+                letterSpacing: "0%",
+              }}
+            >
               Manifesto
             </h1>
           </div>
@@ -26,19 +32,22 @@ export default function AboutContent({ data }: AboutContentProps) {
           {/* Right: Text */}
           <div>
             {data.manifesto.text ? (
-              <div 
+              <div
                 className="text-sm lg:text-base leading-relaxed prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: data.manifesto.text }}
               />
             ) : (
-              <p className="text-sm text-gray-400">Add manifesto text from Site Manager.</p>
+              <p className="text-sm text-gray-400">
+                Add manifesto text from Site Manager.
+              </p>
             )}
           </div>
         </div>
       </section>
 
       {/* Manifesto: Image + Product row */}
-      {(data.manifesto.images.length > 0 || data.manifesto.products.length > 0) && (
+      {(data.manifesto.images.length > 0 ||
+        data.manifesto.products.length > 0) && (
         <section className="pb-16 px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Large image on left */}
@@ -67,8 +76,12 @@ export default function AboutContent({ data }: AboutContentProps) {
                       />
                     )}
                   </div>
-                  <p className="font-bold text-sm">{data.manifesto.products[0].name}</p>
-                  <p className="text-sm text-gray-600">{data.manifesto.products[0].price}€</p>
+                  <p className="font-bold text-sm">
+                    {data.manifesto.products[0].name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {data.manifesto.products[0].price}€
+                  </p>
                 </Link>
               </div>
             )}
@@ -127,10 +140,17 @@ export default function AboutContent({ data }: AboutContentProps) {
       {/* ======================== VISIONE ======================== */}
       <section className="pb-16 px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
-
           {/* Left: Title */}
           <div>
-            <h2 style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", fontWeight: 300, fontSize: '60px', lineHeight: '95%', letterSpacing: '0%' }}>
+            <h2
+              style={{
+                fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+                fontWeight: 300,
+                fontSize: "60px",
+                lineHeight: "95%",
+                letterSpacing: "0%",
+              }}
+            >
               Visione
             </h2>
           </div>
@@ -138,12 +158,14 @@ export default function AboutContent({ data }: AboutContentProps) {
           {/* Right: Text */}
           <div>
             {data.visione.text ? (
-              <div 
+              <div
                 className="text-sm lg:text-base leading-relaxed prose max-w-none"
                 dangerouslySetInnerHTML={{ __html: data.visione.text }}
               />
             ) : (
-              <p className="text-sm text-gray-400">Add visione text from Site Manager.</p>
+              <p className="text-sm text-gray-400">
+                Add visione text from Site Manager.
+              </p>
             )}
           </div>
         </div>
@@ -179,8 +201,12 @@ export default function AboutContent({ data }: AboutContentProps) {
                       />
                     )}
                   </div>
-                  <p className="font-bold text-sm">{data.visione.products[0].name}</p>
-                  <p className="text-sm text-gray-600">{data.visione.products[0].price}€</p>
+                  <p className="font-bold text-sm">
+                    {data.visione.products[0].name}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {data.visione.products[0].price}€
+                  </p>
                 </Link>
               </div>
             )}
@@ -240,40 +266,68 @@ export default function AboutContent({ data }: AboutContentProps) {
       <footer className="w-full px-6 mt-20 pt-12 border-t">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Join our newsletter</h4>
+            <h4 className="font-bold text-xs mb-4 uppercase">
+              Join our newsletter
+            </h4>
             <div className="flex gap-2">
-              <input type="email" placeholder="E-mail address" className="flex-1 border-b border-black pb-2 text-sm focus:outline-none" />
+              <input
+                type="email"
+                placeholder="E-mail address"
+                className="flex-1 border-b border-black pb-2 text-sm focus:outline-none"
+              />
               <button className="text-xl">→</button>
             </div>
-            <p className="text-xs text-gray-500 mt-4">You may unsubscribe at any time. To find out more, please visit our Privacy Policy.</p>
+            <p className="text-xs text-gray-500 mt-4">
+              You may unsubscribe at any time. To find out more, please visit
+              our Privacy Policy.
+            </p>
           </div>
           <div>
             <h4 className="font-bold text-xs mb-4 uppercase">Help center</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/contact">Contact</Link></li>
-              <li><Link href="/shipping">Shipping & FAQs</Link></li>
+              <li>
+                <Link href="/contact">Contact</Link>
+              </li>
+              <li>
+                <Link href="/shipping">Shipping & FAQs</Link>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-xs mb-4 uppercase">Follow us</h4>
             <ul className="space-y-2 text-sm">
-              <li><a href="https://instagram.com" target="_blank">Instagram</a></li>
-              <li><a href="https://facebook.com" target="_blank">Facebook</a></li>
-              <li><a href="https://spotify.com" target="_blank">Spotify</a></li>
+              <li>
+                <a href="https://instagram.com" target="_blank">
+                  Instagram
+                </a>
+              </li>
+              <li>
+                <a href="https://facebook.com" target="_blank">
+                  Facebook
+                </a>
+              </li>
+              <li>
+                <a href="https://spotify.com" target="_blank">
+                  Spotify
+                </a>
+              </li>
             </ul>
           </div>
           <div>
             <h4 className="font-bold text-xs mb-4 uppercase">Policy</h4>
             <ul className="space-y-2 text-sm">
-              <li><Link href="/privacy">Privacy Policy</Link></li>
+              <li>
+                <Link href="/privacy">Privacy Policy</Link>
+              </li>
             </ul>
           </div>
         </div>
         <div className="flex items-center justify-between py-6 border-t">
-          <div className="text-sm">©2026 Wasted Talent United - All Rights Reserved</div>
+          <div className="text-sm">
+            ©2026 Wasted Talent United - All Rights Reserved
+          </div>
         </div>
       </footer>
-
     </main>
-  )
+  );
 }

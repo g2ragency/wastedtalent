@@ -24,6 +24,7 @@ define('HPM_PLUGIN_URL', plugin_dir_url(__FILE__));
 require_once HPM_PLUGIN_DIR . 'includes/class-homepage-manager.php';
 require_once HPM_PLUGIN_DIR . 'includes/admin/class-admin-menu.php';
 require_once HPM_PLUGIN_DIR . 'includes/api/class-rest-api.php';
+require_once HPM_PLUGIN_DIR . 'includes/class-lookbook-cpt.php';
 
 // Inizializza il plugin
 function hpm_init() {
