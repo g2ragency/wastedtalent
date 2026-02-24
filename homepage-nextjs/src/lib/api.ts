@@ -180,8 +180,8 @@ export async function getAboutData(): Promise<AboutData> {
   } catch (error) {
     console.error("Error fetching about data:", error);
     return {
-      manifesto: { text: '', images: [], products: [] },
-      visione: { text: '', images: [], products: [] },
+      manifesto: { text: '', images: [], gallery: [], products: [] },
+      visione: { text: '', images: [], gallery: [], products: [] },
     };
   }
 }
