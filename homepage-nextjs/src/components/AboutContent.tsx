@@ -124,7 +124,7 @@ export default function AboutContent({ data }: AboutContentProps) {
         </div>
       </section>
 
-      {/* ======================== VISIONE ======================== */}}
+      {/* ======================== VISIONE ======================== */}
       <section className="pb-16 px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
 
