@@ -54,6 +54,13 @@ class HPM_REST_API {
             'permission_callback' => '__return_true'
         ));
         
+        // Endpoint per About Us
+        register_rest_route($this->namespace, '/about', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_about'),
+            'permission_callback' => '__return_true'
+        ));
+        
         // Endpoint per ottenere un singolo prodotto per slug
         register_rest_route($this->namespace, '/products/(?P<slug>[a-zA-Z0-9-]+)', array(
             'methods' => 'GET',
@@ -181,6 +188,41 @@ class HPM_REST_API {
         }
         
         return $products_data;
+    }
+    
+    public function get_about($request) {
+        $settings = get_option('hpm_site_settings', array());
+        $about = $settings['about'] ?? array();
+        
+        // Build manifesto products data
+        $manifesto_products = array();
+        if (class_exists('WooCommerce') && !empty($about['manifesto_product_ids'])) {
+            $manifesto_products = $this->get_products_data($about['manifesto_product_ids']);
+        }
+        
+        // Build visione products data
+        $visione_products = array();
+        if (class_exists('WooCommerce') && !empty($about['visione_product_ids'])) {
+            $visione_products = $this->get_products_data($about['visione_product_ids']);
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'manifesto' => array(
+                    'text' => $about['manifesto_text'] ?? '',
+                    'images' => $about['manifesto_images'] ?? array(),
+                    'gallery' => array_values(array_filter($about['manifesto_gallery'] ?? array())),
+                    'products' => $manifesto_products,
+                ),
+                'visione' => array(
+                    'text' => $about['visione_text'] ?? '',
+                    'images' => $about['visione_images'] ?? array(),
+                    'gallery' => array_values(array_filter($about['visione_gallery'] ?? array())),
+                    'products' => $visione_products,
+                ),
+            )
+        ));
     }
     
     public function get_all_products($request) {

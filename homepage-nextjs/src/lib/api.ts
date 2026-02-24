@@ -45,10 +45,16 @@ export interface FeaturedProductsData {
   products: Product[];
 }
 
+export interface AboutSectionData {
+  text: string;
+  images: string[];
+  gallery: string[];
+  products: Product[];
+}
+
 export interface AboutData {
-  title: string;
-  description: string;
-  image: string;
+  manifesto: AboutSectionData;
+  visione: AboutSectionData;
 }
 
 export interface HomepageData {
@@ -175,9 +181,8 @@ export async function getAboutData(): Promise<AboutData> {
   } catch (error) {
     console.error("Error fetching about data:", error);
     return {
-      title: "Chi siamo",
-      description: "",
-      image: "",
+      manifesto: { text: '', images: [], products: [] },
+      visione: { text: '', images: [], products: [] },
     };
   }
 }

@@ -22,6 +22,9 @@ if (!defined('ABSPATH')) {
                 <a href="#homepage" class="hpm-nav-item" data-tab="homepage">
                     <span class="dashicons dashicons-admin-home"></span> Homepage
                 </a>
+                <a href="#about" class="hpm-nav-item" data-tab="about">
+                    <span class="dashicons dashicons-groups"></span> About Us
+                </a>
                 <a href="#footer" class="hpm-nav-item" data-tab="footer">
                     <span class="dashicons dashicons-layout"></span> Footer
                 </a>
@@ -357,6 +360,254 @@ if (!defined('ABSPATH')) {
                     </table>
                 </div>
                 
+                <!-- About Us Section -->
+                <div id="about" class="hpm-tab-content">
+                    <h2>Manifesto</h2>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Testo Manifesto</label></th>
+                            <td>
+                                <?php
+                                $manifesto_text = $settings['about']['manifesto_text'] ?? '';
+                                wp_editor(
+                                    $manifesto_text,
+                                    'about_manifesto_text',
+                                    array(
+                                        'textarea_name' => 'hpm_site_settings[about][manifesto_text]',
+                                        'media_buttons' => false,
+                                        'textarea_rows' => 8,
+                                        'teeny' => false,
+                                        'tinymce' => array(
+                                            'toolbar1' => 'bold,italic,underline,strikethrough,bullist,numlist,link,unlink,undo,redo',
+                                            'toolbar2' => ''
+                                        ),
+                                        'quicktags' => true
+                                    )
+                                );
+                                ?>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h3>Immagini Manifesto</h3>
+                    <p class="description">Carica le immagini per la sezione Manifesto (verranno mostrate in griglia sotto il testo)</p>
+                    
+                    <div class="hpm-about-images" id="manifesto-images-container">
+                        <?php
+                        $manifesto_images = $settings['about']['manifesto_images'] ?? array();
+                        if (!empty($manifesto_images)):
+                            foreach ($manifesto_images as $i => $img): ?>
+                                <div class="hpm-about-image-item" style="display:inline-block; margin:10px; position:relative;">
+                                    <img src="<?php echo esc_url($img); ?>" style="max-width:200px; max-height:200px; object-fit:cover;">
+                                    <input type="hidden" name="hpm_site_settings[about][manifesto_images][]" value="<?php echo esc_url($img); ?>">
+                                    <button type="button" class="button hpm-remove-about-image" style="position:absolute; top:0; right:0; background:red; color:white; border:none; cursor:pointer; padding:2px 8px;">✕</button>
+                                </div>
+                            <?php endforeach;
+                        endif; ?>
+                    </div>
+                    <button type="button" class="button hpm-add-about-image" data-target="manifesto-images-container" data-field="manifesto_images">
+                        + Aggiungi Immagine
+                    </button>
+
+                    <hr style="margin: 40px 0;">
+
+                    
+
+                    <h3>Gallery (3 immagini)</h3>
+                    <p class="description">1ª immagine: full width — 2ª e 3ª immagine: affiancate</p>
+                    <table class="form-table">
+                        <?php for ($g = 0; $g < 3; $g++): 
+                            $gallery_val = $settings['about']['manifesto_gallery'][$g] ?? '';
+                        ?>
+                        <tr>
+                            <th scope="row"><label>Immagine <?php echo $g + 1; ?></label></th>
+                            <td>
+                                <input type="text" 
+                                       name="hpm_site_settings[about][manifesto_gallery][<?php echo $g; ?>]"
+                                       id="manifesto_gallery_<?php echo $g; ?>" 
+                                       value="<?php echo esc_url($gallery_val); ?>"
+                                       class="regular-text">
+                                <button type="button" class="button hpm-upload-image" data-target="manifesto_gallery_<?php echo $g; ?>">
+                                    Carica Immagine
+                                </button>
+                                <?php if (!empty($gallery_val)): ?>
+                                    <div class="hpm-image-preview">
+                                        <img src="<?php echo esc_url($gallery_val); ?>" style="max-width: 200px;">
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endfor; ?>
+                    </table>
+                    <p class="description">Seleziona i prodotti da mostrare nella sezione Manifesto (con preview, nome e prezzo)</p>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Prodotti Manifesto</label></th>
+                            <td>
+                                <?php
+                                if (class_exists('WooCommerce')) {
+                                    $selected_manifesto_ids = $settings['about']['manifesto_product_ids'] ?? array();
+                                    $all_products = wc_get_products(array('limit' => -1));
+                                    
+                                    echo '<div class="hpm-product-selector">';
+                                    echo '<select name="hpm_site_settings[about][manifesto_product_ids][]" multiple class="hpm-product-select" style="width:100%; min-height:150px;">';
+                                    foreach ($all_products as $product) {
+                                        $thumb = $product->get_image_id() ? wp_get_attachment_image_url($product->get_image_id(), 'thumbnail') : '';
+                                        $selected = in_array($product->get_id(), $selected_manifesto_ids) ? 'selected' : '';
+                                        echo '<option value="' . $product->get_id() . '" ' . $selected . ' data-thumb="' . esc_url($thumb) . '">' . esc_html($product->get_name()) . ' — €' . $product->get_price() . '</option>';
+                                    }
+                                    echo '</select>';
+                                    echo '</div>';
+                                    
+                                    // Preview prodotti selezionati
+                                    if (!empty($selected_manifesto_ids)) {
+                                        echo '<div class="hpm-selected-products-preview" style="margin-top:15px; display:flex; gap:15px; flex-wrap:wrap;">';
+                                        foreach ($selected_manifesto_ids as $pid) {
+                                            $p = wc_get_product($pid);
+                                            if ($p) {
+                                                $img = $p->get_image_id() ? wp_get_attachment_image_url($p->get_image_id(), 'thumbnail') : '';
+                                                echo '<div style="border:1px solid #ddd; padding:10px; text-align:center; width:120px;">';
+                                                if ($img) echo '<img src="' . esc_url($img) . '" style="width:80px; height:80px; object-fit:cover;">';
+                                                echo '<p style="margin:5px 0 0; font-size:12px;">' . esc_html($p->get_name()) . '</p>';
+                                                echo '<p style="margin:0; font-size:11px; color:#666;">€' . $p->get_price() . '</p>';
+                                                echo '</div>';
+                                            }
+                                        }
+                                        echo '</div>';
+                                    }
+                                } else {
+                                    echo '<p>WooCommerce non è installato o attivo</p>';
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr style="margin: 40px 0;">
+
+                    <h2>Visione</h2>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Testo Visione</label></th>
+                            <td>
+                                <?php
+                                $visione_text = $settings['about']['visione_text'] ?? '';
+                                wp_editor(
+                                    $visione_text,
+                                    'about_visione_text',
+                                    array(
+                                        'textarea_name' => 'hpm_site_settings[about][visione_text]',
+                                        'media_buttons' => false,
+                                        'textarea_rows' => 8,
+                                        'teeny' => false,
+                                        'tinymce' => array(
+                                            'toolbar1' => 'bold,italic,underline,strikethrough,bullist,numlist,link,unlink,undo,redo',
+                                            'toolbar2' => ''
+                                        ),
+                                        'quicktags' => true
+                                    )
+                                );
+                                ?>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <h3>Immagini Visione</h3>
+                    <p class="description">Carica le immagini per la sezione Visione</p>
+                    
+                    <div class="hpm-about-images" id="visione-images-container">
+                        <?php
+                        $visione_images = $settings['about']['visione_images'] ?? array();
+                        if (!empty($visione_images)):
+                            foreach ($visione_images as $i => $img): ?>
+                                <div class="hpm-about-image-item" style="display:inline-block; margin:10px; position:relative;">
+                                    <img src="<?php echo esc_url($img); ?>" style="max-width:200px; max-height:200px; object-fit:cover;">
+                                    <input type="hidden" name="hpm_site_settings[about][visione_images][]" value="<?php echo esc_url($img); ?>">
+                                    <button type="button" class="button hpm-remove-about-image" style="position:absolute; top:0; right:0; background:red; color:white; border:none; cursor:pointer; padding:2px 8px;">✕</button>
+                                </div>
+                            <?php endforeach;
+                        endif; ?>
+                    </div>
+                    <button type="button" class="button hpm-add-about-image" data-target="visione-images-container" data-field="visione_images">
+                        + Aggiungi Immagine
+                    </button>
+
+                    <hr style="margin: 40px 0;">
+
+                    
+
+                    <h3>Gallery (3 immagini)</h3>
+                    <p class="description">1ª immagine: full width — 2ª e 3ª immagine: affiancate</p>
+                    <table class="form-table">
+                        <?php for ($g = 0; $g < 3; $g++): 
+                            $gallery_val = $settings['about']['visione_gallery'][$g] ?? '';
+                        ?>
+                        <tr>
+                            <th scope="row"><label>Immagine <?php echo $g + 1; ?></label></th>
+                            <td>
+                                <input type="text" 
+                                       name="hpm_site_settings[about][visione_gallery][<?php echo $g; ?>]"
+                                       id="visione_gallery_<?php echo $g; ?>" 
+                                       value="<?php echo esc_url($gallery_val); ?>"
+                                       class="regular-text">
+                                <button type="button" class="button hpm-upload-image" data-target="visione_gallery_<?php echo $g; ?>">
+                                    Carica Immagine
+                                </button>
+                                <?php if (!empty($gallery_val)): ?>
+                                    <div class="hpm-image-preview">
+                                        <img src="<?php echo esc_url($gallery_val); ?>" style="max-width: 200px;">
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endfor; ?>
+                    </table>
+                    <p class="description">Seleziona i prodotti da mostrare nella sezione Visione (con preview, nome e prezzo)</p>
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Prodotti Visione</label></th>
+                            <td>
+                                <?php
+                                if (class_exists('WooCommerce')) {
+                                    $selected_visione_ids = $settings['about']['visione_product_ids'] ?? array();
+                                    
+                                    echo '<div class="hpm-product-selector">';
+                                    echo '<select name="hpm_site_settings[about][visione_product_ids][]" multiple class="hpm-product-select" style="width:100%; min-height:150px;">';
+                                    foreach ($all_products as $product) {
+                                        $thumb = $product->get_image_id() ? wp_get_attachment_image_url($product->get_image_id(), 'thumbnail') : '';
+                                        $selected = in_array($product->get_id(), $selected_visione_ids) ? 'selected' : '';
+                                        echo '<option value="' . $product->get_id() . '" ' . $selected . ' data-thumb="' . esc_url($thumb) . '">' . esc_html($product->get_name()) . ' — €' . $product->get_price() . '</option>';
+                                    }
+                                    echo '</select>';
+                                    echo '</div>';
+                                    
+                                    // Preview prodotti selezionati
+                                    if (!empty($selected_visione_ids)) {
+                                        echo '<div class="hpm-selected-products-preview" style="margin-top:15px; display:flex; gap:15px; flex-wrap:wrap;">';
+                                        foreach ($selected_visione_ids as $pid) {
+                                            $p = wc_get_product($pid);
+                                            if ($p) {
+                                                $img = $p->get_image_id() ? wp_get_attachment_image_url($p->get_image_id(), 'thumbnail') : '';
+                                                echo '<div style="border:1px solid #ddd; padding:10px; text-align:center; width:120px;">';
+                                                if ($img) echo '<img src="' . esc_url($img) . '" style="width:80px; height:80px; object-fit:cover;">';
+                                                echo '<p style="margin:5px 0 0; font-size:12px;">' . esc_html($p->get_name()) . '</p>';
+                                                echo '<p style="margin:0; font-size:11px; color:#666;">€' . $p->get_price() . '</p>';
+                                                echo '</div>';
+                                            }
+                                        }
+                                        echo '</div>';
+                                    }
+                                } else {
+                                    echo '<p>WooCommerce non è installato o attivo</p>';
+                                }
+                                ?>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                
                 <!-- Footer Section -->
                 <div id="footer" class="hpm-tab-content">
                     <h2>Impostazioni Footer</h2>
@@ -508,6 +759,41 @@ jQuery(document).ready(function($) {
         });
         
         mediaUploader.open();
+    });
+    
+    // About Us - Add image
+    $('.hpm-add-about-image').on('click', function(e) {
+        e.preventDefault();
+        
+        var button = $(this);
+        var containerId = button.data('target');
+        var field = button.data('field');
+        
+        var mediaUploader = wp.media({
+            title: 'Seleziona Immagine',
+            button: { text: 'Aggiungi Immagine' },
+            multiple: true
+        });
+        
+        mediaUploader.on('select', function() {
+            var attachments = mediaUploader.state().get('selection').toJSON();
+            attachments.forEach(function(attachment) {
+                var html = '<div class="hpm-about-image-item" style="display:inline-block; margin:10px; position:relative;">';
+                html += '<img src="' + attachment.url + '" style="max-width:200px; max-height:200px; object-fit:cover;">';
+                html += '<input type="hidden" name="hpm_site_settings[about][' + field + '][]" value="' + attachment.url + '">';
+                html += '<button type="button" class="button hpm-remove-about-image" style="position:absolute; top:0; right:0; background:red; color:white; border:none; cursor:pointer; padding:2px 8px;">✕</button>';
+                html += '</div>';
+                $('#' + containerId).append(html);
+            });
+        });
+        
+        mediaUploader.open();
+    });
+    
+    // About Us - Remove image
+    $(document).on('click', '.hpm-remove-about-image', function(e) {
+        e.preventDefault();
+        $(this).closest('.hpm-about-image-item').remove();
     });
 });
 </script>

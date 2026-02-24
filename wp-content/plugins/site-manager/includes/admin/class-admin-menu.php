@@ -83,6 +83,20 @@ class HPM_Admin_Menu {
             $sanitized['footer'] = array();
         }
         
+        // About Us
+        if (isset($input['about'])) {
+            $sanitized['about'] = array(
+                'manifesto_text' => wp_kses_post($input['about']['manifesto_text'] ?? ''),
+                'manifesto_images' => array_map('esc_url_raw', (array)($input['about']['manifesto_images'] ?? [])),
+                'manifesto_gallery' => array_map('esc_url_raw', (array)($input['about']['manifesto_gallery'] ?? [])),
+                'manifesto_product_ids' => array_map('absint', (array)($input['about']['manifesto_product_ids'] ?? [])),
+                'visione_text' => wp_kses_post($input['about']['visione_text'] ?? ''),
+                'visione_images' => array_map('esc_url_raw', (array)($input['about']['visione_images'] ?? [])),
+                'visione_gallery' => array_map('esc_url_raw', (array)($input['about']['visione_gallery'] ?? [])),
+                'visione_product_ids' => array_map('absint', (array)($input['about']['visione_product_ids'] ?? [])),
+            );
+        }
+        
         return $sanitized;
     }
     
