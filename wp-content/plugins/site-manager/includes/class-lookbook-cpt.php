@@ -227,26 +227,37 @@ class HPM_Lookbook_CPT {
                     $(this).remove();
                 });
 
-                // Gallery: add images
+                // Gallery: add images (multiple selection)
+                var galleryFrame;
                 $('#lookbook-add-gallery-images').on('click', function(e) {
                     e.preventDefault();
-                    var uploader = wp.media({
+
+                    if (galleryFrame) {
+                        galleryFrame.open();
+                        return;
+                    }
+
+                    galleryFrame = wp.media({
                         title: 'Seleziona Immagini Gallery',
                         button: { text: 'Aggiungi alla Gallery' },
-                        multiple: true
+                        multiple: 'add',
+                        library: { type: 'image' }
                     });
-                    uploader.on('select', function() {
-                        var attachments = uploader.state().get('selection').toJSON();
+
+                    galleryFrame.on('select', function() {
+                        var attachments = galleryFrame.state().get('selection').toJSON();
                         attachments.forEach(function(attachment) {
+                            var url = attachment.sizes && attachment.sizes.large ? attachment.sizes.large.url : attachment.url;
                             var html = '<div class=\"lookbook-gallery-item\" style=\"position:relative; width:150px; height:150px; border:1px solid #ddd; cursor:move;\">';
-                            html += '<img src=\"' + attachment.url + '\" style=\"width:100%; height:100%; object-fit:cover;\">';
-                            html += '<input type=\"hidden\" name=\"lookbook_gallery[]\" value=\"' + attachment.url + '\">';
+                            html += '<img src=\"' + url + '\" style=\"width:100%; height:100%; object-fit:cover;\">';
+                            html += '<input type=\"hidden\" name=\"lookbook_gallery[]\" value=\"' + url + '\">';
                             html += '<button type=\"button\" class=\"lookbook-remove-gallery-image\" style=\"position:absolute; top:2px; right:2px; background:red; color:white; border:none; cursor:pointer; padding:2px 6px; font-size:11px; line-height:1;\">✕</button>';
                             html += '</div>';
                             $('#lookbook-gallery-container').append(html);
                         });
                     });
-                    uploader.open();
+
+                    galleryFrame.open();
                 });
 
                 // Gallery: remove image
