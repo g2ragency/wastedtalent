@@ -1,5 +1,13 @@
 import { NextResponse } from "next/server";
 
+const jsonResponse = (data: unknown, status = 200) =>
+  new NextResponse(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+
+export const dynamic = "force-dynamic";
+
 const WC_API_URL = process.env.NEXT_PUBLIC_WP_API_URL
   ? process.env.NEXT_PUBLIC_WP_API_URL.replace("/site-manager/v1", "/wc/v3")
   : "http://wasted-talent.local/wp-json/wc/v3";
@@ -14,10 +22,7 @@ export async function GET() {
     console.log("API Route - WC URL:", WC_API_URL);
 
     if (!consumerKey || !consumerSecret) {
-      return NextResponse.json(
-        { error: "Missing WooCommerce credentials" },
-        { status: 500 },
-      );
+      return jsonResponse({ error: "Missing WooCommerce credentials" }, 500 );
     }
 
     // Use Basic Auth for local development
@@ -37,19 +42,13 @@ export async function GET() {
     if (!res.ok) {
       const errorText = await res.text();
       console.error("WooCommerce API Error:", res.status, errorText);
-      return NextResponse.json(
-        { error: "Failed to fetch products", details: errorText },
-        { status: res.status },
-      );
+      return jsonResponse({ error: "Failed to fetch products", details: errorText }, res.status );
     }
 
     const products = await res.json();
-    return NextResponse.json(products);
+    return jsonResponse(products);
   } catch (error) {
     console.error("API Route Error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return jsonResponse({ error: "Internal server error" }, 500 );
   }
 }

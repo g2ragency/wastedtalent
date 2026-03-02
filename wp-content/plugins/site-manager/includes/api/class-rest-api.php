@@ -109,6 +109,31 @@ class HPM_REST_API {
             'callback' => array($this, 'get_shipping_info'),
             'permission_callback' => '__return_true'
         ));
+
+        // Auth endpoints
+        register_rest_route($this->namespace, '/auth/register', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'register_user'),
+            'permission_callback' => '__return_true'
+        ));
+
+        register_rest_route($this->namespace, '/auth/login', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'login_user'),
+            'permission_callback' => '__return_true'
+        ));
+
+        register_rest_route($this->namespace, '/auth/forgot-password', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'forgot_password'),
+            'permission_callback' => '__return_true'
+        ));
+
+        register_rest_route($this->namespace, '/auth/me', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_current_user'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -642,5 +667,215 @@ class HPM_REST_API {
                 'currency' => get_woocommerce_currency_symbol(),
             )
         ));
+    }
+
+    /**
+     * Register a new customer account
+     */
+    public function register_user($request) {
+        $params = $request->get_json_params();
+
+        $first_name = sanitize_text_field($params['firstName'] ?? '');
+        $last_name = sanitize_text_field($params['lastName'] ?? '');
+        $email = sanitize_email($params['email'] ?? '');
+        $password = $params['password'] ?? '';
+
+        // Validation
+        if (empty($first_name) || empty($last_name) || empty($email) || empty($password)) {
+            return new WP_Error('missing_fields', 'All fields are required', array('status' => 400));
+        }
+
+        if (!is_email($email)) {
+            return new WP_Error('invalid_email', 'Please enter a valid e-mail address', array('status' => 400));
+        }
+
+        if (email_exists($email)) {
+            return new WP_Error('email_exists', 'An account with this e-mail already exists', array('status' => 400));
+        }
+
+        if (strlen($password) < 8) {
+            return new WP_Error('weak_password', 'Password must be at least 8 characters', array('status' => 400));
+        }
+
+        // Create WP user with customer role
+        $user_id = wp_create_user($email, $password, $email);
+
+        if (is_wp_error($user_id)) {
+            return new WP_Error('registration_failed', $user_id->get_error_message(), array('status' => 500));
+        }
+
+        // Set user meta
+        wp_update_user(array(
+            'ID' => $user_id,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'display_name' => $first_name . ' ' . $last_name,
+            'role' => 'customer',
+        ));
+
+        // Auto-login after registration
+        $token = $this->generate_auth_token($user_id);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'token' => $token,
+                'user' => array(
+                    'id' => $user_id,
+                    'email' => $email,
+                    'firstName' => $first_name,
+                    'lastName' => $last_name,
+                ),
+            )
+        ));
+    }
+
+    /**
+     * Login user
+     */
+    public function login_user($request) {
+        $params = $request->get_json_params();
+
+        $email = sanitize_email($params['email'] ?? '');
+        $password = $params['password'] ?? '';
+
+        if (empty($email) || empty($password)) {
+            return new WP_Error('missing_fields', 'E-mail and password are required', array('status' => 400));
+        }
+
+        $user = wp_authenticate($email, $password);
+
+        if (is_wp_error($user)) {
+            return new WP_Error('invalid_credentials', 'Invalid e-mail or password', array('status' => 401));
+        }
+
+        $token = $this->generate_auth_token($user->ID);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'token' => $token,
+                'user' => array(
+                    'id' => $user->ID,
+                    'email' => $user->user_email,
+                    'firstName' => $user->first_name,
+                    'lastName' => $user->last_name,
+                ),
+            )
+        ));
+    }
+
+    /**
+     * Forgot password — send reset email
+     */
+    public function forgot_password($request) {
+        $params = $request->get_json_params();
+        $email = sanitize_email($params['email'] ?? '');
+
+        if (empty($email) || !is_email($email)) {
+            return new WP_Error('invalid_email', 'Please enter a valid e-mail address', array('status' => 400));
+        }
+
+        $user = get_user_by('email', $email);
+
+        // Always return success to prevent email enumeration
+        if ($user) {
+            $reset_key = get_password_reset_key($user);
+
+            if (!is_wp_error($reset_key)) {
+                $reset_url = network_site_url("wp-login.php?action=rp&key={$reset_key}&login=" . rawurlencode($user->user_login), 'login');
+
+                $message = "Hi " . $user->first_name . ",\n\n";
+                $message .= "Someone has requested a password reset for your Wasted Talent United account.\n\n";
+                $message .= "If this was you, click the link below to set a new password:\n";
+                $message .= $reset_url . "\n\n";
+                $message .= "If you didn't request this, you can safely ignore this email.\n\n";
+                $message .= "— Wasted Talent United";
+
+                wp_mail(
+                    $email,
+                    'Reset your password — Wasted Talent United',
+                    $message
+                );
+            }
+        }
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => 'If an account exists for this email, you will receive a password reset link.'
+        ));
+    }
+
+    /**
+     * Get current authenticated user
+     */
+    public function get_current_user($request) {
+        $token = $request->get_header('Authorization');
+
+        if (empty($token)) {
+            return new WP_Error('no_token', 'Authentication required', array('status' => 401));
+        }
+
+        $token = str_replace('Bearer ', '', $token);
+        $user_id = $this->validate_auth_token($token);
+
+        if (!$user_id) {
+            return new WP_Error('invalid_token', 'Invalid or expired token', array('status' => 401));
+        }
+
+        $user = get_user_by('ID', $user_id);
+
+        if (!$user) {
+            return new WP_Error('user_not_found', 'User not found', array('status' => 404));
+        }
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'id' => $user->ID,
+                'email' => $user->user_email,
+                'firstName' => $user->first_name,
+                'lastName' => $user->last_name,
+            )
+        ));
+    }
+
+    /**
+     * Generate a simple auth token (stored in user meta)
+     */
+    private function generate_auth_token($user_id) {
+        $token = bin2hex(random_bytes(32));
+        $expiry = time() + (30 * DAY_IN_SECONDS); // 30 days
+
+        update_user_meta($user_id, '_auth_token', $token);
+        update_user_meta($user_id, '_auth_token_expiry', $expiry);
+
+        return $token;
+    }
+
+    /**
+     * Validate auth token
+     */
+    private function validate_auth_token($token) {
+        global $wpdb;
+
+        $user_id = $wpdb->get_var($wpdb->prepare(
+            "SELECT user_id FROM {$wpdb->usermeta} WHERE meta_key = '_auth_token' AND meta_value = %s",
+            $token
+        ));
+
+        if (!$user_id) {
+            return false;
+        }
+
+        $expiry = get_user_meta($user_id, '_auth_token_expiry', true);
+
+        if ($expiry < time()) {
+            delete_user_meta($user_id, '_auth_token');
+            delete_user_meta($user_id, '_auth_token_expiry');
+            return false;
+        }
+
+        return intval($user_id);
     }
 }

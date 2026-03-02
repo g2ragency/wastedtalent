@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import { HeaderData } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface HeaderProps {
   data: HeaderData;
@@ -26,6 +27,7 @@ export default function Header({ data }: HeaderProps) {
   const isHomepage = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
   const { totalItems, openDrawer } = useCart();
+  const { user, logout } = useAuth();
   const leftMenuItems = data.left_menu || [];
   const rightMenuItems = data.right_menu || [];
 
@@ -105,6 +107,55 @@ export default function Header({ data }: HeaderProps) {
               {item.title}
             </Link>
           ))}
+
+          {/* Login / Account */}
+          {user ? (
+            <div className="flex items-center gap-4">
+              <Link
+                href="/account"
+                className="uppercase transition-opacity hover:opacity-60"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  lineHeight: "0.95",
+                  color: isHomepage ? "white" : "#222222",
+                  letterSpacing: "-0.1px",
+                  mixBlendMode: isHomepage ? "difference" : "normal",
+                }}
+              >
+                {user.firstName || "Account"}
+              </Link>
+              <button
+                onClick={logout}
+                className="uppercase transition-opacity hover:opacity-60"
+                style={{
+                  fontSize: "14px",
+                  fontWeight: "bold",
+                  lineHeight: "0.95",
+                  color: isHomepage ? "white" : "#222222",
+                  letterSpacing: "-0.1px",
+                  mixBlendMode: isHomepage ? "difference" : "normal",
+                }}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              href="/login"
+              className="uppercase transition-opacity hover:opacity-60"
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                lineHeight: "0.95",
+                color: isHomepage ? "white" : "#222222",
+                letterSpacing: "-0.1px",
+                mixBlendMode: isHomepage ? "difference" : "normal",
+              }}
+            >
+              Login
+            </Link>
+          )}
 
           {/* Cart */}
           <button

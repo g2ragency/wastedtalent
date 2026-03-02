@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
+import { AuthProvider } from "@/context/AuthContext";
 import CartDrawer from "@/components/CartDrawer";
 
 export const metadata: Metadata = {
@@ -17,11 +18,13 @@ export default function RootLayout({
   return (
     <html lang="it">
       <body>
-        <CartProvider>
+        <AuthProvider>
+          <CartProvider>
           <SmoothScroll />
           {children}
           <CartDrawer />
         </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
