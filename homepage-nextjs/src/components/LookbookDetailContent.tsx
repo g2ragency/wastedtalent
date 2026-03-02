@@ -4,12 +4,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { LookbookDetail } from "@/lib/api"
 import Footer from "@/components/Footer"
+import { ContactInfo } from "@/lib/api"
 
 interface LookbookDetailContentProps {
   lookbook: LookbookDetail;
+  contactInfo?: ContactInfo;
 }
 
-export default function LookbookDetailContent({ lookbook }: LookbookDetailContentProps) {
+export default function LookbookDetailContent({ lookbook, contactInfo }: LookbookDetailContentProps) {
   return (
     <main className="min-h-screen bg-white">
 
@@ -55,7 +57,7 @@ export default function LookbookDetailContent({ lookbook }: LookbookDetailConten
           ← Back to Lookbook
         </Link>
       </section>
-      <Footer />
+      <Footer contactInfo={contactInfo} />
 
     </main>
   )

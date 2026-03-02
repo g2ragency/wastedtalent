@@ -5,13 +5,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { WooCommerceProduct } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
-import Footer from "@/components/Footer";
+import Footer from "@/components/Footer"
+import { ContactInfo } from "@/lib/api";
 
 interface ProductDetailProps {
   product: WooCommerceProduct;
+  contactInfo?: ContactInfo;
 }
 
-export default function ProductDetail({ product }: ProductDetailProps) {
+export default function ProductDetail({ product, contactInfo }: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState("");
   const { addItem } = useCart();
   const [added, setAdded] = useState(false);
@@ -134,7 +136,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           </div>
         </div>
       </div>
-      <Footer />
+      <Footer contactInfo={contactInfo} />
     </main>
   );
 }

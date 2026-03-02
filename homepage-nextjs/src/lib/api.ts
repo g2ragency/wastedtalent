@@ -328,6 +328,12 @@ export interface ContactData {
   cf7_shortcode: string;
   cf7_form_id: number;
   form_html: string;
+  address: string;
+  email: string;
+  phone: string;
+  social_instagram: string;
+  social_facebook: string;
+  social_spotify: string;
 }
 
 export async function getContactData(): Promise<ContactData> {
@@ -344,6 +350,41 @@ export async function getContactData(): Promise<ContactData> {
     return response.data;
   } catch (error) {
     console.error("Error fetching contact data:", error);
-    return { cf7_shortcode: "", cf7_form_id: 0, form_html: "" };
+    return { cf7_shortcode: "", cf7_form_id: 0, form_html: "", address: "", email: "", phone: "", social_instagram: "", social_facebook: "", social_spotify: "" };
+  }
+}
+
+// Contact Info (site-wide: footer, contact page, etc.)
+export interface ContactInfo {
+  address: string;
+  email: string;
+  phone: string;
+  social_instagram: string;
+  social_facebook: string;
+  social_spotify: string;
+}
+
+export async function getContactInfo(): Promise<ContactInfo> {
+  try {
+    const res = await fetch(`${API_URL}/contact-info`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch contact info: ${res.status}`);
+    }
+
+    const response = await res.json();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching contact info:", error);
+    return {
+      address: "",
+      email: "",
+      phone: "",
+      social_instagram: "",
+      social_facebook: "",
+      social_spotify: "",
+    };
   }
 }

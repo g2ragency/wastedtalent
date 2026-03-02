@@ -1,9 +1,8 @@
 import { notFound } from "next/navigation";
-import { getProductBySlug, getHeaderData } from "@/lib/api";
+import { getProductBySlug, getHeaderData, getContactInfo } from "@/lib/api";
 import HeaderDynamic from "@/components/HeaderDynamic";
 import ProductDetail from "@/components/ProductDetail";
 
-// Force dynamic rendering
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
@@ -14,8 +13,11 @@ interface ProductPageProps {
 }
 
 export default async function ProductPage({ params }: ProductPageProps) {
-  const product = await getProductBySlug(params.slug);
-  const headerData = await getHeaderData();
+  const [product, headerData, contactInfo] = await Promise.all([
+    getProductBySlug(params.slug),
+    getHeaderData(),
+    getContactInfo(),
+  ]);
 
   if (!product) {
     notFound();
@@ -24,7 +26,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   return (
     <>
       <HeaderDynamic data={headerData} />
-      <ProductDetail product={product} />
+      <ProductDetail product={product} contactInfo={contactInfo} />
     </>
   );
 }

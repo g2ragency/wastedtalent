@@ -4,12 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { AboutData } from "@/lib/api";
 import Footer from "@/components/Footer"
+import { ContactInfo } from "@/lib/api"
 
 interface AboutContentProps {
   data: AboutData;
+  contactInfo?: ContactInfo;
 }
 
-export default function AboutContent({ data }: AboutContentProps) {
+export default function AboutContent({ data, contactInfo }: AboutContentProps) {
   return (
     <main className="min-h-screen bg-white">
       {/* ======================== MANIFESTO ======================== */}
@@ -262,7 +264,7 @@ export default function AboutContent({ data }: AboutContentProps) {
           </div>
         </div>
       </section>
-      <Footer />
+      <Footer contactInfo={contactInfo} />
     </main>
   );
 }

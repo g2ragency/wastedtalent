@@ -2,12 +2,14 @@
 
 import { useEffect, useRef } from "react"
 import Footer from "@/components/Footer"
+import { ContactInfo } from "@/lib/api"
 
 interface ContactContentProps {
   formHtml: string;
+  contactInfo?: ContactInfo;
 }
 
-export default function ContactContent({ formHtml }: ContactContentProps) {
+export default function ContactContent({ formHtml, contactInfo }: ContactContentProps) {
   const formWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -144,11 +146,17 @@ export default function ContactContent({ formHtml }: ContactContentProps) {
           Follow us
         </h2>
         <div className="flex items-center justify-center gap-2 text-[14px]">
-          <a href="https://instagram.com" target="_blank" className="hover:underline">Instagram</a>
+          {(contactInfo?.social_instagram || "https://instagram.com") && (
+            <a href={contactInfo?.social_instagram || "https://instagram.com"} target="_blank" className="hover:underline">Instagram</a>
+          )}
           <span className="text-gray-400">|</span>
-          <a href="https://facebook.com" target="_blank" className="hover:underline">Facebook</a>
+          {(contactInfo?.social_facebook || "https://facebook.com") && (
+            <a href={contactInfo?.social_facebook || "https://facebook.com"} target="_blank" className="hover:underline">Facebook</a>
+          )}
           <span className="text-gray-400">|</span>
-          <a href="https://spotify.com" target="_blank" className="hover:underline">Spotify</a>
+          {(contactInfo?.social_spotify || "https://spotify.com") && (
+            <a href={contactInfo?.social_spotify || "https://spotify.com"} target="_blank" className="hover:underline">Spotify</a>
+          )}
         </div>
       </section>
 
@@ -321,7 +329,7 @@ export default function ContactContent({ formHtml }: ContactContentProps) {
         }
       `}</style>
 
-      <Footer />
+      <Footer contactInfo={contactInfo} />
     </main>
   );
 }

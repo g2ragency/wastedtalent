@@ -4,13 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { WooCommerceProduct } from "@/lib/api";
-import Footer from "@/components/Footer";
+import Footer from "@/components/Footer"
+import { ContactInfo } from "@/lib/api";
 
 interface ShopContentProps {
   products: WooCommerceProduct[];
+  contactInfo?: ContactInfo;
 }
 
-export default function ShopContent({ products }: ShopContentProps) {
+export default function ShopContent({ products, contactInfo }: ShopContentProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -153,7 +155,7 @@ export default function ShopContent({ products }: ShopContentProps) {
           </div>
         )}
       </div>
-      <Footer />
+      <Footer contactInfo={contactInfo} />
     </main>
   );
 }

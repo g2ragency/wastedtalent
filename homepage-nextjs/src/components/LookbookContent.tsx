@@ -4,12 +4,14 @@ import Image from "next/image"
 import Link from "next/link"
 import { LookbookItem } from "@/lib/api"
 import Footer from "@/components/Footer"
+import { ContactInfo } from "@/lib/api"
 
 interface LookbookContentProps {
   lookbooks: LookbookItem[];
+  contactInfo?: ContactInfo;
 }
 
-export default function LookbookContent({ lookbooks }: LookbookContentProps) {
+export default function LookbookContent({ lookbooks, contactInfo }: LookbookContentProps) {
   // Group lookbooks in pairs for alternating rows
   const rows: LookbookItem[][] = [];
   for (let i = 0; i < lookbooks.length; i += 2) {
@@ -95,7 +97,7 @@ export default function LookbookContent({ lookbooks }: LookbookContentProps) {
           <p className="text-gray-400 text-sm">No lookbooks available.</p>
         )}
       </section>
-      <Footer />
+      <Footer contactInfo={contactInfo} />
 
     </main>
   )

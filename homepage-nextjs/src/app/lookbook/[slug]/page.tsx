@@ -1,4 +1,4 @@
-import { getHeaderData, getLookbookBySlug } from "@/lib/api";
+import { getHeaderData, getLookbookBySlug, getContactInfo } from "@/lib/api";
 import HeaderDynamic from "@/components/HeaderDynamic";
 import LookbookDetailContent from "@/components/LookbookDetailContent";
 import { notFound } from "next/navigation";
@@ -8,9 +8,10 @@ interface LookbookDetailPageProps {
 }
 
 export default async function LookbookDetailPage({ params }: LookbookDetailPageProps) {
-  const [headerData, lookbook] = await Promise.all([
+  const [headerData, lookbook, contactInfo] = await Promise.all([
     getHeaderData(),
     getLookbookBySlug(params.slug),
+    getContactInfo(),
   ]);
 
   if (!lookbook) {
@@ -20,7 +21,7 @@ export default async function LookbookDetailPage({ params }: LookbookDetailPageP
   return (
     <>
       <HeaderDynamic data={headerData} />
-      <LookbookDetailContent lookbook={lookbook} />
+      <LookbookDetailContent lookbook={lookbook} contactInfo={contactInfo} />
     </>
   );
 }

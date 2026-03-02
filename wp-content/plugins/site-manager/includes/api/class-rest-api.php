@@ -82,10 +82,17 @@ class HPM_REST_API {
             'permission_callback' => '__return_true'
         ));
         
-        // Endpoint per contatti (shortcode CF7)
+        // Endpoint per contatti (shortcode CF7 + info)
         register_rest_route($this->namespace, '/contacts', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_contacts'),
+            'permission_callback' => '__return_true'
+        ));
+
+        // Endpoint per info contatto (usato dal footer e altre pagine)
+        register_rest_route($this->namespace, '/contact-info', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_contact_info'),
             'permission_callback' => '__return_true'
         ));
         
@@ -503,7 +510,8 @@ class HPM_REST_API {
      */
     public function get_contacts($request) {
         $settings = get_option('hpm_site_settings', array());
-        $cf7_shortcode = $settings['contacts']['cf7_shortcode'] ?? '';
+        $contacts = $settings['contacts'] ?? array();
+        $cf7_shortcode = $contacts['cf7_shortcode'] ?? '';
         
         // Render the shortcode to get the HTML form
         $form_html = '';
@@ -525,10 +533,36 @@ class HPM_REST_API {
                 'cf7_shortcode' => $cf7_shortcode,
                 'cf7_form_id' => $form_id,
                 'form_html' => $form_html,
+                'address' => $contacts['address'] ?? '',
+                'email' => $contacts['email'] ?? '',
+                'phone' => $contacts['phone'] ?? '',
+                'social_instagram' => $contacts['social_instagram'] ?? '',
+                'social_facebook' => $contacts['social_facebook'] ?? '',
+                'social_spotify' => $contacts['social_spotify'] ?? '',
             )
         ));
     }
-    
+
+    /**
+     * Get contact info (address, email, phone, socials) — used site-wide (footer, etc.)
+     */
+    public function get_contact_info($request) {
+        $settings = get_option('hpm_site_settings', array());
+        $contacts = $settings['contacts'] ?? array();
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'address' => $contacts['address'] ?? '',
+                'email' => $contacts['email'] ?? '',
+                'phone' => $contacts['phone'] ?? '',
+                'social_instagram' => $contacts['social_instagram'] ?? '',
+                'social_facebook' => $contacts['social_facebook'] ?? '',
+                'social_spotify' => $contacts['social_spotify'] ?? '',
+            )
+        ));
+    }
+
     /**
      * Submit contact form via CF7 REST API proxy
      */

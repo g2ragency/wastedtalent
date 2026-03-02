@@ -104,6 +104,12 @@ class HPM_Admin_Menu {
         if (isset($input['contacts'])) {
             $sanitized['contacts'] = array(
                 'cf7_shortcode' => stripslashes($input['contacts']['cf7_shortcode'] ?? ''),
+                'address' => sanitize_textarea_field($input['contacts']['address'] ?? ''),
+                'email' => sanitize_email($input['contacts']['email'] ?? ''),
+                'phone' => sanitize_text_field($input['contacts']['phone'] ?? ''),
+                'social_instagram' => esc_url_raw($input['contacts']['social_instagram'] ?? ''),
+                'social_facebook' => esc_url_raw($input['contacts']['social_facebook'] ?? ''),
+                'social_spotify' => esc_url_raw($input['contacts']['social_spotify'] ?? ''),
             );
         }
 

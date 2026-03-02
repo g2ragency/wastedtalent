@@ -690,6 +690,81 @@ if (!defined('ABSPATH')) {
                             </td>
                         </tr>
                     </table>
+
+                    <hr style="margin: 40px 0;">
+
+                    <h2>Informazioni di Contatto</h2>
+                    <p class="description">Questi dati verranno utilizzati nel footer e nella pagina contatti in tutto il sito.</p>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Indirizzo Sede Legale</label></th>
+                            <td>
+                                <textarea name="hpm_site_settings[contacts][address]" 
+                                          class="large-text" 
+                                          rows="3" 
+                                          placeholder="Es: Via Roma 1, 20121 Milano (MI), Italia"><?php echo esc_textarea($settings['contacts']['address'] ?? ''); ?></textarea>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label>Email</label></th>
+                            <td>
+                                <input type="email" 
+                                       name="hpm_site_settings[contacts][email]" 
+                                       value="<?php echo esc_attr($settings['contacts']['email'] ?? ''); ?>" 
+                                       class="regular-text" 
+                                       placeholder="Es: info@wastedtalent.com">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label>Telefono</label></th>
+                            <td>
+                                <input type="text" 
+                                       name="hpm_site_settings[contacts][phone]" 
+                                       value="<?php echo esc_attr($settings['contacts']['phone'] ?? ''); ?>" 
+                                       class="regular-text" 
+                                       placeholder="Es: +39 02 1234567">
+                            </td>
+                        </tr>
+                    </table>
+
+                    <hr style="margin: 40px 0;">
+
+                    <h2>Social Media</h2>
+                    <p class="description">Inserisci gli URL dei profili social. Verranno mostrati nel footer e nella pagina contatti.</p>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row"><label>Instagram</label></th>
+                            <td>
+                                <input type="url" 
+                                       name="hpm_site_settings[contacts][social_instagram]" 
+                                       value="<?php echo esc_url($settings['contacts']['social_instagram'] ?? ''); ?>" 
+                                       class="regular-text" 
+                                       placeholder="https://instagram.com/wastedtalent">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label>Facebook</label></th>
+                            <td>
+                                <input type="url" 
+                                       name="hpm_site_settings[contacts][social_facebook]" 
+                                       value="<?php echo esc_url($settings['contacts']['social_facebook'] ?? ''); ?>" 
+                                       class="regular-text" 
+                                       placeholder="https://facebook.com/wastedtalent">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label>Spotify</label></th>
+                            <td>
+                                <input type="url" 
+                                       name="hpm_site_settings[contacts][social_spotify]" 
+                                       value="<?php echo esc_url($settings['contacts']['social_spotify'] ?? ''); ?>" 
+                                       class="regular-text" 
+                                       placeholder="https://open.spotify.com/...">
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
                 <!-- Footer Section -->

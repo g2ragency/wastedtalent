@@ -1,7 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
+import { ContactInfo } from "@/lib/api";
 
-export default function Footer() {
+interface FooterProps {
+  contactInfo?: ContactInfo;
+}
+
+export default function Footer({ contactInfo }: FooterProps) {
+  const instagramUrl = contactInfo?.social_instagram || "https://instagram.com";
+  const facebookUrl = contactInfo?.social_facebook || "https://facebook.com";
+  const spotifyUrl = contactInfo?.social_spotify || "https://spotify.com";
+
   return (
     <footer className="w-full bg-[#f0f0f0] mt-[50px]">
       <div className="px-16 py-16">
@@ -47,21 +56,27 @@ export default function Footer() {
             </h4>
             <div className="w-full h-[1px] bg-[#999999] mb-6"></div>
             <ul className="space-y-0 text-[12px]">
-              <li>
-                <a href="https://instagram.com" target="_blank">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href="https://facebook.com" target="_blank">
-                  Facebook
-                </a>
-              </li>
-              <li>
-                <a href="https://spotify.com" target="_blank">
-                  Spotify
-                </a>
-              </li>
+              {instagramUrl && (
+                <li>
+                  <a href={instagramUrl} target="_blank">
+                    Instagram
+                  </a>
+                </li>
+              )}
+              {facebookUrl && (
+                <li>
+                  <a href={facebookUrl} target="_blank">
+                    Facebook
+                  </a>
+                </li>
+              )}
+              {spotifyUrl && (
+                <li>
+                  <a href={spotifyUrl} target="_blank">
+                    Spotify
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
           <div>
