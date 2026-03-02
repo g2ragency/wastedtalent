@@ -134,6 +134,18 @@ class HPM_REST_API {
             'callback' => array($this, 'get_current_user'),
             'permission_callback' => '__return_true'
         ));
+
+        register_rest_route($this->namespace, '/auth/update-profile', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'update_profile'),
+            'permission_callback' => '__return_true'
+        ));
+
+        register_rest_route($this->namespace, '/auth/change-password', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'change_password'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -836,6 +848,148 @@ class HPM_REST_API {
                 'email' => $user->user_email,
                 'firstName' => $user->first_name,
                 'lastName' => $user->last_name,
+            )
+        ));
+    }
+
+    /**
+     * Update user profile (first name, last name, email)
+     */
+    public function update_profile($request) {
+        $token = $request->get_header('Authorization');
+
+        if (empty($token)) {
+            return new WP_Error('no_token', 'Authentication required', array('status' => 401));
+        }
+
+        $token = str_replace('Bearer ', '', $token);
+        $user_id = $this->validate_auth_token($token);
+
+        if (!$user_id) {
+            return new WP_Error('invalid_token', 'Invalid or expired token', array('status' => 401));
+        }
+
+        $params = $request->get_json_params();
+        $first_name = sanitize_text_field($params['firstName'] ?? '');
+        $last_name = sanitize_text_field($params['lastName'] ?? '');
+        $email = sanitize_email($params['email'] ?? '');
+
+        if (empty($first_name) || empty($last_name) || empty($email)) {
+            return new WP_Error('missing_fields', 'All fields are required', array('status' => 400));
+        }
+
+        if (!is_email($email)) {
+            return new WP_Error('invalid_email', 'Please enter a valid e-mail address', array('status' => 400));
+        }
+
+        // Check if email is already taken by another user
+        $existing_user = get_user_by('email', $email);
+        if ($existing_user && $existing_user->ID !== $user_id) {
+            return new WP_Error('email_exists', 'This e-mail is already in use by another account', array('status' => 400));
+        }
+
+        wp_update_user(array(
+            'ID' => $user_id,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'user_email' => $email,
+            'display_name' => $first_name . ' ' . $last_name,
+        ));
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'id' => $user_id,
+                'email' => $email,
+                'firstName' => $first_name,
+                'lastName' => $last_name,
+            )
+        ));
+    }
+
+    /**
+     * Change password — requires old password, validates complexity, checks last 5 passwords
+     */
+    public function change_password($request) {
+        $token = $request->get_header('Authorization');
+
+        if (empty($token)) {
+            return new WP_Error('no_token', 'Authentication required', array('status' => 401));
+        }
+
+        $token = str_replace('Bearer ', '', $token);
+        $user_id = $this->validate_auth_token($token);
+
+        if (!$user_id) {
+            return new WP_Error('invalid_token', 'Invalid or expired token', array('status' => 401));
+        }
+
+        $params = $request->get_json_params();
+        $current_password = $params['currentPassword'] ?? '';
+        $new_password = $params['newPassword'] ?? '';
+        $confirm_password = $params['confirmPassword'] ?? '';
+
+        if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+            return new WP_Error('missing_fields', 'All fields are required', array('status' => 400));
+        }
+
+        // Verify current password
+        $user = get_user_by('ID', $user_id);
+        if (!wp_check_password($current_password, $user->user_pass, $user_id)) {
+            return new WP_Error('wrong_password', 'Current password is incorrect', array('status' => 400));
+        }
+
+        // Validate new password matches confirmation
+        if ($new_password !== $confirm_password) {
+            return new WP_Error('password_mismatch', 'New passwords do not match', array('status' => 400));
+        }
+
+        // Validate password complexity: 8-20 chars, at least 1 uppercase, at least 1 symbol
+        if (strlen($new_password) < 8 || strlen($new_password) > 20) {
+            return new WP_Error('password_length', 'Password must be between 8 and 20 characters', array('status' => 400));
+        }
+
+        if (!preg_match('/[A-Z]/', $new_password)) {
+            return new WP_Error('password_uppercase', 'Password must contain at least one uppercase letter', array('status' => 400));
+        }
+
+        if (!preg_match('/[^a-zA-Z0-9]/', $new_password)) {
+            return new WP_Error('password_symbol', 'Password must contain at least one symbol', array('status' => 400));
+        }
+
+        // Check against last 5 passwords
+        $password_history = get_user_meta($user_id, '_password_history', true);
+        if (!is_array($password_history)) {
+            $password_history = array();
+        }
+
+        foreach ($password_history as $old_hash) {
+            if (wp_check_password($new_password, $old_hash)) {
+                return new WP_Error('password_reused', 'Password must not be the same as your last 5 passwords', array('status' => 400));
+            }
+        }
+
+        // Also check against the current password
+        if (wp_check_password($new_password, $user->user_pass, $user_id)) {
+            return new WP_Error('password_reused', 'Password must not be the same as your last 5 passwords', array('status' => 400));
+        }
+
+        // Save current password hash to history before changing
+        array_unshift($password_history, $user->user_pass);
+        $password_history = array_slice($password_history, 0, 5); // Keep only last 5
+        update_user_meta($user_id, '_password_history', $password_history);
+
+        // Update password
+        wp_set_password($new_password, $user_id);
+
+        // Re-generate auth token since password change invalidates sessions
+        $new_token = $this->generate_auth_token($user_id);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'message' => 'Password changed successfully',
+            'data' => array(
+                'token' => $new_token,
             )
         ));
     }

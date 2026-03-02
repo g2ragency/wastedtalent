@@ -35,6 +35,16 @@ interface AuthContextType {
   forgotPassword: (
     email: string,
   ) => Promise<{ success: boolean; message?: string }>;
+  updateProfile: (
+    firstName: string,
+    lastName: string,
+    email: string,
+  ) => Promise<{ success: boolean; message?: string }>;
+  changePassword: (
+    currentPassword: string,
+    newPassword: string,
+    confirmPassword: string,
+  ) => Promise<{ success: boolean; message?: string }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -195,6 +205,102 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const updateProfile = useCallback(
+    async (
+      firstName: string,
+      lastName: string,
+      email: string,
+    ): Promise<{ success: boolean; message?: string }> => {
+      try {
+        const currentToken =
+          token ||
+          localStorage.getItem(TOKEN_KEY) ||
+          sessionStorage.getItem(TOKEN_KEY);
+
+        if (!currentToken) {
+          return { success: false, message: "Not authenticated" };
+        }
+
+        const res = await fetch("/api/auth/update-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: currentToken,
+            firstName,
+            lastName,
+            email,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          setUser(data.data);
+          return { success: true };
+        }
+
+        return { success: false, message: data.message || "Update failed" };
+      } catch {
+        return { success: false, message: "Network error. Please try again." };
+      }
+    },
+    [token],
+  );
+
+  const changePassword = useCallback(
+    async (
+      currentPassword: string,
+      newPassword: string,
+      confirmPassword: string,
+    ): Promise<{ success: boolean; message?: string }> => {
+      try {
+        const currentToken =
+          token ||
+          localStorage.getItem(TOKEN_KEY) ||
+          sessionStorage.getItem(TOKEN_KEY);
+
+        if (!currentToken) {
+          return { success: false, message: "Not authenticated" };
+        }
+
+        const res = await fetch("/api/auth/change-password", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: currentToken,
+            currentPassword,
+            newPassword,
+            confirmPassword,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          // Update token since password change generates a new one
+          if (data.data?.token) {
+            const newToken = data.data.token;
+            setToken(newToken);
+            if (localStorage.getItem(TOKEN_KEY)) {
+              localStorage.setItem(TOKEN_KEY, newToken);
+            } else {
+              sessionStorage.setItem(TOKEN_KEY, newToken);
+            }
+          }
+          return { success: true };
+        }
+
+        return {
+          success: false,
+          message: data.message || "Password change failed",
+        };
+      } catch {
+        return { success: false, message: "Network error. Please try again." };
+      }
+    },
+    [token],
+  );
+
   return (
     <AuthContext.Provider
       value={{
@@ -205,6 +311,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         register,
         logout,
         forgotPassword,
+        updateProfile,
+        changePassword,
       }}
     >
       {children}
