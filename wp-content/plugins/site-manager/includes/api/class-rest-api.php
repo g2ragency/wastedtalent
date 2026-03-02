@@ -81,6 +81,20 @@ class HPM_REST_API {
             'callback' => array($this, 'get_lookbook_by_slug'),
             'permission_callback' => '__return_true'
         ));
+        
+        // Endpoint per contatti (shortcode CF7)
+        register_rest_route($this->namespace, '/contacts', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_contacts'),
+            'permission_callback' => '__return_true'
+        ));
+        
+        // Endpoint proxy per invio CF7
+        register_rest_route($this->namespace, '/contact-submit', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'submit_contact_form'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -482,5 +496,70 @@ class HPM_REST_API {
         
         wp_reset_postdata();
         return new WP_Error('lookbook_not_found', 'Lookbook not found', array('status' => 404));
+    }
+
+    /**
+     * Get contact page data
+     */
+    public function get_contacts($request) {
+        $settings = get_option('hpm_site_settings', array());
+        $cf7_shortcode = $settings['contacts']['cf7_shortcode'] ?? '';
+        
+        // Render the shortcode to get the HTML form
+        $form_html = '';
+        if (!empty($cf7_shortcode)) {
+            $form_html = do_shortcode($cf7_shortcode);
+        }
+        
+        // Extract the real numeric form ID from rendered HTML (data-wpcf7-id attribute)
+        $form_id = 0;
+        if (preg_match('/data-wpcf7-id=["\'](\d+)["\']/', $form_html, $matches)) {
+            $form_id = intval($matches[1]);
+        } elseif (preg_match('/name=["\']_wpcf7["\'].*?value=["\'](\d+)["\']/', $form_html, $matches)) {
+            $form_id = intval($matches[1]);
+        }
+        
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'cf7_shortcode' => $cf7_shortcode,
+                'cf7_form_id' => $form_id,
+                'form_html' => $form_html,
+            )
+        ));
+    }
+    
+    /**
+     * Submit contact form via CF7 REST API proxy
+     */
+    public function submit_contact_form($request) {
+        $params = $request->get_json_params();
+        $form_id = intval($params['formId'] ?? 0);
+        
+        if (!$form_id) {
+            return new WP_Error('no_form_id', 'Form ID is required', array('status' => 400));
+        }
+        
+        // Forward to CF7 REST API
+        $cf7_url = rest_url("contact-form-7/v1/contact-forms/{$form_id}/feedback");
+        
+        $body = array();
+        foreach ($params as $key => $value) {
+            if ($key !== 'formId') {
+                $body[$key] = sanitize_text_field($value);
+            }
+        }
+        
+        $response = wp_remote_post($cf7_url, array(
+            'body' => $body,
+            'timeout' => 30,
+        ));
+        
+        if (is_wp_error($response)) {
+            return new WP_Error('cf7_error', $response->get_error_message(), array('status' => 500));
+        }
+        
+        $body = json_decode(wp_remote_retrieve_body($response), true);
+        return rest_ensure_response($body);
     }
 }

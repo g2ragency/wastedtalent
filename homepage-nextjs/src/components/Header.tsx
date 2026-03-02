@@ -13,19 +13,19 @@ export default function Header() {
         <nav className="flex flex-1 items-center gap-8">
           <Link
             href="/shop"
-            className="text-sm font-medium uppercase tracking-wider text-black transition-opacity hover:opacity-60"
+            className="text-sm font-medium uppercase tracking-wider text-[#222222] transition-opacity hover:opacity-60"
           >
             SHOP
           </Link>
           <Link
             href="/lookbook"
-            className="text-sm font-medium uppercase tracking-wider text-black transition-opacity hover:opacity-60"
+            className="text-sm font-medium uppercase tracking-wider text-[#222222] transition-opacity hover:opacity-60"
           >
             LOOKBOOK
           </Link>
           <Link
             href="/about"
-            className="text-sm font-medium uppercase tracking-wider text-black transition-opacity hover:opacity-60"
+            className="text-sm font-medium uppercase tracking-wider text-[#222222] transition-opacity hover:opacity-60"
           >
             ABOUT
           </Link>
@@ -45,7 +45,7 @@ export default function Header() {
         {/* Right Menu */}
         <nav className="flex flex-1 items-center justify-end gap-8">
           <button
-            className="flex items-center gap-1 text-sm font-medium uppercase tracking-wider text-black transition-opacity hover:opacity-60"
+            className="flex items-center gap-1 text-sm font-medium uppercase tracking-wider text-[#222222] transition-opacity hover:opacity-60"
             onClick={() => {
               // Toggle currency logic here
               setCurrency(currency === "€ EUR (IT)" ? "$ USD" : "€ EUR (IT)");
@@ -68,13 +68,13 @@ export default function Header() {
           </button>
           <Link
             href="/account"
-            className="text-sm font-medium uppercase tracking-wider text-black transition-opacity hover:opacity-60"
+            className="text-sm font-medium uppercase tracking-wider text-[#222222] transition-opacity hover:opacity-60"
           >
             LOGIN
           </Link>
           <Link
             href="/cart"
-            className="text-sm font-medium uppercase tracking-wider text-black transition-opacity hover:opacity-60"
+            className="text-sm font-medium uppercase tracking-wider text-[#222222] transition-opacity hover:opacity-60"
           >
             CART
           </Link>

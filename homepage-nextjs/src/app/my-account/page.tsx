@@ -15,7 +15,7 @@ export default async function MyAccountPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Link
               href="/my-account/orders"
-              className="border p-6 hover:border-black transition-colors"
+              className="border p-6 hover:border-[#222222] transition-colors"
             >
               <h2 className="text-xl font-bold mb-2">Orders</h2>
               <p className="text-sm text-gray-600">View your order history</p>
@@ -23,7 +23,7 @@ export default async function MyAccountPage() {
 
             <Link
               href="/my-account/addresses"
-              className="border p-6 hover:border-black transition-colors"
+              className="border p-6 hover:border-[#222222] transition-colors"
             >
               <h2 className="text-xl font-bold mb-2">Addresses</h2>
               <p className="text-sm text-gray-600">Manage shipping addresses</p>
@@ -31,7 +31,7 @@ export default async function MyAccountPage() {
 
             <Link
               href="/my-account/account-details"
-              className="border p-6 hover:border-black transition-colors"
+              className="border p-6 hover:border-[#222222] transition-colors"
             >
               <h2 className="text-xl font-bold mb-2">Account Details</h2>
               <p className="text-sm text-gray-600">

@@ -12,6 +12,7 @@ const nextConfig = {
         hostname: "**",
       },
     ],
+    unoptimized: true,
   },
   // Configurazione per coesistere con WordPress
   trailingSlash: false,

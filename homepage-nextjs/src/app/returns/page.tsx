@@ -36,7 +36,7 @@ export default async function ReturnsPage() {
             <div className="mt-8">
               <a
                 href="mailto:support@wastedtalent.com"
-                className="inline-block bg-black text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
+                className="inline-block bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
               >
                 Contact Support
               </a>

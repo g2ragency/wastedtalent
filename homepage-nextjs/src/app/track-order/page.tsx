@@ -19,7 +19,7 @@ export default async function TrackOrderPage() {
               <input
                 type="text"
                 placeholder="Enter your order number"
-                className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-black"
+                className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[#222222]"
               />
             </div>
 
@@ -30,11 +30,11 @@ export default async function TrackOrderPage() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-black"
+                className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[#222222]"
               />
             </div>
 
-            <button className="w-full bg-black text-white py-4 font-bold text-sm uppercase hover:bg-gray-800 transition-colors">
+            <button className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase hover:bg-gray-800 transition-colors">
               Track Order
             </button>
           </div>

@@ -22,7 +22,7 @@ export default async function Home() {
   } catch (error) {
     console.error("Error loading data:", error);
     return (
-      <main className="min-h-screen flex items-center justify-center bg-black text-white">
+      <main className="min-h-screen flex items-center justify-center bg-[#222222] text-white">
         <div className="text-center">
           <h1 className="text-4xl font-light mb-4">Wasted Talent</h1>
           <p className="text-lg">Sito in manutenzione. Torna presto!</p>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { WooCommerceProduct } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
+import Footer from "@/components/Footer";
 
 interface ProductDetailProps {
   product: WooCommerceProduct;
@@ -30,7 +31,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
   };
 
   return (
-    <main className="min-h-screen bg-white pt-24 pb-16">
+    <main className="min-h-screen bg-white pt-24">
       <div className="w-full px-6">
         <div className="flex gap-12">
           {/* Left: Scrollable Images */}
@@ -99,8 +100,8 @@ export default function ProductDetail({ product }: ProductDetailProps) {
                       onClick={() => setSelectedSize(size)}
                       className={`py-3 text-sm font-bold border transition-colors ${
                         selectedSize === size
-                          ? "bg-black text-white border-black"
-                          : "bg-white text-black border-gray-300 hover:border-black"
+                          ? "bg-[#222222] text-white border-[#222222]"
+                          : "bg-white text-[#222222] border-gray-300 hover:border-[#222222]"
                       }`}
                     >
                       {size}
@@ -112,7 +113,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
               {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-black text-white py-4 font-bold text-sm uppercase mb-4 hover:bg-gray-800 transition-colors"
+                className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase mb-4 hover:bg-gray-800 transition-colors"
               >
                 {added ? "Added to cart!" : "Add to cart"}
               </button>
@@ -133,77 +134,7 @@ export default function ProductDetail({ product }: ProductDetailProps) {
           </div>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="w-full px-6 mt-20 pt-12 border-t">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">
-              Join our newsletter
-            </h4>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="E-mail address"
-                className="flex-1 border-b border-black pb-2 text-sm focus:outline-none"
-              />
-              <button className="text-xl">→</button>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              You may unsubscribe at any time. To find out more, please visit
-              our Privacy Policy.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Help center</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/contact">Contact</Link>
-              </li>
-              <li>
-                <Link href="/shipping">Shipping & FAQs</Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Follow us</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="https://instagram.com" target="_blank">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href="https://facebook.com" target="_blank">
-                  Facebook
-                </a>
-              </li>
-              <li>
-                <a href="https://spotify.com" target="_blank">
-                  Spotify
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Policy</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/privacy">Privacy Policy</Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between py-6 border-t">
-          <div className="text-sm">
-            ©2026 Wasted Talent United - All Rights Reserved
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

@@ -63,7 +63,7 @@ export default function Header({ data }: HeaderProps) {
                 fontSize: "14px",
                 fontWeight: "bold",
                 lineHeight: "0.95",
-                color: isHomepage ? "white" : "black",
+                color: isHomepage ? "white" : "#222222",
                 letterSpacing: "-0.1px",
                 mixBlendMode: isHomepage ? "difference" : "normal",
               }}
@@ -97,7 +97,7 @@ export default function Header({ data }: HeaderProps) {
                 fontSize: "14px",
                 fontWeight: "bold",
                 lineHeight: "0.95",
-                color: isHomepage ? "white" : "black",
+                color: isHomepage ? "white" : "#222222",
                 letterSpacing: "-0.1px",
                 mixBlendMode: isHomepage ? "difference" : "normal",
               }}
@@ -114,7 +114,7 @@ export default function Header({ data }: HeaderProps) {
               fontSize: "14px",
               fontWeight: "bold",
               lineHeight: "0.95",
-              color: isHomepage ? "white" : "black",
+              color: isHomepage ? "white" : "#222222",
               letterSpacing: "-0.1px",
               mixBlendMode: isHomepage ? "difference" : "normal",
             }}

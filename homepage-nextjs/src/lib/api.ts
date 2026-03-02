@@ -322,3 +322,28 @@ export async function getLookbookBySlug(
     return null;
   }
 }
+
+// Contact
+export interface ContactData {
+  cf7_shortcode: string;
+  cf7_form_id: number;
+  form_html: string;
+}
+
+export async function getContactData(): Promise<ContactData> {
+  try {
+    const res = await fetch(`${API_URL}/contacts`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch contacts: ${res.status}`);
+    }
+
+    const response = await res.json();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching contact data:", error);
+    return { cf7_shortcode: "", cf7_form_id: 0, form_html: "" };
+  }
+}

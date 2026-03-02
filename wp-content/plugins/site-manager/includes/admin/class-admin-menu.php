@@ -23,6 +23,9 @@ class HPM_Admin_Menu {
         
         // Enqueue editor
         wp_enqueue_editor();
+        
+        // Enqueue jQuery UI sortable for drag & drop
+        wp_enqueue_script('jquery-ui-sortable');
     }
     
     public function register_menu() {
@@ -97,6 +100,13 @@ class HPM_Admin_Menu {
             );
         }
         
+        // Contacts
+        if (isset($input['contacts'])) {
+            $sanitized['contacts'] = array(
+                'cf7_shortcode' => stripslashes($input['contacts']['cf7_shortcode'] ?? ''),
+            );
+        }
+
         // Lookbook
         if (isset($input['lookbook'])) {
             $sanitized['lookbook'] = array(

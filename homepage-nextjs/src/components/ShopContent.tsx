@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { WooCommerceProduct } from "@/lib/api";
+import Footer from "@/components/Footer";
 
 interface ShopContentProps {
   products: WooCommerceProduct[];
@@ -22,7 +23,7 @@ export default function ShopContent({ products }: ShopContentProps) {
   }, []);
 
   return (
-    <main className="min-h-screen bg-white pt-24 pb-16">
+    <main className="min-h-screen bg-white pt-24">
       <div className="w-full px-6">
         {/* Header */}
         <div className="mb-12">
@@ -152,77 +153,7 @@ export default function ShopContent({ products }: ShopContentProps) {
           </div>
         )}
       </div>
-
-      {/* Footer */}
-      <footer className="w-full px-6 mt-20 pt-12 border-t">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">
-              Join our newsletter
-            </h4>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="E-mail address"
-                className="flex-1 border-b border-black pb-2 text-sm focus:outline-none"
-              />
-              <button className="text-xl">→</button>
-            </div>
-            <p className="text-xs text-gray-500 mt-4">
-              You may unsubscribe at any time. To find out more, please visit
-              our Privacy Policy.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Help center</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/contact">Contact</Link>
-              </li>
-              <li>
-                <Link href="/shipping">Shipping & FAQs</Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Follow us</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="https://instagram.com" target="_blank">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a href="https://facebook.com" target="_blank">
-                  Facebook
-                </a>
-              </li>
-              <li>
-                <a href="https://spotify.com" target="_blank">
-                  Spotify
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="font-bold text-xs mb-4 uppercase">Policy</h4>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/privacy">Privacy Policy</Link>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between py-6 border-t">
-          <div className="text-sm">
-            ©2026 Wasted Talent United - All Rights Reserved
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }

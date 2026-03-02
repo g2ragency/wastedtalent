@@ -31,6 +31,9 @@ if (!defined('ABSPATH')) {
                 <a href="#footer" class="hpm-nav-item" data-tab="footer">
                     <span class="dashicons dashicons-layout"></span> Footer
                 </a>
+                <a href="#contacts" class="hpm-nav-item" data-tab="contacts">
+                    <span class="dashicons dashicons-email"></span> Contacts
+                </a>
             </nav>
         </div>
 
@@ -621,55 +624,69 @@ if (!defined('ABSPATH')) {
                         <a href="<?php echo admin_url('post-new.php?post_type=lookbook'); ?>" class="button button-primary">+ Nuovo Lookbook</a>
                     </div>
 
+                    <?php
+                    $selected_lookbook_ids = $settings['lookbook']['lookbook_ids'] ?? array();
+                    $all_lookbooks = get_posts(array(
+                        'post_type' => 'lookbook',
+                        'posts_per_page' => -1,
+                        'post_status' => 'publish',
+                        'orderby' => 'date',
+                        'order' => 'DESC'
+                    ));
+                    
+                    if (!empty($all_lookbooks)) {
+                        // Sort: selected first (in saved order), then unselected
+                        $sorted_lookbooks = array();
+                        foreach ($selected_lookbook_ids as $sid) {
+                            foreach ($all_lookbooks as $lb) {
+                                if ($lb->ID == $sid) { $sorted_lookbooks[] = $lb; break; }
+                            }
+                        }
+                        foreach ($all_lookbooks as $lb) {
+                            if (!in_array($lb->ID, $selected_lookbook_ids)) { $sorted_lookbooks[] = $lb; }
+                        }
+                        
+                        echo '<div class="hpm-lookbook-checkboxes" id="hpm-lookbook-sortable" style="display:flex; gap:20px; flex-wrap:wrap; margin-top:10px;">';
+                        foreach ($sorted_lookbooks as $lb) {
+                            $lb_year = get_post_meta($lb->ID, '_lookbook_year', true);
+                            $lb_cover = get_post_meta($lb->ID, '_lookbook_cover_image', true);
+                            $checked = in_array($lb->ID, $selected_lookbook_ids) ? 'checked' : '';
+                            
+                            echo '<div class="hpm-lookbook-card" data-id="' . $lb->ID . '" style="border:2px solid ' . ($checked ? '#2271b1' : '#ddd') . '; border-radius:6px; padding:10px; text-align:center; width:160px; transition:all 0.2s; position:relative; cursor:grab;">';
+                            echo '<input type="checkbox" class="hpm-lookbook-checkbox" value="' . $lb->ID . '" ' . $checked . ' style="position:absolute; top:8px; right:8px; margin:0; width:18px; height:18px; cursor:pointer; z-index:2;">';
+                            if ($lb_cover) {
+                                echo '<img src="' . esc_url($lb_cover) . '" style="width:140px; height:140px; object-fit:cover; border-radius:4px; display:block; margin:0 auto 8px;">';
+                            } else {
+                                echo '<div style="width:140px; height:140px; background:#f0f0f0; border-radius:4px; display:flex; align-items:center; justify-content:center; color:#999; margin:0 auto 8px;">No cover</div>';
+                            }
+                            echo '<p style="margin:0; font-size:13px; font-weight:600;">' . esc_html($lb->post_title) . '</p>';
+                            if ($lb_year) echo '<p style="margin:2px 0 0; font-size:12px; color:#666;">' . esc_html($lb_year) . '</p>';
+                            echo '</div>';
+                        }
+                        echo '</div>';
+                        echo '<div id="hpm-lookbook-hidden-inputs"></div>';
+                        echo '<p class="description" style="margin-top:10px;">Clicca sulle card per selezionare/deselezionare. Trascina le card per riordinare.</p>';
+                    } else {
+                        echo '<p>Nessun Lookbook creato. <a href="' . admin_url('post-new.php?post_type=lookbook') . '">Crea il primo Lookbook</a></p>';
+                    }
+                    ?>
+                </div>
+
+                <!-- Contacts Section -->
+                <div id="contacts" class="hpm-tab-content">
+                    <h2>Contact Page</h2>
+                    <p class="description">Inserisci lo shortcode di Contact Form 7 che verrà renderizzato nella pagina contatti del sito.</p>
+                    
                     <table class="form-table">
                         <tr>
-                            <th scope="row"><label>Lookbook da mostrare</label></th>
+                            <th scope="row"><label>Contact Form 7 Shortcode</label></th>
                             <td>
-                                <?php
-                                $selected_lookbook_ids = $settings['lookbook']['lookbook_ids'] ?? array();
-                                $all_lookbooks = get_posts(array(
-                                    'post_type' => 'lookbook',
-                                    'posts_per_page' => -1,
-                                    'post_status' => 'publish',
-                                    'orderby' => 'date',
-                                    'order' => 'DESC'
-                                ));
-                                
-                                if (!empty($all_lookbooks)) {
-                                    echo '<select name="hpm_site_settings[lookbook][lookbook_ids][]" multiple class="hpm-product-select" style="width:100%; min-height:200px;">';
-                                    foreach ($all_lookbooks as $lb) {
-                                        $lb_year = get_post_meta($lb->ID, '_lookbook_year', true);
-                                        $selected = in_array($lb->ID, $selected_lookbook_ids) ? 'selected' : '';
-                                        echo '<option value="' . $lb->ID . '" ' . $selected . '>' . esc_html($lb->post_title) . ($lb_year ? ' — ' . $lb_year : '') . '</option>';
-                                    }
-                                    echo '</select>';
-                                    echo '<p class="description">Tieni premuto Ctrl/Cmd per selezionare più Lookbook. L\'ordine di selezione determina l\'ordine di visualizzazione.</p>';
-                                    
-                                    // Preview lookbook selezionati
-                                    if (!empty($selected_lookbook_ids)) {
-                                        echo '<div style="margin-top:15px; display:flex; gap:15px; flex-wrap:wrap;">';
-                                        foreach ($selected_lookbook_ids as $lb_id) {
-                                            $lb_post = get_post($lb_id);
-                                            if ($lb_post) {
-                                                $lb_cover = get_post_meta($lb_id, '_lookbook_cover_image', true);
-                                                $lb_year = get_post_meta($lb_id, '_lookbook_year', true);
-                                                echo '<div style="border:1px solid #ddd; padding:10px; text-align:center; width:150px;">';
-                                                if ($lb_cover) {
-                                                    echo '<img src="' . esc_url($lb_cover) . '" style="width:130px; height:130px; object-fit:cover;">';
-                                                } else {
-                                                    echo '<div style="width:130px; height:130px; background:#f0f0f0; display:flex; align-items:center; justify-content:center; color:#999;">No cover</div>';
-                                                }
-                                                echo '<p style="margin:5px 0 0; font-size:12px; font-weight:600;">' . esc_html($lb_post->post_title) . '</p>';
-                                                if ($lb_year) echo '<p style="margin:0; font-size:11px; color:#666;">' . esc_html($lb_year) . '</p>';
-                                                echo '</div>';
-                                            }
-                                        }
-                                        echo '</div>';
-                                    }
-                                } else {
-                                    echo '<p>Nessun Lookbook creato. <a href="' . admin_url('post-new.php?post_type=lookbook') . '">Crea il primo Lookbook</a></p>';
-                                }
-                                ?>
+                                <input type="text" 
+                                       name="hpm_site_settings[contacts][cf7_shortcode]" 
+                                       value="<?php echo esc_attr($settings['contacts']['cf7_shortcode'] ?? ''); ?>" 
+                                       class="large-text" 
+                                       placeholder="Es: [contact-form-7 id=&quot;123&quot; title=&quot;Contact form&quot;]">
+                                <p class="description">Incolla qui lo shortcode generato da Contact Form 7. Lo trovi in <a href="<?php echo admin_url('admin.php?page=wpcf7'); ?>">Contact &gt; Contact Forms</a>.</p>
                             </td>
                         </tr>
                     </table>
@@ -681,6 +698,7 @@ if (!defined('ABSPATH')) {
                     <p class="description">Le impostazioni del footer saranno disponibili prossimamente.</p>
                 </div>
                 
+                <input type="hidden" name="hpm_active_tab" id="hpm_active_tab" value="">
                 <?php submit_button('Salva Impostazioni', 'primary', 'hpm_save_settings'); ?>
             </form>
         </div>
@@ -763,23 +781,61 @@ if (!defined('ABSPATH')) {
 .hpm-slider-tab:hover {
     color: #2271b1;
 }
+
+.hpm-lookbook-card {
+    transition: all 0.2s ease;
+    cursor: grab;
+    user-select: none;
+}
+.hpm-lookbook-card:hover {
+    border-color: #2271b1 !important;
+    box-shadow: 0 2px 8px rgba(34, 113, 177, 0.15);
+}
+.hpm-lookbook-card:active {
+    cursor: grabbing;
+}
+.hpm-lookbook-card.ui-sortable-helper {
+    box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    transform: rotate(1.5deg);
+    cursor: grabbing;
+    z-index: 100;
+}
+.hpm-lookbook-sortable-placeholder {
+    width: 160px;
+    border: 2px dashed #2271b1;
+    border-radius: 6px;
+    background: #f0f6fc;
+    min-height: 200px;
+}
 </style>
 
 <script>
 jQuery(document).ready(function($) {
+    // Function to activate a tab
+    function activateTab(tab) {
+        $('.hpm-nav-item').removeClass('active');
+        $('.hpm-nav-item[data-tab="' + tab + '"]').addClass('active');
+        $('.hpm-tab-content').removeClass('active');
+        $('#' + tab).addClass('active');
+        $('#hpm_active_tab').val(tab);
+    }
+
+    // Restore active tab from URL hash or POST data
+    var savedTab = '<?php echo isset($_POST["hpm_active_tab"]) ? esc_js(sanitize_text_field($_POST["hpm_active_tab"])) : ""; ?>';
+    var hashTab = window.location.hash.replace('#', '');
+    if (savedTab && $('.hpm-nav-item[data-tab="' + savedTab + '"]').length) {
+        activateTab(savedTab);
+    } else if (hashTab && $('.hpm-nav-item[data-tab="' + hashTab + '"]').length) {
+        activateTab(hashTab);
+    }
+
     // Tab navigation
     $('.hpm-nav-item').on('click', function(e) {
         e.preventDefault();
         
         var tab = $(this).data('tab');
-        
-        // Update nav items
-        $('.hpm-nav-item').removeClass('active');
-        $(this).addClass('active');
-        
-        // Update content
-        $('.hpm-tab-content').removeClass('active');
-        $('#' + tab).addClass('active');
+        activateTab(tab);
+        window.location.hash = tab;
     });
     
     // Slider tabs navigation
@@ -828,6 +884,46 @@ jQuery(document).ready(function($) {
         mediaUploader.open();
     });
     
+    // Lookbook: sync hidden inputs from checked cards in DOM order
+    function syncLookbookInputs() {
+        var container = $('#hpm-lookbook-hidden-inputs');
+        container.empty();
+        $('#hpm-lookbook-sortable .hpm-lookbook-card').each(function() {
+            var cb = $(this).find('.hpm-lookbook-checkbox');
+            if (cb.is(':checked')) {
+                container.append('<input type="hidden" name="hpm_site_settings[lookbook][lookbook_ids][]" value="' + cb.val() + '">');
+            }
+        });
+    }
+
+    // Init sortable
+    if ($('#hpm-lookbook-sortable').length) {
+        $('#hpm-lookbook-sortable').sortable({
+            placeholder: 'hpm-lookbook-sortable-placeholder',
+            tolerance: 'pointer',
+            cancel: 'input[type=checkbox]',
+            update: function() {
+                syncLookbookInputs();
+            }
+        });
+    }
+
+    // Lookbook checkbox card toggle
+    $(document).on('change', '.hpm-lookbook-checkbox', function() {
+        var card = $(this).closest('.hpm-lookbook-card');
+        card.css('border-color', this.checked ? '#2271b1' : '#ddd');
+        syncLookbookInputs();
+    });
+
+    // Init hidden inputs on load
+    syncLookbookInputs();
+
+    // Save active tab before form submit
+    $('form').on('submit', function() {
+        var activeTab = $('.hpm-nav-item.active').data('tab');
+        $('#hpm_active_tab').val(activeTab || 'header');
+    });
+
     // About Us - Add image
     $('.hpm-add-about-image').on('click', function(e) {
         e.preventDefault();

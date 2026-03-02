@@ -32,7 +32,7 @@ export default function CheckoutContent() {
             </p>
             <button
               onClick={() => router.push("/shop")}
-              className="bg-black text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
+              className="bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
             >
               Continue shopping
             </button>
@@ -128,7 +128,7 @@ export default function CheckoutContent() {
                     className={`w-full border px-4 py-3 focus:outline-none ${
                       errors.email
                         ? "border-red-500"
-                        : "border-gray-300 focus:border-black"
+                        : "border-gray-300 focus:border-[#222222]"
                     }`}
                     placeholder="your@email.com"
                   />
@@ -156,7 +156,7 @@ export default function CheckoutContent() {
                       className={`w-full border px-4 py-3 focus:outline-none ${
                         errors.firstName
                           ? "border-red-500"
-                          : "border-gray-300 focus:border-black"
+                          : "border-gray-300 focus:border-[#222222]"
                       }`}
                     />
                     {errors.firstName && (
@@ -177,7 +177,7 @@ export default function CheckoutContent() {
                       className={`w-full border px-4 py-3 focus:outline-none ${
                         errors.lastName
                           ? "border-red-500"
-                          : "border-gray-300 focus:border-black"
+                          : "border-gray-300 focus:border-[#222222]"
                       }`}
                     />
                     {errors.lastName && (
@@ -200,7 +200,7 @@ export default function CheckoutContent() {
                     className={`w-full border px-4 py-3 focus:outline-none ${
                       errors.address
                         ? "border-red-500"
-                        : "border-gray-300 focus:border-black"
+                        : "border-gray-300 focus:border-[#222222]"
                     }`}
                   />
                   {errors.address && (
@@ -223,7 +223,7 @@ export default function CheckoutContent() {
                       className={`w-full border px-4 py-3 focus:outline-none ${
                         errors.city
                           ? "border-red-500"
-                          : "border-gray-300 focus:border-black"
+                          : "border-gray-300 focus:border-[#222222]"
                       }`}
                     />
                     {errors.city && (
@@ -242,7 +242,7 @@ export default function CheckoutContent() {
                       className={`w-full border px-4 py-3 focus:outline-none ${
                         errors.postalCode
                           ? "border-red-500"
-                          : "border-gray-300 focus:border-black"
+                          : "border-gray-300 focus:border-[#222222]"
                       }`}
                     />
                     {errors.postalCode && (
@@ -261,7 +261,7 @@ export default function CheckoutContent() {
                     name="country"
                     value={formData.country}
                     onChange={handleInputChange}
-                    className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-black"
+                    className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[#222222]"
                   >
                     <option value="">Select a country</option>
                     <option value="IT">Italy</option>
@@ -290,7 +290,7 @@ export default function CheckoutContent() {
                     className={`w-full border px-4 py-3 focus:outline-none ${
                       errors.phone
                         ? "border-red-500"
-                        : "border-gray-300 focus:border-black"
+                        : "border-gray-300 focus:border-[#222222]"
                     }`}
                   />
                   {errors.phone && (
@@ -366,7 +366,7 @@ export default function CheckoutContent() {
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-black text-white py-4 font-bold text-sm uppercase hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+                className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase hover:bg-gray-800 transition-colors disabled:bg-gray-400"
               >
                 {isProcessing ? "Processing..." : "Place Order"}
               </button>
