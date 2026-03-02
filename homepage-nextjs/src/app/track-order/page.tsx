@@ -34,7 +34,7 @@ export default async function TrackOrderPage() {
               />
             </div>
 
-            <button className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase hover:bg-gray-800 transition-colors">
+            <button className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all">
               Track Order
             </button>
           </div>

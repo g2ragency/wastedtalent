@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { WooCommerceProduct } from "@/lib/api";
 import { useCart } from "@/context/CartContext";
-import Footer from "@/components/Footer"
+import Footer from "@/components/Footer";
 import { ContactInfo } from "@/lib/api";
 
 interface ProductDetailProps {
@@ -13,14 +13,17 @@ interface ProductDetailProps {
   contactInfo?: ContactInfo;
 }
 
-export default function ProductDetail({ product, contactInfo }: ProductDetailProps) {
+export default function ProductDetail({
+  product,
+  contactInfo,
+}: ProductDetailProps) {
   const [selectedSize, setSelectedSize] = useState("");
   const { addItem } = useCart();
-  const [added, setAdded] = useState(false);
 
   const sizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
   const handleAddToCart = () => {
+    if (!selectedSize) return;
     addItem({
       id: product.id,
       name: product.name,
@@ -28,8 +31,6 @@ export default function ProductDetail({ product, contactInfo }: ProductDetailPro
       slug: product.slug,
       image: product.images?.[0]?.src,
     });
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2000);
   };
 
   return (
@@ -115,9 +116,14 @@ export default function ProductDetail({ product, contactInfo }: ProductDetailPro
               {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
-                className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase mb-4 hover:bg-gray-800 transition-colors"
+                disabled={!selectedSize}
+                className={`w-full py-4 font-bold text-sm uppercase mb-4 transition-all border border-[#222222] ${
+                  !selectedSize
+                    ? "bg-[#222222] text-white opacity-50 cursor-not-allowed"
+                    : "bg-[#222222] text-white hover:bg-transparent hover:text-[#222222]"
+                }`}
               >
-                {added ? "Added to cart!" : "Add to cart"}
+                Add to cart
               </button>
 
               {/* Product Description */}

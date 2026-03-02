@@ -350,7 +350,17 @@ export async function getContactData(): Promise<ContactData> {
     return response.data;
   } catch (error) {
     console.error("Error fetching contact data:", error);
-    return { cf7_shortcode: "", cf7_form_id: 0, form_html: "", address: "", email: "", phone: "", social_instagram: "", social_facebook: "", social_spotify: "" };
+    return {
+      cf7_shortcode: "",
+      cf7_form_id: 0,
+      form_html: "",
+      address: "",
+      email: "",
+      phone: "",
+      social_instagram: "",
+      social_facebook: "",
+      social_spotify: "",
+    };
   }
 }
 
@@ -385,6 +395,35 @@ export async function getContactInfo(): Promise<ContactInfo> {
       social_instagram: "",
       social_facebook: "",
       social_spotify: "",
+    };
+  }
+}
+
+// Shipping Info
+export interface ShippingInfo {
+  free_shipping_enabled: boolean;
+  free_shipping_threshold: number;
+  currency: string;
+}
+
+export async function getShippingInfo(): Promise<ShippingInfo> {
+  try {
+    const res = await fetch(`${API_URL}/shipping-info`, {
+      next: { revalidate: 60 },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch shipping info: ${res.status}`);
+    }
+
+    const response = await res.json();
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching shipping info:", error);
+    return {
+      free_shipping_enabled: false,
+      free_shipping_threshold: 0,
+      currency: "€",
     };
   }
 }

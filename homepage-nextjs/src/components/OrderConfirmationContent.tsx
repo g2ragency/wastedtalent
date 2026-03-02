@@ -40,7 +40,7 @@ export default function OrderConfirmationContent() {
           <div className="space-y-4">
             <Link
               href="/shop"
-              className="inline-block bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
+              className="inline-block bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all"
             >
               Continue shopping
             </Link>

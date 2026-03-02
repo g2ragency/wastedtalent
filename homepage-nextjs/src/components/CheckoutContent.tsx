@@ -32,7 +32,7 @@ export default function CheckoutContent() {
             </p>
             <button
               onClick={() => router.push("/shop")}
-              className="bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
+              className="bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all"
             >
               Continue shopping
             </button>
@@ -366,7 +366,7 @@ export default function CheckoutContent() {
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase hover:bg-gray-800 transition-colors disabled:bg-gray-400"
+                className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all disabled:bg-gray-400"
               >
                 {isProcessing ? "Processing..." : "Place Order"}
               </button>

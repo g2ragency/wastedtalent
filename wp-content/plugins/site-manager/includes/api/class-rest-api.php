@@ -102,6 +102,13 @@ class HPM_REST_API {
             'callback' => array($this, 'submit_contact_form'),
             'permission_callback' => '__return_true'
         ));
+
+        // Endpoint per info spedizione (soglia free shipping da WooCommerce)
+        register_rest_route($this->namespace, '/shipping-info', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_shipping_info'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -595,5 +602,45 @@ class HPM_REST_API {
         
         $body = json_decode(wp_remote_retrieve_body($response), true);
         return rest_ensure_response($body);
+    }
+
+    /**
+     * Get shipping info — reads free shipping threshold from WooCommerce shipping zones
+     */
+    public function get_shipping_info($request) {
+        $free_shipping_threshold = 0;
+        $free_shipping_enabled = false;
+
+        if (class_exists('WooCommerce')) {
+            // Get all shipping zones (including zone 0 = Rest of the World)
+            $zones = \WC_Shipping_Zones::get_zones();
+            $zones[] = array('zone_id' => 0); // Add "Rest of the World" zone
+
+            foreach ($zones as $zone_data) {
+                $zone = new \WC_Shipping_Zone($zone_data['zone_id']);
+                $methods = $zone->get_shipping_methods(true); // only enabled methods
+
+                foreach ($methods as $method) {
+                    if ($method->id === 'free_shipping') {
+                        $free_shipping_enabled = true;
+                        $min_amount = $method->get_option('min_amount', 0);
+                        if ($min_amount > 0) {
+                            // If multiple zones have free shipping, take the highest threshold
+                            $free_shipping_threshold = max($free_shipping_threshold, floatval($min_amount));
+                        }
+                        break 2; // Found it, stop searching
+                    }
+                }
+            }
+        }
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'free_shipping_enabled' => $free_shipping_enabled,
+                'free_shipping_threshold' => $free_shipping_threshold,
+                'currency' => get_woocommerce_currency_symbol(),
+            )
+        ));
     }
 }

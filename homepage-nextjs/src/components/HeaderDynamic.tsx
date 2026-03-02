@@ -25,7 +25,7 @@ export default function Header({ data }: HeaderProps) {
   const pathname = usePathname();
   const isHomepage = pathname === "/";
   const [scrolled, setScrolled] = useState(false);
-  const { totalItems } = useCart();
+  const { totalItems, openDrawer } = useCart();
   const leftMenuItems = data.left_menu || [];
   const rightMenuItems = data.right_menu || [];
 
@@ -107,8 +107,8 @@ export default function Header({ data }: HeaderProps) {
           ))}
 
           {/* Cart */}
-          <Link
-            href="/cart"
+          <button
+            onClick={openDrawer}
             className="uppercase transition-opacity hover:opacity-60"
             style={{
               fontSize: "14px",
@@ -120,7 +120,7 @@ export default function Header({ data }: HeaderProps) {
             }}
           >
             Cart {totalItems > 0 && `(${totalItems})`}
-          </Link>
+          </button>
         </nav>
       </div>
     </header>

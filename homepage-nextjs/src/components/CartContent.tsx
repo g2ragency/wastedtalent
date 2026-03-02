@@ -17,7 +17,7 @@ export default function CartContent() {
             <p className="text-gray-500 mb-6">Your cart is empty</p>
             <Link
               href="/shop"
-              className="inline-block bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase hover:bg-gray-800 transition-colors"
+              className="inline-block bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all"
             >
               Continue shopping
             </Link>
@@ -133,7 +133,7 @@ export default function CartContent() {
                 </div>
               </div>
 
-              <button className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase mb-3 hover:bg-gray-800 transition-colors">
+              <button className="w-full bg-[#222222] text-white py-4 font-bold text-sm uppercase mb-3 border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all">
                 <Link href="/checkout" className="block">
                   Proceed to checkout
                 </Link>

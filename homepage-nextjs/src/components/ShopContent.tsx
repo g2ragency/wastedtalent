@@ -80,7 +80,7 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
         {scrolled && <div style={{ height: "60px" }} />}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[20px] mt-12">
           {products.map((product) => (
             <Link
               key={product.id}

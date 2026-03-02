@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/CartDrawer";
 
 export const metadata: Metadata = {
   title: "Wasted Talent United",
@@ -19,6 +20,7 @@ export default function RootLayout({
         <CartProvider>
           <SmoothScroll />
           {children}
+          <CartDrawer />
         </CartProvider>
       </body>
     </html>
