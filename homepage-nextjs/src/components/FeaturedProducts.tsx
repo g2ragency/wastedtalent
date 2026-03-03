@@ -7,7 +7,7 @@ interface FeaturedProductsProps {
 }
 
 export default function FeaturedProducts({ data }: FeaturedProductsProps) {
-  if (!data.products || data.products.length === 0) {
+  if (!data || !data.products || data.products.length === 0) {
     return null;
   }
 
