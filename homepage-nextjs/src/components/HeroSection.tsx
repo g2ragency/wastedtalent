@@ -13,7 +13,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
 
-  const slides = data.slides || [];
+  const slides = data?.slides || [];
 
   const goToSlide = (index: number) => {
     setDirection(index > currentSlide % slides.length ? "forward" : "backward");
