@@ -146,6 +146,24 @@ class HPM_REST_API {
             'callback' => array($this, 'change_password'),
             'permission_callback' => '__return_true'
         ));
+
+        register_rest_route($this->namespace, '/auth/get-address', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_address'),
+            'permission_callback' => '__return_true'
+        ));
+
+        register_rest_route($this->namespace, '/auth/update-address', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'update_address'),
+            'permission_callback' => '__return_true'
+        ));
+
+        register_rest_route($this->namespace, '/auth/orders', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_user_orders'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -991,6 +1009,203 @@ class HPM_REST_API {
             'data' => array(
                 'token' => $new_token,
             )
+        ));
+    }
+
+    /**
+     * Get user shipping or billing address
+     */
+    public function get_address($request) {
+        $token = $request->get_header('Authorization');
+
+        if (empty($token)) {
+            return new WP_Error('no_token', 'Authentication required', array('status' => 401));
+        }
+
+        $token = str_replace('Bearer ', '', $token);
+        $user_id = $this->validate_auth_token($token);
+
+        if (!$user_id) {
+            return new WP_Error('invalid_token', 'Invalid or expired token', array('status' => 401));
+        }
+
+        $type = sanitize_text_field($request->get_param('type')); // 'shipping' or 'billing'
+
+        if (!in_array($type, array('shipping', 'billing'))) {
+            return new WP_Error('invalid_type', 'Type must be shipping or billing', array('status' => 400));
+        }
+
+        $address = array(
+            'firstName'  => get_user_meta($user_id, $type . '_first_name', true),
+            'lastName'   => get_user_meta($user_id, $type . '_last_name', true),
+            'company'    => get_user_meta($user_id, $type . '_company', true),
+            'address1'   => get_user_meta($user_id, $type . '_address_1', true),
+            'address2'   => get_user_meta($user_id, $type . '_address_2', true),
+            'city'       => get_user_meta($user_id, $type . '_city', true),
+            'state'      => get_user_meta($user_id, $type . '_state', true),
+            'postcode'   => get_user_meta($user_id, $type . '_postcode', true),
+            'country'    => get_user_meta($user_id, $type . '_country', true),
+            'phone'      => get_user_meta($user_id, $type . '_phone', true),
+        );
+
+        // Add email for billing only
+        if ($type === 'billing') {
+            $address['email'] = get_user_meta($user_id, 'billing_email', true);
+        }
+
+        // Get country name from code
+        if (!empty($address['country']) && class_exists('WC_Countries')) {
+            $wc_countries = new WC_Countries();
+            $countries = $wc_countries->get_countries();
+            $address['countryName'] = $countries[$address['country']] ?? $address['country'];
+        } else {
+            $address['countryName'] = $address['country'];
+        }
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $address
+        ));
+    }
+
+    /**
+     * Update user shipping or billing address
+     */
+    public function update_address($request) {
+        $token = $request->get_header('Authorization');
+
+        if (empty($token)) {
+            return new WP_Error('no_token', 'Authentication required', array('status' => 401));
+        }
+
+        $token = str_replace('Bearer ', '', $token);
+        $user_id = $this->validate_auth_token($token);
+
+        if (!$user_id) {
+            return new WP_Error('invalid_token', 'Invalid or expired token', array('status' => 401));
+        }
+
+        $params = $request->get_json_params();
+        $type = sanitize_text_field($params['type'] ?? '');
+
+        if (!in_array($type, array('shipping', 'billing'))) {
+            return new WP_Error('invalid_type', 'Type must be shipping or billing', array('status' => 400));
+        }
+
+        $fields = array(
+            'firstName'  => $type . '_first_name',
+            'lastName'   => $type . '_last_name',
+            'company'    => $type . '_company',
+            'address1'   => $type . '_address_1',
+            'address2'   => $type . '_address_2',
+            'city'       => $type . '_city',
+            'state'      => $type . '_state',
+            'postcode'   => $type . '_postcode',
+            'country'    => $type . '_country',
+            'phone'      => $type . '_phone',
+        );
+
+        if ($type === 'billing') {
+            $fields['email'] = 'billing_email';
+        }
+
+        foreach ($fields as $param_key => $meta_key) {
+            if (isset($params[$param_key])) {
+                update_user_meta($user_id, $meta_key, sanitize_text_field($params[$param_key]));
+            }
+        }
+
+        // Return updated address
+        $address = array();
+        foreach ($fields as $param_key => $meta_key) {
+            $address[$param_key] = get_user_meta($user_id, $meta_key, true);
+        }
+
+        // Get country name from code
+        if (!empty($address['country']) && class_exists('WC_Countries')) {
+            $wc_countries = new WC_Countries();
+            $countries = $wc_countries->get_countries();
+            $address['countryName'] = $countries[$address['country']] ?? $address['country'];
+        } else {
+            $address['countryName'] = $address['country'] ?? '';
+        }
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $address
+        ));
+    }
+
+    /**
+     * Get user orders from WooCommerce
+     */
+    public function get_user_orders($request) {
+        $token = $request->get_header('Authorization');
+
+        if (empty($token)) {
+            return new WP_Error('no_token', 'Authentication required', array('status' => 401));
+        }
+
+        $token = str_replace('Bearer ', '', $token);
+        $user_id = $this->validate_auth_token($token);
+
+        if (!$user_id) {
+            return new WP_Error('invalid_token', 'Invalid or expired token', array('status' => 401));
+        }
+
+        if (!class_exists('WooCommerce')) {
+            return new WP_Error('woocommerce_not_active', 'WooCommerce is not active', array('status' => 500));
+        }
+
+        $orders = wc_get_orders(array(
+            'customer_id' => $user_id,
+            'limit' => 50,
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ));
+
+        $orders_data = array();
+
+        foreach ($orders as $order) {
+            $items = array();
+            foreach ($order->get_items() as $item) {
+                $product = $item->get_product();
+                $image_url = '';
+                if ($product) {
+                    $image_id = $product->get_image_id();
+                    if ($image_id) {
+                        $image_url = wp_get_attachment_image_url($image_id, 'thumbnail');
+                    }
+                }
+
+                $items[] = array(
+                    'name' => $item->get_name(),
+                    'quantity' => $item->get_quantity(),
+                    'total' => $item->get_total(),
+                    'image' => $image_url ?: '',
+                    'slug' => $product ? $product->get_slug() : '',
+                );
+            }
+
+            $orders_data[] = array(
+                'id' => $order->get_id(),
+                'number' => $order->get_order_number(),
+                'status' => $order->get_status(),
+                'statusLabel' => wc_get_order_status_name($order->get_status()),
+                'dateCreated' => $order->get_date_created() ? $order->get_date_created()->format('Y-m-d H:i:s') : '',
+                'total' => $order->get_total(),
+                'currency' => $order->get_currency(),
+                'currencySymbol' => get_woocommerce_currency_symbol($order->get_currency()),
+                'items' => $items,
+                'itemCount' => $order->get_item_count(),
+                'shippingTotal' => $order->get_shipping_total(),
+                'paymentMethod' => $order->get_payment_method_title(),
+            );
+        }
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => $orders_data
         ));
     }
 

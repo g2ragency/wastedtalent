@@ -1,22 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import Footer from "@/components/Footer";
 import { ContactInfo } from "@/lib/api";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth, Address, Order } from "@/context/AuthContext";
 
 interface AccountContentProps {
   contactInfo?: ContactInfo;
+  section?: AccountSection;
 }
 
 type AccountSection = "account" | "orders" | "delivery" | "billing";
 
-const menuItems: { key: AccountSection; label: string }[] = [
-  { key: "account", label: "Account" },
-  { key: "orders", label: "My Orders" },
-  { key: "delivery", label: "Delivery Address" },
-  { key: "billing", label: "Billing Address" },
+const menuItems: { key: AccountSection; label: string; href: string }[] = [
+  { key: "account", label: "Account", href: "/account" },
+  { key: "orders", label: "My Orders", href: "/account/orders" },
+  { key: "delivery", label: "Delivery Address", href: "/account/delivery" },
+  { key: "billing", label: "Billing Address", href: "/account/billing" },
 ];
 
 /* ──────────────────────────────────────────────
@@ -74,10 +76,13 @@ function ChevronRight({ color = "#222222" }: { color?: string }) {
   );
 }
 
-export default function AccountContent({ contactInfo }: AccountContentProps) {
+export default function AccountContent({
+  contactInfo,
+  section = "account",
+}: AccountContentProps) {
   const router = useRouter();
   const { user, logout, isLoading } = useAuth();
-  const [activeSection, setActiveSection] = useState<AccountSection>("account");
+  const activeSection = section;
 
   const handleLogout = () => {
     logout();
@@ -125,9 +130,9 @@ export default function AccountContent({ contactInfo }: AccountContentProps) {
                   const arrowColor = isActive ? "#222222" : "#DDD";
 
                   return (
-                    <button
+                    <Link
                       key={item.key}
-                      onClick={() => setActiveSection(item.key)}
+                      href={item.href}
                       className="flex items-center justify-between w-full text-left uppercase transition-colors"
                       style={{
                         fontFamily: "Helvetica Neue, sans-serif",
@@ -140,11 +145,12 @@ export default function AccountContent({ contactInfo }: AccountContentProps) {
                         backgroundColor: "transparent",
                         position: "relative" as const,
                         zIndex: isActive ? 1 : 0,
+                        textDecoration: "none",
                       }}
                     >
                       {item.label}
                       <ChevronRight color={arrowColor} />
-                    </button>
+                    </Link>
                   );
                 })}
 
@@ -795,49 +801,893 @@ function PasswordToggleIcon({ show }: { show: boolean }) {
    Placeholder sections (to be implemented)
    ────────────────────────────────────────────── */
 function MyOrders() {
+  const { getOrders } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  const loadOrders = useCallback(async () => {
+    setLoading(true);
+    const result = await getOrders();
+    if (result.success && result.data) {
+      setOrders(result.data);
+    } else {
+      setError(result.message || "Failed to load orders");
+    }
+    setLoading(false);
+  }, [getOrders]);
+
+  useEffect(() => {
+    loadOrders();
+  }, [loadOrders]);
+
+  const formatDate = (dateStr: string) => {
+    if (!dateStr) return "—";
+    const date = new Date(dateStr);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const formatTotal = (total: string, symbol: string) => {
+    const num = parseFloat(total);
+    const formatted = num.toFixed(2).replace(".", ",");
+    // Decode HTML entities like &euro; → €
+    const decoded = symbol
+      .replace(/&euro;/g, "€")
+      .replace(/&pound;/g, "£")
+      .replace(/&dollar;/g, "$")
+      .replace(/&#36;/g, "$");
+    return `${formatted}${decoded}`;
+  };
+
+  // Label style
+  const labelStyle = {
+    fontFamily: "Helvetica Neue, sans-serif",
+    fontSize: "12px",
+    color: "#999999",
+    letterSpacing: "0.5px",
+  };
+
+  // Value style
+  const valueStyle = {
+    fontFamily: "Helvetica Neue, sans-serif",
+    fontSize: "18px",
+    fontWeight: 700 as const,
+    color: "#222222",
+  };
+
+  if (loading) {
+    return (
+      <div
+        className="w-full"
+        style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
+      >
+        <p
+          className="text-sm"
+          style={{
+            fontFamily: "Helvetica Neue, sans-serif",
+            color: "#666666",
+          }}
+        >
+          Loading orders...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div
+        className="w-full"
+        style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
+      >
+        <p
+          className="text-sm"
+          style={{
+            fontFamily: "Helvetica Neue, sans-serif",
+            color: "#DC2626",
+          }}
+        >
+          {error}
+        </p>
+      </div>
+    );
+  }
+
+  if (orders.length === 0) {
+    return (
+      <div
+        className="w-full"
+        style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
+      >
+        <p
+          className="text-sm"
+          style={{
+            fontFamily: "Helvetica Neue, sans-serif",
+            color: "#666666",
+          }}
+        >
+          You have no orders yet.
+        </p>
+      </div>
+    );
+  }
+
+  // ── Order Detail View ──
+  if (selectedOrder) {
+    return (
+      <div
+        className="w-full"
+        style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
+      >
+        {/* Back button */}
+        <button
+          onClick={() => setSelectedOrder(null)}
+          className="flex items-center gap-2 mb-8 hover:opacity-60 transition-opacity"
+          style={{
+            fontFamily: "Helvetica Neue, sans-serif",
+            fontSize: "14px",
+            fontWeight: 700,
+            color: "#222222",
+          }}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#222222"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="15 18 9 12 15 6" stroke="#222222" />
+          </svg>
+          Back to Orders
+        </button>
+
+        <div className="bg-white" style={{ padding: "40px 40px 60px" }}>
+          {/* Order header info */}
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            style={{ marginBottom: "60px" }}
+          >
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Order
+                </p>
+                <p style={valueStyle}>#{selectedOrder.number}</p>
+              </div>
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Products
+                </p>
+                <p style={valueStyle}>{selectedOrder.itemCount}</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Date
+                </p>
+                <p style={valueStyle}>
+                  {formatDate(selectedOrder.dateCreated)}
+                </p>
+              </div>
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Total
+                </p>
+                <p style={valueStyle}>
+                  {formatTotal(
+                    selectedOrder.total,
+                    selectedOrder.currencySymbol,
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Status & Payment */}
+          <div
+            className="grid grid-cols-2 gap-6"
+            style={{ marginBottom: "60px" }}
+          >
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Status
+              </p>
+              <p style={valueStyle}>{selectedOrder.statusLabel}</p>
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Payment
+              </p>
+              <p style={valueStyle}>{selectedOrder.paymentMethod || "—"}</p>
+            </div>
+          </div>
+
+          {/* Order items */}
+          <div>
+            <p
+              className="uppercase mb-4"
+              style={{
+                ...labelStyle,
+                fontSize: "14px",
+                fontWeight: 700,
+                color: "#222222",
+              }}
+            >
+              Items
+            </p>
+            <div className="flex flex-col">
+              {selectedOrder.items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-4 py-4"
+                  style={{
+                    borderTop: "1px solid #F2F2F2",
+                    borderBottom:
+                      idx === selectedOrder.items.length - 1
+                        ? "1px solid #F2F2F2"
+                        : "none",
+                  }}
+                >
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      style={{
+                        width: "90px",
+                        height: "112px",
+                        objectFit: "cover",
+                      }}
+                    />
+                  )}
+                  <div className="flex-1">
+                    <p
+                      style={{
+                        fontFamily: "Helvetica Neue, sans-serif",
+                        fontSize: "18px",
+                        fontWeight: 700,
+                        color: "#222222",
+                      }}
+                    >
+                      {item.name}
+                    </p>
+                    <p
+                      style={{
+                        fontFamily: "Helvetica Neue, sans-serif",
+                        fontSize: "12px",
+                        color: "#999999",
+                        marginTop: "4px",
+                      }}
+                    >
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
+                  <p
+                    style={{
+                      fontFamily: "Helvetica Neue, sans-serif",
+                      fontSize: "18px",
+                      fontWeight: 700,
+                      color: "#222222",
+                    }}
+                  >
+                    {formatTotal(item.total, selectedOrder.currencySymbol)}
+                  </p>
+                </div>
+              ))}
+
+              {/* Shipping row */}
+              {parseFloat(selectedOrder.shippingTotal) > 0 && (
+                <div
+                  className="flex items-center justify-between py-4"
+                  style={{ borderTop: "1px solid #F2F2F2" }}
+                >
+                  <p
+                    style={{
+                      fontFamily: "Helvetica Neue, sans-serif",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      color: "#222222",
+                    }}
+                  >
+                    Shipping
+                  </p>
+                  <p
+                    style={{
+                      fontFamily: "Helvetica Neue, sans-serif",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      color: "#222222",
+                    }}
+                  >
+                    {formatTotal(
+                      selectedOrder.shippingTotal,
+                      selectedOrder.currencySymbol,
+                    )}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Orders Grid View ──
   return (
     <div
       className="w-full"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
-      <p
-        className="text-sm"
-        style={{ fontFamily: "Helvetica Neue, sans-serif", color: "#666666" }}
-      >
-        You have no orders yet.
-      </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {orders.map((order) => (
+          <div
+            key={order.id}
+            className="bg-white cursor-pointer hover:shadow-md transition-shadow"
+            style={{ padding: "40px 40px 60px" }}
+            onClick={() => setSelectedOrder(order)}
+          >
+            {/* Edit icon */}
+            <div className="flex justify-end mb-4">
+              <div className="hover:opacity-60 transition-opacity">
+                <EditIcon />
+              </div>
+            </div>
+
+            {/* Row 1: Order number, Products count */}
+            <div
+              className="grid grid-cols-2 gap-6"
+              style={{ marginBottom: "60px" }}
+            >
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Order
+                </p>
+                <p style={valueStyle}>{order.number}</p>
+              </div>
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Products
+                </p>
+                <p style={valueStyle}>{order.itemCount}</p>
+              </div>
+            </div>
+
+            {/* Row 2: Date, Total */}
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Date
+                </p>
+                <p style={valueStyle}>{formatDate(order.dateCreated)}</p>
+              </div>
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Total
+                </p>
+                <p style={valueStyle}>
+                  {formatTotal(order.total, order.currencySymbol)}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 function DeliveryAddress() {
-  return (
-    <div
-      className="w-full"
-      style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
-    >
-      <p
-        className="text-sm"
-        style={{ fontFamily: "Helvetica Neue, sans-serif", color: "#666666" }}
-      >
-        No delivery address saved yet.
-      </p>
-    </div>
-  );
+  return <AddressSection type="shipping" title="Delivery Address" />;
 }
 
 function BillingAddress() {
+  return <AddressSection type="billing" title="Billing Address" />;
+}
+
+/* ──────────────────────────────────────────────
+   Shared Address Section Component
+   ────────────────────────────────────────────── */
+function AddressSection({
+  type,
+  title,
+}: {
+  type: "shipping" | "billing";
+  title: string;
+}) {
+  const { getAddress, updateAddress } = useAuth();
+
+  const [address, setAddress] = useState<Address | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // Edit fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [company, setCompany] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postcode, setPostcode] = useState("");
+  const [country, setCountry] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+
+  const loadAddress = useCallback(async () => {
+    setLoading(true);
+    const result = await getAddress(type);
+    if (result.success && result.data) {
+      setAddress(result.data);
+    }
+    setLoading(false);
+  }, [getAddress, type]);
+
+  useEffect(() => {
+    loadAddress();
+  }, [loadAddress]);
+
+  const clearFeedback = () => {
+    setError("");
+    setSuccess("");
+  };
+
+  const populateEditFields = () => {
+    if (address) {
+      setFirstName(address.firstName || "");
+      setLastName(address.lastName || "");
+      setCompany(address.company || "");
+      setAddress1(address.address1 || "");
+      setAddress2(address.address2 || "");
+      setCity(address.city || "");
+      setState(address.state || "");
+      setPostcode(address.postcode || "");
+      setCountry(address.country || "");
+      setPhone(address.phone || "");
+      if (type === "billing") {
+        setEmail(address.email || "");
+      }
+    }
+  };
+
+  const handleEdit = () => {
+    clearFeedback();
+    populateEditFields();
+    setEditing(true);
+  };
+
+  const handleCancel = () => {
+    setEditing(false);
+    clearFeedback();
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    clearFeedback();
+
+    const addressData: Partial<Address> = {
+      firstName,
+      lastName,
+      company,
+      address1,
+      address2,
+      city,
+      state,
+      postcode,
+      country,
+      phone,
+    };
+
+    if (type === "billing") {
+      addressData.email = email;
+    }
+
+    const result = await updateAddress(type, addressData);
+
+    if (result.success && result.data) {
+      setAddress(result.data);
+      setEditing(false);
+      setSuccess("Address updated successfully");
+    } else {
+      setError(result.message || "Failed to update address");
+    }
+
+    setSaving(false);
+  };
+
+  const hasAddress =
+    address &&
+    (address.firstName ||
+      address.lastName ||
+      address.address1 ||
+      address.city ||
+      address.postcode);
+
+  // Label style
+  const labelStyle = {
+    fontFamily: "Helvetica Neue, sans-serif",
+    fontSize: "12px",
+    color: "#999999",
+    letterSpacing: "0.5px",
+  };
+
+  // Value style
+  const valueStyle = {
+    fontFamily: "Helvetica Neue, sans-serif",
+    fontSize: "18px",
+    fontWeight: 700 as const,
+    color: "#222222",
+  };
+
+  // Input style
+  const inputStyle = {
+    fontFamily: "Helvetica Neue, sans-serif",
+    fontSize: "18px",
+    fontWeight: 700 as const,
+    color: "#222222",
+    backgroundColor: "transparent",
+  };
+
+  if (loading) {
+    return (
+      <div
+        className="w-full"
+        style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
+      >
+        <p
+          className="text-sm"
+          style={{
+            fontFamily: "Helvetica Neue, sans-serif",
+            color: "#666666",
+          }}
+        >
+          Loading...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div
       className="w-full"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
-      <p
-        className="text-sm"
-        style={{ fontFamily: "Helvetica Neue, sans-serif", color: "#666666" }}
-      >
-        No billing address saved yet.
-      </p>
+      {error && (
+        <div
+          className="mb-6 px-4 py-3"
+          style={{
+            backgroundColor: "#FEE2E2",
+            border: "1px solid #FCA5A5",
+            fontFamily: "Helvetica Neue, sans-serif",
+            fontSize: "14px",
+            color: "#DC2626",
+          }}
+        >
+          {error}
+        </div>
+      )}
+      {success && (
+        <div
+          className="mb-6 px-4 py-3"
+          style={{
+            backgroundColor: "#D1FAE5",
+            border: "1px solid #A7F3D0",
+            fontFamily: "Helvetica Neue, sans-serif",
+            fontSize: "14px",
+            color: "#059669",
+          }}
+        >
+          {success}
+        </div>
+      )}
+
+      {!editing && !hasAddress && (
+        <div
+          className="flex flex-col items-center justify-center"
+          style={{ minHeight: "120px" }}
+        >
+          <p
+            className="text-sm mb-6"
+            style={{
+              fontFamily: "Helvetica Neue, sans-serif",
+              color: "#666666",
+            }}
+          >
+            No {title.toLowerCase()} saved yet.
+          </p>
+          <button
+            onClick={handleEdit}
+            className="bg-[#222222] text-white py-3 px-8 text-sm font-bold uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all"
+            style={{ fontFamily: "Helvetica Neue, sans-serif" }}
+          >
+            Add Address
+          </button>
+        </div>
+      )}
+
+      {!editing && hasAddress && (
+        <div className="bg-white" style={{ padding: "40px 40px 60px" }}>
+          {/* Edit button */}
+          <div className="flex justify-end mb-4">
+            <button
+              onClick={handleEdit}
+              className="hover:opacity-60 transition-opacity"
+              aria-label={`Edit ${title}`}
+            >
+              <EditIcon />
+            </button>
+          </div>
+
+          {/* Row 1: Name, Zip Code, Note/Company */}
+          <div
+            className="grid grid-cols-1 md:grid-cols-3 gap-6"
+            style={{ marginBottom: "60px" }}
+          >
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Name
+              </p>
+              <p style={valueStyle}>
+                {[address!.firstName, address!.lastName]
+                  .filter(Boolean)
+                  .join(" ") || "\u2014"}
+              </p>
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Zip Code
+              </p>
+              <p style={valueStyle}>{address!.postcode || "\u2014"}</p>
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Note
+              </p>
+              <p style={valueStyle}>{address!.company || "\u2014"}</p>
+            </div>
+          </div>
+
+          {/* Row 2: Address, City/Country, Phone */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Address
+              </p>
+              <p style={valueStyle}>
+                {[address!.address1, address!.address2]
+                  .filter(Boolean)
+                  .join(", ") || "\u2014"}
+              </p>
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                City, Country
+              </p>
+              <p style={valueStyle}>
+                {[address!.city, address!.countryName || address!.country]
+                  .filter(Boolean)
+                  .join(", ") || "\u2014"}
+              </p>
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Phone
+              </p>
+              <p style={valueStyle}>{address!.phone || "\u2014"}</p>
+            </div>
+          </div>
+
+          {/* Row 3: Email (billing only) */}
+          {type === "billing" && (
+            <div
+              className="grid grid-cols-1 md:grid-cols-3 gap-6"
+              style={{ marginTop: "60px" }}
+            >
+              <div>
+                <p className="uppercase mb-1" style={labelStyle}>
+                  Email
+                </p>
+                <p style={valueStyle}>{address!.email || "\u2014"}</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Edit Form */}
+      {editing && (
+        <div className="bg-white" style={{ padding: "40px 40px 60px" }}>
+          {/* Row 1: First Name, Last Name */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                First Name
+              </p>
+              <input
+                type="text"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Last Name
+              </p>
+              <input
+                type="text"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Address */}
+          <div className="mb-6">
+            <p className="uppercase mb-1" style={labelStyle}>
+              Address Line 1
+            </p>
+            <input
+              type="text"
+              value={address1}
+              onChange={(e) => setAddress1(e.target.value)}
+              className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+              style={inputStyle}
+            />
+          </div>
+
+          {/* Row 3: Address 2 */}
+          <div className="mb-6">
+            <p className="uppercase mb-1" style={labelStyle}>
+              Address Line 2
+            </p>
+            <input
+              type="text"
+              value={address2}
+              onChange={(e) => setAddress2(e.target.value)}
+              className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+              style={inputStyle}
+            />
+          </div>
+
+          {/* Row 4: City, Postcode */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                City
+              </p>
+              <input
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Zip Code
+              </p>
+              <input
+                type="text"
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          {/* Row 5: State, Country */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                State / Province
+              </p>
+              <input
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Country
+              </p>
+              <input
+                type="text"
+                value={country}
+                onChange={(e) => setCountry(e.target.value)}
+                placeholder="e.g. IT, US, GB"
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          {/* Row 6: Phone, Company/Note */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Phone
+              </p>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <p className="uppercase mb-1" style={labelStyle}>
+                Note / Company
+              </p>
+              <input
+                type="text"
+                value={company}
+                onChange={(e) => setCompany(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          {/* Row 7: Email (billing only) */}
+          {type === "billing" && (
+            <div className="mb-6">
+              <p className="uppercase mb-1" style={labelStyle}>
+                Email
+              </p>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full border-0 border-b border-[#DDD] pb-1 focus:outline-none focus:border-[#222222] transition-colors"
+                style={inputStyle}
+              />
+            </div>
+          )}
+
+          {/* Save / Cancel */}
+          <div className="flex gap-3">
+            <button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-[#222222] text-white py-3 px-8 text-sm font-bold uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all disabled:opacity-50"
+              style={{ fontFamily: "Helvetica Neue, sans-serif" }}
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+            <button
+              onClick={handleCancel}
+              className="py-3 px-8 text-sm font-bold uppercase border border-[#DDD] hover:border-[#222222] transition-all"
+              style={{
+                fontFamily: "Helvetica Neue, sans-serif",
+                color: "#222222",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

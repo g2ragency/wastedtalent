@@ -16,6 +16,44 @@ interface User {
   lastName: string;
 }
 
+export interface Address {
+  firstName: string;
+  lastName: string;
+  company: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postcode: string;
+  country: string;
+  countryName: string;
+  phone: string;
+  email?: string;
+}
+
+export interface OrderItem {
+  name: string;
+  quantity: number;
+  total: string;
+  image: string;
+  slug: string;
+}
+
+export interface Order {
+  id: number;
+  number: string;
+  status: string;
+  statusLabel: string;
+  dateCreated: string;
+  total: string;
+  currency: string;
+  currencySymbol: string;
+  items: OrderItem[];
+  itemCount: number;
+  shippingTotal: string;
+  paymentMethod: string;
+}
+
 interface AuthContextType {
   user: User | null;
   token: string | null;
@@ -45,6 +83,18 @@ interface AuthContextType {
     newPassword: string,
     confirmPassword: string,
   ) => Promise<{ success: boolean; message?: string }>;
+  getAddress: (
+    type: "shipping" | "billing",
+  ) => Promise<{ success: boolean; data?: Address; message?: string }>;
+  updateAddress: (
+    type: "shipping" | "billing",
+    address: Partial<Address>,
+  ) => Promise<{ success: boolean; data?: Address; message?: string }>;
+  getOrders: () => Promise<{
+    success: boolean;
+    data?: Order[];
+    message?: string;
+  }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -301,6 +351,114 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [token],
   );
 
+  const getAddress = useCallback(
+    async (
+      type: "shipping" | "billing",
+    ): Promise<{ success: boolean; data?: Address; message?: string }> => {
+      try {
+        const currentToken =
+          token ||
+          localStorage.getItem(TOKEN_KEY) ||
+          sessionStorage.getItem(TOKEN_KEY);
+
+        if (!currentToken) {
+          return { success: false, message: "Not authenticated" };
+        }
+
+        const res = await fetch(
+          `/api/auth/get-address?token=${encodeURIComponent(currentToken)}&type=${type}`,
+        );
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          return { success: true, data: data.data };
+        }
+
+        return {
+          success: false,
+          message: data.message || "Failed to get address",
+        };
+      } catch {
+        return { success: false, message: "Network error. Please try again." };
+      }
+    },
+    [token],
+  );
+
+  const updateAddress = useCallback(
+    async (
+      type: "shipping" | "billing",
+      address: Partial<Address>,
+    ): Promise<{ success: boolean; data?: Address; message?: string }> => {
+      try {
+        const currentToken =
+          token ||
+          localStorage.getItem(TOKEN_KEY) ||
+          sessionStorage.getItem(TOKEN_KEY);
+
+        if (!currentToken) {
+          return { success: false, message: "Not authenticated" };
+        }
+
+        const res = await fetch("/api/auth/update-address", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: currentToken,
+            type,
+            ...address,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          return { success: true, data: data.data };
+        }
+
+        return { success: false, message: data.message || "Update failed" };
+      } catch {
+        return { success: false, message: "Network error. Please try again." };
+      }
+    },
+    [token],
+  );
+
+  const getOrders = useCallback(async (): Promise<{
+    success: boolean;
+    data?: Order[];
+    message?: string;
+  }> => {
+    try {
+      const currentToken =
+        token ||
+        localStorage.getItem(TOKEN_KEY) ||
+        sessionStorage.getItem(TOKEN_KEY);
+
+      if (!currentToken) {
+        return { success: false, message: "Not authenticated" };
+      }
+
+      const res = await fetch(
+        `/api/auth/orders?token=${encodeURIComponent(currentToken)}`,
+      );
+
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        return { success: true, data: data.data };
+      }
+
+      return {
+        success: false,
+        message: data.message || "Failed to get orders",
+      };
+    } catch {
+      return { success: false, message: "Network error. Please try again." };
+    }
+  }, [token]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -313,6 +471,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         forgotPassword,
         updateProfile,
         changePassword,
+        getAddress,
+        updateAddress,
+        getOrders,
       }}
     >
       {children}
