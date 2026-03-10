@@ -13,7 +13,7 @@ export default function FeaturedProducts({ data }: FeaturedProductsProps) {
 
   return (
     <section className="bg-lightgold py-20">
-      <div className="mx-auto max-w-1360 px-6">
+      <div className="mx-auto max-w-1360 px-3 md:px-6">
         <h2 className="mb-12 text-center text-5xl font-bold text-blue">
           {data.title}
         </h2>

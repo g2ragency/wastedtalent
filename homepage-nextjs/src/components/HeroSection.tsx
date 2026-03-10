@@ -9,6 +9,78 @@ interface HeroSectionProps {
   data: HeroData;
 }
 
+function SlideContent({ slide }: { slide: any }) {
+  return (
+    <>
+      {slide.background_image && (
+        <div className="absolute inset-0">
+          <Image
+            src={slide.background_image}
+            alt={slide.title || "Slide"}
+            fill
+            className="object-cover"
+          />
+          <div
+            className="absolute inset-0"
+            style={{
+              background: "rgba(34, 34, 34, 0.1)",
+            }}
+          />
+        </div>
+      )}
+
+      <div className="absolute inset-0 flex h-full items-center justify-center text-center">
+        <div className="max-w-4xl px-3 md:px-6">
+          {slide.title && (
+            <h1
+              className="mb-4 hero-title"
+              style={{
+                lineHeight: "95%",
+                mixBlendMode: "difference",
+                color: "white",
+                fontWeight: 300,
+              }}
+              dangerouslySetInnerHTML={{ __html: slide.title }}
+            />
+          )}
+
+          {slide.subtitle && (
+            <p
+              className="mb-12 text-2xl font-extralight tracking-tight md:text-4xl lg:text-6xl"
+              style={{ mixBlendMode: "difference", color: "white" }}
+            >
+              {slide.subtitle}
+            </p>
+          )}
+
+          {slide.cta_text && slide.cta_link && (
+            <Link
+              href={slide.cta_link}
+              className="group inline-flex items-center gap-2 text-sm font-medium uppercase tracking-wider transition-all hover:gap-3"
+              style={{ mixBlendMode: "difference", color: "white" }}
+            >
+              {slide.cta_text}
+              <svg
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </Link>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function HeroSection({ data }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -44,162 +116,40 @@ export default function HeroSection({ data }: HeroSectionProps) {
       className="relative h-screen w-full overflow-hidden"
       style={{ backgroundColor: "#F2F2F2" }}
     >
+      <style jsx global>{`
+        .hero-title {
+          font-size: 40px;
+        }
+        @media (min-width: 768px) {
+          .hero-title {
+            font-size: 72px;
+          }
+        }
+        @keyframes heroSlideIn {
+          from {
+            clip-path: inset(0 0 0 100%);
+          }
+          to {
+            clip-path: inset(0 0 0 0);
+          }
+        }
+      `}</style>
+
       {/* Previous Slide */}
       <div className="absolute inset-0">
-        {slides[prevIndex].background_image && (
-          <div className="absolute inset-0">
-            <Image
-              src={slides[prevIndex].background_image}
-              alt={slides[prevIndex].title || "Slide"}
-              fill
-              className="object-cover"
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "rgba(34, 34, 34, 0.1)",
-              }}
-            />
-          </div>
-        )}
-
-        <div className="absolute inset-0 flex h-full items-center justify-center text-center">
-          <div className="max-w-4xl px-6">
-            {slides[prevIndex].title && (
-              <h1
-                className="mb-4"
-                style={{
-                  fontSize: "72px",
-                  lineHeight: "95%",
-                  mixBlendMode: "difference",
-                  color: "white",
-                  fontWeight: 300,
-                }}
-                dangerouslySetInnerHTML={{ __html: slides[prevIndex].title }}
-              />
-            )}
-
-            {slides[prevIndex].subtitle && (
-              <p
-                className="mb-12 text-4xl font-extralight tracking-tight md:text-5xl lg:text-6xl"
-                style={{ mixBlendMode: "difference", color: "white" }}
-              >
-                {slides[prevIndex].subtitle}
-              </p>
-            )}
-
-            {slides[prevIndex].cta_text && slides[prevIndex].cta_link && (
-              <Link
-                href={slides[prevIndex].cta_link}
-                className="group inline-flex items-center gap-2 text-sm font-medium uppercase tracking-wider transition-all hover:gap-3"
-                style={{ mixBlendMode: "difference", color: "white" }}
-              >
-                {slides[prevIndex].cta_text}
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            )}
-          </div>
-        </div>
+        <SlideContent slide={slides[prevIndex]} />
       </div>
 
       {/* Current Slide with curtain effect */}
       <div
         className="absolute inset-0"
         style={{
-          animation: "slideIn 1000ms ease-in-out forwards",
+          animation: "heroSlideIn 1000ms ease-in-out forwards",
           clipPath: "inset(0 0 0 100%)",
         }}
         key={currentSlide}
       >
-        <style jsx>{`
-          @keyframes slideIn {
-            from {
-              clip-path: inset(0 0 0 100%);
-            }
-            to {
-              clip-path: inset(0 0 0 0);
-            }
-          }
-        `}</style>
-        {slides[currentIndex].background_image && (
-          <div className="absolute inset-0">
-            <Image
-              src={slides[currentIndex].background_image}
-              alt={slides[currentIndex].title || "Slide"}
-              fill
-              className="object-cover"
-              priority={currentIndex === 0}
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background: "rgba(34, 34, 34, 0.1)",
-              }}
-            />
-          </div>
-        )}
-
-        <div className="absolute inset-0 flex h-full items-center justify-center text-center">
-          <div className="max-w-4xl px-6">
-            {slides[currentIndex].title && (
-              <h1
-                className="mb-4"
-                style={{
-                  fontSize: "72px",
-                  lineHeight: "95%",
-                  mixBlendMode: "difference",
-                  color: "white",
-                  fontWeight: 300,
-                }}
-                dangerouslySetInnerHTML={{ __html: slides[currentIndex].title }}
-              />
-            )}
-
-            {slides[currentIndex].subtitle && (
-              <p
-                className="mb-12 text-4xl font-extralight tracking-tight md:text-5xl lg:text-6xl"
-                style={{ mixBlendMode: "difference", color: "white" }}
-              >
-                {slides[currentIndex].subtitle}
-              </p>
-            )}
-
-            {slides[currentIndex].cta_text && slides[currentIndex].cta_link && (
-              <Link
-                href={slides[currentIndex].cta_link}
-                className="group inline-flex items-center gap-2 text-sm font-medium uppercase tracking-wider transition-all hover:gap-3"
-                style={{ mixBlendMode: "difference", color: "white" }}
-              >
-                {slides[currentIndex].cta_text}
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </Link>
-            )}
-          </div>
-        </div>
+        <SlideContent slide={slides[currentIndex]} />
       </div>
 
       {/* Pagination Dots */}

@@ -26,7 +26,7 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
 
   return (
     <main className="min-h-screen bg-white pt-24">
-      <div className="w-full px-6">
+      <div className="w-full px-3 md:px-6">
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-5xl font-light mb-4">F/W 2026</h1>
@@ -35,7 +35,7 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
 
       {/* Sticky Filters Bar - Full Width */}
       <div
-        className="flex items-center justify-between py-4 px-6"
+        className="flex items-center justify-between py-4 px-3 md:px-6"
         style={{
           position: scrolled ? "fixed" : "static",
           top: scrolled ? "96px" : "auto",
@@ -75,7 +75,7 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
         </button>
       </div>
 
-      <div className="w-full px-6">
+      <div className="w-full px-3 md:px-6">
         {/* Spacer when filters are sticky */}
         {scrolled && <div style={{ height: "60px" }} />}
 

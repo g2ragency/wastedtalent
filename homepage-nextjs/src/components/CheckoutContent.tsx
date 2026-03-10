@@ -24,7 +24,7 @@ export default function CheckoutContent() {
   if (items.length === 0) {
     return (
       <main className="min-h-screen bg-white pt-32 pb-16">
-        <div className="w-full px-6">
+        <div className="w-full px-3 md:px-6">
           <div className="max-w-2xl mx-auto text-center py-20">
             <h1 className="text-4xl font-light mb-4">Your cart is empty</h1>
             <p className="text-gray-500 mb-8">
@@ -103,7 +103,7 @@ export default function CheckoutContent() {
 
   return (
     <main className="min-h-screen bg-white pt-32 pb-16">
-      <div className="w-full px-6">
+      <div className="w-full px-3 md:px-6">
         <h1 className="text-4xl font-light mb-8">Checkout</h1>
 
         <form

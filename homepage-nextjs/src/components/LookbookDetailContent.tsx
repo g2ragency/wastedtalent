@@ -16,7 +16,7 @@ export default function LookbookDetailContent({ lookbook, contactInfo }: Lookboo
     <main className="min-h-screen bg-white">
 
       {/* Title */}
-      <section className="pt-32 pb-12 px-6">
+      <section className="pt-32 pb-12 px-3 md:px-6">
         <h1 style={{
           fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
           fontWeight: 300,
@@ -29,7 +29,7 @@ export default function LookbookDetailContent({ lookbook, contactInfo }: Lookboo
       </section>
 
       {/* Gallery */}
-      <section className="px-6 pb-20">
+      <section className="px-3 md:px-6 pb-20">
         {lookbook.gallery.length > 0 ? (
           <div className="space-y-4">
             {lookbook.gallery.map((image, index) => (
@@ -52,7 +52,7 @@ export default function LookbookDetailContent({ lookbook, contactInfo }: Lookboo
       </section>
 
       {/* Back link */}
-      <section className="px-6 pb-20">
+      <section className="px-3 md:px-6 pb-20">
         <Link href="/lookbook" className="text-sm underline hover:no-underline">
           ← Back to Lookbook
         </Link>

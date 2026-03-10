@@ -99,7 +99,7 @@ export default function AccountContent({
     return (
       <>
         <main className="min-h-screen bg-white pt-32 pb-16">
-          <div className="max-w-[1440px] mx-auto px-6">
+          <div className="max-w-[1440px] mx-auto px-3 md:px-6">
             <p
               className="text-sm"
               style={{
@@ -119,7 +119,7 @@ export default function AccountContent({
   return (
     <>
       <main className="min-h-screen bg-white pt-32 pb-16">
-        <div className="max-w-[1440px] mx-auto px-6">
+        <div className="max-w-[1440px] mx-auto px-3 md:px-6">
           <div className="flex gap-12">
             {/* Left Sidebar */}
             <div className="w-[325px] flex-shrink-0">

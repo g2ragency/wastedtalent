@@ -35,7 +35,7 @@ export default function ProductDetail({
 
   return (
     <main className="min-h-screen bg-white pt-24">
-      <div className="w-full px-6">
+      <div className="w-full px-3 md:px-6">
         <div className="flex gap-12">
           {/* Left: Scrollable Images */}
           <div className="w-1/2">

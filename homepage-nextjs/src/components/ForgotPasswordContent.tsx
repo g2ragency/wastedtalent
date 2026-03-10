@@ -59,7 +59,7 @@ export default function ForgotPasswordContent({
     return (
       <>
         <main className="min-h-screen bg-white pt-32 pb-16">
-          <div className="w-full px-6">
+          <div className="w-full px-3 md:px-6">
             <div className="max-w-[500px] mx-auto text-center">
               <h1
                 className="mb-6"
@@ -102,7 +102,7 @@ export default function ForgotPasswordContent({
   return (
     <>
       <main className="min-h-screen bg-white pt-32 pb-16">
-        <div className="w-full px-6">
+        <div className="w-full px-3 md:px-6">
           <div className="max-w-[500px] mx-auto">
             <h1
               className="text-center mb-4"

@@ -108,7 +108,7 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
   return (
     <main className="min-h-screen bg-white pt-24">
       {/* Contact Form Section */}
-      <section className="max-w-[700px] mx-auto px-6 pt-12 pb-16">
+      <section className="max-w-[700px] mx-auto px-3 md:px-6 pt-12 pb-16">
         <h1 style={{
           fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
           fontWeight: 300,

@@ -22,7 +22,7 @@ export default function LookbookContent({ lookbooks, contactInfo }: LookbookCont
     <main className="min-h-screen bg-white">
 
       {/* Title */}
-      <section className="pt-32 pb-12 px-6">
+      <section className="pt-32 pb-12 px-3 md:px-6">
         <h1 style={{
           fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
           fontWeight: 300,
@@ -35,7 +35,7 @@ export default function LookbookContent({ lookbooks, contactInfo }: LookbookCont
       </section>
 
       {/* Lookbook Grid - alternating 66/33 and 33/66 */}
-      <section className="px-6 pb-20">
+      <section className="px-3 md:px-6 pb-20">
         <div className="flex flex-col gap-[20px]">
           {rows.map((row, rowIndex) => {
             const isEven = rowIndex % 2 === 0;

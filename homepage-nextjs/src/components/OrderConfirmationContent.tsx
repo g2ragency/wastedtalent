@@ -11,7 +11,7 @@ export default function OrderConfirmationContent() {
 
   return (
     <main className="min-h-screen bg-white pt-32 pb-16">
-      <div className="w-full px-6">
+      <div className="w-full px-3 md:px-6">
         <div className="text-center py-20">
           <div className="mb-8">
             <svg

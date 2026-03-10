@@ -15,7 +15,7 @@ export default function AboutContent({ data, contactInfo }: AboutContentProps) {
   return (
     <main className="min-h-screen bg-white">
       {/* ======================== MANIFESTO ======================== */}
-      <section className="pt-32 pb-16 px-6">
+      <section className="pt-32 pb-16 px-3 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Left: Title */}
           <div>
@@ -51,7 +51,7 @@ export default function AboutContent({ data, contactInfo }: AboutContentProps) {
       {/* Manifesto: Image + Product row */}
       {(data.manifesto.images.length > 0 ||
         data.manifesto.products.length > 0) && (
-        <section className="pb-16 px-6">
+        <section className="pb-16 px-3 md:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Large image on left */}
             {data.manifesto.images[0] && (
@@ -93,7 +93,7 @@ export default function AboutContent({ data, contactInfo }: AboutContentProps) {
       )}
 
       {/* Manifesto: Gallery — 1 full width + 2 side by side */}
-      <section className="pb-16 px-6">
+      <section className="pb-16 px-3 md:px-6">
         <div className="space-y-4">
           {/* Full width image */}
           {data.manifesto.gallery?.[0] && (
@@ -141,7 +141,7 @@ export default function AboutContent({ data, contactInfo }: AboutContentProps) {
       </section>
 
       {/* ======================== VISIONE ======================== */}
-      <section className="pb-16 px-6">
+      <section className="pb-16 px-3 md:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Left: Title */}
           <div>
@@ -176,7 +176,7 @@ export default function AboutContent({ data, contactInfo }: AboutContentProps) {
 
       {/* Visione: Image + Product row */}
       {(data.visione.images.length > 0 || data.visione.products.length > 0) && (
-        <section className="pb-16 px-6">
+        <section className="pb-16 px-3 md:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Large image on left */}
             {data.visione.images[0] && (
@@ -218,7 +218,7 @@ export default function AboutContent({ data, contactInfo }: AboutContentProps) {
       )}
 
       {/* Visione: Gallery — 1 full width + 2 side by side */}
-      <section className="pb-16 px-6">
+      <section className="pb-16 px-3 md:px-6">
         <div className="space-y-4">
           {/* Full width image */}
           {data.visione.gallery?.[0] && (
