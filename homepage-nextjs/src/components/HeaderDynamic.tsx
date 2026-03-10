@@ -80,18 +80,17 @@ export default function Header({ data }: HeaderProps) {
       <header
         className="fixed top-0 z-[70] w-full"
         style={{
-          backgroundColor:
-            mobileMenuOpen
-              ? "#FFFFFF"
-              : isHomepage
-                ? scrolled
-                  ? "#FFFFFF"
-                  : "transparent"
-                : "#FFFFFF",
+          backgroundColor: mobileMenuOpen
+            ? "#FFFFFF"
+            : isHomepage
+              ? scrolled
+                ? "#FFFFFF"
+                : "transparent"
+              : "#FFFFFF",
           transition: isHomepage ? "background-color 0.3s" : "none",
         }}
       >
-          <div className="flex items-center justify-between px-3 md:px-6 py-6">
+        <div className="flex items-center justify-between px-3 md:px-6 py-6">
           {/* Desktop: Left Menu */}
           <nav className="hidden md:flex flex-1 items-center gap-8">
             {leftMenuItems.map((item) => (
@@ -108,10 +107,10 @@ export default function Header({ data }: HeaderProps) {
           </nav>
 
           {/* Mobile: MENU / CLOSE button */}
-            <div className="flex md:hidden flex-1">
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="uppercase transition-opacity hover:opacity-60"
+          <div className="flex md:hidden flex-1">
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="uppercase transition-opacity hover:opacity-60"
               style={{
                 fontFamily: "Helvetica Neue, sans-serif",
                 fontSize: "12px",
@@ -207,91 +206,57 @@ export default function Header({ data }: HeaderProps) {
           willChange: "transform",
         }}
       >
-            <div className="flex flex-col justify-between h-full px-3">
-            {/* Menu Items */}
-            <nav className="flex flex-col">
-              <div style={{ borderTop: "1px solid #222222" }} />
-              {mobileMenuItems.map((item) => (
-                <Link
-                  key={item.id}
-                  href={getRelativePath(item.url)}
-                  target={item.target || "_self"}
-                  className="block transition-opacity hover:opacity-60"
-                  style={{
-                      fontFamily: "Helvetica Neue, sans-serif",
-                      fontSize: "22px",
-                      fontWeight: 400,
-                      color: "#222222",
-                      padding: "12px 0",
-                      borderBottom: "1px solid #222222",
-                      textDecoration: "none",
-                      textTransform: "capitalize" as const,
-                  }}
-                >
-                  {item.title.toLowerCase()}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Mobile Menu Footer */}
-            <div style={{ paddingBottom: "40px" }}>
-              {/* Follow us */}
-              <div
-                className="flex items-start justify-between"
+        <div className="flex flex-col justify-between h-full px-3">
+          {/* Menu Items */}
+          <nav className="flex flex-col">
+            <div style={{ borderTop: "1px solid #222222" }} />
+            {mobileMenuItems.map((item) => (
+              <Link
+                key={item.id}
+                href={getRelativePath(item.url)}
+                target={item.target || "_self"}
+                className="block transition-opacity hover:opacity-60"
                 style={{
-                  borderTop: "1px solid #222222",
-                  paddingTop: "16px",
-                  paddingBottom: "16px",
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  fontSize: "22px",
+                  fontWeight: 400,
+                  color: "#222222",
+                  padding: "12px 0",
+                  borderBottom: "1px solid #222222",
+                  textDecoration: "none",
+                  textTransform: "capitalize" as const,
                 }}
               >
-                <p
-                  style={{
-                    fontFamily: "Helvetica Neue, sans-serif",
-                    fontSize: "12px",
-                    fontWeight: 700,
-                    color: "#222222",
-                  }}
-                >
-                  Follow us on:
-                </p>
-                <div className="flex flex-col items-end gap-1">
-                  <a
-                    href="https://instagram.com"
-                    target="_blank"
-                    style={{
-                      fontFamily: "Helvetica Neue, sans-serif",
-                      fontSize: "12px",
-                      color: "#222222",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Instagram
-                  </a>
-                  <a
-                    href="https://facebook.com"
-                    target="_blank"
-                    style={{
-                      fontFamily: "Helvetica Neue, sans-serif",
-                      fontSize: "12px",
-                      color: "#222222",
-                      fontWeight: 700,
-                    }}
-                  >
-                    Facebook
-                  </a>
-                </div>
-              </div>
+                {item.title.toLowerCase()}
+              </Link>
+            ))}
+          </nav>
 
-              {/* Policy links */}
-              <div
-                className="flex items-center justify-between"
+          {/* Mobile Menu Footer */}
+          <div style={{ paddingBottom: "40px" }}>
+            {/* Follow us */}
+            <div
+              className="flex items-start justify-between"
+              style={{
+                borderTop: "1px solid #222222",
+                paddingTop: "16px",
+                paddingBottom: "16px",
+              }}
+            >
+              <p
                 style={{
-                  borderTop: "1px solid #222222",
-                  paddingTop: "16px",
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  fontSize: "12px",
+                  fontWeight: 700,
+                  color: "#222222",
                 }}
               >
-                <Link
-                  href="/privacy"
+                Follow us on:
+              </p>
+              <div className="flex flex-col items-end gap-1">
+                <a
+                  href="https://instagram.com"
+                  target="_blank"
                   style={{
                     fontFamily: "Helvetica Neue, sans-serif",
                     fontSize: "12px",
@@ -299,10 +264,11 @@ export default function Header({ data }: HeaderProps) {
                     fontWeight: 700,
                   }}
                 >
-                  Privacy Policy
-                </Link>
-                <Link
-                  href="/shipping"
+                  Instagram
+                </a>
+                <a
+                  href="https://facebook.com"
+                  target="_blank"
                   style={{
                     fontFamily: "Helvetica Neue, sans-serif",
                     fontSize: "12px",
@@ -310,12 +276,45 @@ export default function Header({ data }: HeaderProps) {
                     fontWeight: 700,
                   }}
                 >
-                  Shipping & Returns
-                </Link>
+                  Facebook
+                </a>
               </div>
+            </div>
+
+            {/* Policy links */}
+            <div
+              className="flex items-center justify-between"
+              style={{
+                borderTop: "1px solid #222222",
+                paddingTop: "16px",
+              }}
+            >
+              <Link
+                href="/privacy"
+                style={{
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  fontSize: "12px",
+                  color: "#222222",
+                  fontWeight: 700,
+                }}
+              >
+                Privacy Policy
+              </Link>
+              <Link
+                href="/shipping"
+                style={{
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  fontSize: "12px",
+                  color: "#222222",
+                  fontWeight: 700,
+                }}
+              >
+                Shipping & Returns
+              </Link>
             </div>
           </div>
         </div>
+      </div>
     </>
   );
 }

@@ -13,7 +13,7 @@ export default function Footer({ contactInfo }: FooterProps) {
 
   return (
     <footer className="w-full bg-[#f0f0f0] mt-[50px]">
-      <div className="px-16 py-16">
+      <div className="px-3 md:px-16 py-16">
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12 mb-16 text-[12px]">
           <div>
             <h4 className="font-normal text-[12px] mb-6 uppercase tracking-wider">
@@ -91,7 +91,7 @@ export default function Footer({ contactInfo }: FooterProps) {
             </ul>
           </div>
         </div>
-        <div className="border-t border-[#999999] pt-10 flex items-center justify-between">
+        <div className="border-t border-[#999999] pt-10 flex flex-col gap-6 md:flex-row md:gap-0 items-start md:items-center justify-between">
           <div>
             <Image
               src="/logo-footer.svg"

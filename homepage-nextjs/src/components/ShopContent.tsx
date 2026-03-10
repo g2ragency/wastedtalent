@@ -35,10 +35,9 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
 
       {/* Sticky Filters Bar - Full Width */}
       <div
-        className="flex items-center justify-between py-4 px-3 md:px-6"
+        className={`flex items-center justify-between py-4 px-3 md:px-6 ${scrolled ? "shop-filters-sticky" : ""}`}
         style={{
           position: scrolled ? "fixed" : "static",
-          top: scrolled ? "96px" : "auto",
           left: "0",
           right: "0",
           width: "100%",
@@ -156,6 +155,16 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
         )}
       </div>
       <Footer contactInfo={contactInfo} />
+        <style jsx global>{`
+          .shop-filters-sticky {
+            top: 88px;
+          }
+          @media (min-width: 768px) {
+            .shop-filters-sticky {
+              top: 96px;
+            }
+          }
+        `}</style>
     </main>
   );
 }
