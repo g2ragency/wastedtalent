@@ -79,7 +79,7 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
         {scrolled && <div style={{ height: "60px" }} />}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-[20px] mt-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-[20px] mt-12">
           {products.map((product) => (
             <Link
               key={product.id}
@@ -87,8 +87,7 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
               className="group"
             >
               <div
-                className="relative bg-gray-100 mb-3 overflow-hidden"
-                style={{ height: "405px" }}
+                className="relative bg-gray-100 mb-3 overflow-hidden shop-product-image"
               >
                 {product.images && product.images[0] ? (
                   <>
@@ -159,9 +158,15 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
           .shop-filters-sticky {
             top: 88px;
           }
+          .shop-product-image {
+            height: 250px;
+          }
           @media (min-width: 768px) {
             .shop-filters-sticky {
               top: 96px;
+            }
+            .shop-product-image {
+              height: 405px;
             }
           }
         `}</style>

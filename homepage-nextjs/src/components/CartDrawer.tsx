@@ -116,12 +116,13 @@ export default function CartDrawer() {
           {items.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-center">
               <p className="text-gray-500 mb-6">Your cart is empty</p>
-              <button
+              <Link
+                href="/shop"
                 onClick={closeDrawer}
                 className="inline-block bg-[#222222] text-white px-8 py-3 text-sm font-bold uppercase border border-[#222222] hover:bg-transparent hover:text-[#222222] transition-all"
               >
                 Continue shopping
-              </button>
+              </Link>
             </div>
           ) : (
             <div className="space-y-6">
