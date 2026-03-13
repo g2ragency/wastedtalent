@@ -211,6 +211,30 @@ export interface WooCommerceProduct {
   }>;
   stock_status: string;
   in_stock: boolean;
+  type?: string;
+  attributes?: Array<{
+    id: number;
+    name: string;
+    position: number;
+    visible: boolean;
+    variation: boolean;
+    options: string[];
+  }>;
+  variations?: number[];
+}
+
+export interface ProductVariation {
+  id: number;
+  price: string;
+  regular_price: string;
+  sale_price: string;
+  stock_status: string;
+  stock_quantity: number | null;
+  attributes: Array<{
+    id: number;
+    name: string;
+    option: string;
+  }>;
 }
 
 // Get WooCommerce API base URL

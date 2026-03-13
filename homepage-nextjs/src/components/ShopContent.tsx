@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { WooCommerceProduct } from "@/lib/api";
-import Footer from "@/components/Footer"
+import Footer from "@/components/Footer";
 import { ContactInfo } from "@/lib/api";
 
 interface ShopContentProps {
@@ -12,7 +12,10 @@ interface ShopContentProps {
   contactInfo?: ContactInfo;
 }
 
-export default function ShopContent({ products, contactInfo }: ShopContentProps) {
+export default function ShopContent({
+  products,
+  contactInfo,
+}: ShopContentProps) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -79,16 +82,14 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
         {scrolled && <div style={{ height: "60px" }} />}
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-[20px] mt-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-[20px] mt-12">
           {products.map((product) => (
             <Link
               key={product.id}
               href={`/shop/${product.slug}`}
               className="group"
             >
-              <div
-                className="relative bg-gray-100 mb-3 overflow-hidden shop-product-image"
-              >
+              <div className="relative bg-gray-100 mb-3 overflow-hidden shop-product-image">
                 {product.images && product.images[0] ? (
                   <>
                     <Image
@@ -154,22 +155,22 @@ export default function ShopContent({ products, contactInfo }: ShopContentProps)
         )}
       </div>
       <Footer contactInfo={contactInfo} />
-        <style jsx global>{`
+      <style jsx global>{`
+        .shop-filters-sticky {
+          top: 88px;
+        }
+        .shop-product-image {
+          height: 250px;
+        }
+        @media (min-width: 768px) {
           .shop-filters-sticky {
-            top: 88px;
+            top: 96px;
           }
           .shop-product-image {
-            height: 250px;
+            height: 405px;
           }
-          @media (min-width: 768px) {
-            .shop-filters-sticky {
-              top: 96px;
-            }
-            .shop-product-image {
-              height: 405px;
-            }
-          }
-        `}</style>
+        }
+      `}</style>
     </main>
   );
 }

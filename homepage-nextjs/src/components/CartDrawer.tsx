@@ -243,12 +243,13 @@ export default function CartDrawer() {
             </Link>
 
             {/* Continue Shopping */}
-            <button
+            <Link
+              href="/shop"
               onClick={closeDrawer}
               className="block w-full text-center text-sm text-gray-500 hover:text-[#222222] mt-3 transition-colors"
             >
               Continue shopping
-            </button>
+            </Link>
           </div>
         )}
       </div>
