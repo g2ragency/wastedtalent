@@ -378,6 +378,7 @@ class HPM_REST_API {
                         'id' => $product->get_id(),
                         'name' => $product->get_name(),
                         'slug' => $product->get_slug(),
+                        'type' => $product->get_type(),
                         'price' => $product->get_price(),
                         'regular_price' => $product->get_regular_price(),
                         'sale_price' => $product->get_sale_price(),
@@ -464,6 +465,7 @@ class HPM_REST_API {
                     'id' => $product->get_id(),
                     'name' => $product->get_name(),
                     'slug' => $product->get_slug(),
+                    'type' => $product->get_type(),
                     'price' => $product->get_price(),
                     'regular_price' => $product->get_regular_price(),
                     'sale_price' => $product->get_sale_price(),
@@ -476,6 +478,37 @@ class HPM_REST_API {
                     'in_stock' => $product->is_in_stock(),
                     'stock_status' => $product->get_stock_status()
                 );
+
+                // Add attributes
+                $attributes_data = array();
+                foreach ($product->get_attributes() as $attr) {
+                    $attributes_data[] = array(
+                        'id' => $attr->get_id(),
+                        'name' => $attr->get_name(),
+                        'options' => $attr->get_options(),
+                        'variation' => $attr->get_variation(),
+                    );
+                }
+                $product_data['attributes'] = $attributes_data;
+
+                // Add variations with stock info for variable products
+                $variations_data = array();
+                if ($product->get_type() === 'variable') {
+                    $variations = $product->get_available_variations();
+                    foreach ($variations as $variation) {
+                        $var_product = wc_get_product($variation['variation_id']);
+                        if ($var_product) {
+                            $variations_data[] = array(
+                                'id' => $variation['variation_id'],
+                                'price' => $var_product->get_price(),
+                                'stock_status' => $var_product->get_stock_status(),
+                                'stock_quantity' => $var_product->get_stock_quantity(),
+                                'attributes' => $variation['attributes'],
+                            );
+                        }
+                    }
+                }
+                $product_data['variations'] = $variations_data;
                 
                 wp_reset_postdata();
                 return rest_ensure_response($product_data);

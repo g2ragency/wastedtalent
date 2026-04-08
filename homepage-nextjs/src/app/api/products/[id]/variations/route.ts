@@ -27,14 +27,24 @@ export async function GET(
     const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString(
       "base64",
     );
-    const url = `${WC_API_URL}/products/${params.id}/variations?per_page=100`;
+    const baseUrl = `${WC_API_URL}/products/${params.id}/variations?per_page=100`;
+
+    // Use query params for HTTP (required by WooCommerce), Basic Auth for HTTPS
+    const isHttps = WC_API_URL.startsWith("https");
+    const url = isHttps
+      ? baseUrl
+      : `${baseUrl}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (isHttps) {
+      headers["Authorization"] = `Basic ${auth}`;
+    }
 
     const res = await fetch(url, {
       cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${auth}`,
-      },
+      headers,
     });
 
     if (!res.ok) {

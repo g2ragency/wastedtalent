@@ -22,33 +22,46 @@ export async function GET() {
     console.log("API Route - WC URL:", WC_API_URL);
 
     if (!consumerKey || !consumerSecret) {
-      return jsonResponse({ error: "Missing WooCommerce credentials" }, 500 );
+      return jsonResponse({ error: "Missing WooCommerce credentials" }, 500);
     }
 
     // Use Basic Auth for local development
     const auth = Buffer.from(`${consumerKey}:${consumerSecret}`).toString(
       "base64",
     );
-    const url = `${WC_API_URL}/products?per_page=100`;
+    const baseUrl = `${WC_API_URL}/products?per_page=100`;
+
+    // Use query params for HTTP (required by WooCommerce), Basic Auth for HTTPS
+    const isHttps = WC_API_URL.startsWith("https");
+    const url = isHttps
+      ? baseUrl
+      : `${baseUrl}&consumer_key=${consumerKey}&consumer_secret=${consumerSecret}`;
+
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (isHttps) {
+      headers["Authorization"] = `Basic ${auth}`;
+    }
 
     const res = await fetch(url, {
       cache: "no-store",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${auth}`,
-      },
+      headers,
     });
 
     if (!res.ok) {
       const errorText = await res.text();
       console.error("WooCommerce API Error:", res.status, errorText);
-      return jsonResponse({ error: "Failed to fetch products", details: errorText }, res.status );
+      return jsonResponse(
+        { error: "Failed to fetch products", details: errorText },
+        res.status,
+      );
     }
 
     const products = await res.json();
     return jsonResponse(products);
   } catch (error) {
     console.error("API Route Error:", error);
-    return jsonResponse({ error: "Internal server error" }, 500 );
+    return jsonResponse({ error: "Internal server error" }, 500);
   }
 }

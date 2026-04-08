@@ -38,21 +38,50 @@ export default function ProductDetail({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Fetch variations when component mounts
+  // Fetch variations when component mounts (use product.variations if available from Site Manager, otherwise fetch from WC API)
   useEffect(() => {
-    if (product.type === "variable" && product.id) {
-      setLoadingVariations(true);
-      fetch(`/api/products/${product.id}/variations`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setVariations(data);
+    if (product.type === "variable") {
+      // Check if variations are already included in product data (from Site Manager)
+      if (
+        product.variations &&
+        Array.isArray(product.variations) &&
+        product.variations.length > 0
+      ) {
+        // Normalize Site Manager format to match expected format
+        const normalized = product.variations.map((v: any) => {
+          // Site Manager returns attributes as object {"attribute_pa_size": "Small"}
+          // Normalize to array format [{"name": "Size", "option": "Small"}]
+          let attrs = v.attributes;
+          if (attrs && !Array.isArray(attrs)) {
+            attrs = Object.entries(attrs).map(([key, value]) => ({
+              name: key.replace("attribute_pa_", "").replace("attribute_", ""),
+              option: value as string,
+            }));
           }
-        })
-        .catch((err) => console.error("Error fetching variations:", err))
-        .finally(() => setLoadingVariations(false));
+          return {
+            ...v,
+            attributes: attrs || [],
+          };
+        });
+        setVariations(normalized);
+        return;
+      }
+
+      // Fallback: fetch from WC API
+      if (product.id) {
+        setLoadingVariations(true);
+        fetch(`/api/products/${product.id}/variations`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (Array.isArray(data)) {
+              setVariations(data);
+            }
+          })
+          .catch((err) => console.error("Error fetching variations:", err))
+          .finally(() => setLoadingVariations(false));
+      }
     }
-  }, [product.id, product.type]);
+  }, [product.id, product.type, product.variations]);
 
   // Lock body scroll when sheets are open (mobile only)
   useEffect(() => {
