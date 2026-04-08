@@ -3,6 +3,8 @@ import HeaderDynamic from "@/components/HeaderDynamic";
 import LookbookDetailContent from "@/components/LookbookDetailContent";
 import { notFound } from "next/navigation";
 
+export const revalidate = 60;
+
 interface LookbookDetailPageProps {
   params: { slug: string };
 }

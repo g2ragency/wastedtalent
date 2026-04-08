@@ -2,6 +2,8 @@ import { getHeaderData, getAboutData, getContactInfo } from "@/lib/api";
 import HeaderDynamic from "@/components/HeaderDynamic";
 import AboutContent from "@/components/AboutContent";
 
+export const revalidate = 60;
+
 export default async function AboutPage() {
   const [headerData, aboutData, contactInfo] = await Promise.all([
     getHeaderData(),

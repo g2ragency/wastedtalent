@@ -3,8 +3,7 @@ import { getProductBySlug, getHeaderData, getContactInfo } from "@/lib/api";
 import HeaderDynamic from "@/components/HeaderDynamic";
 import ProductDetail from "@/components/ProductDetail";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+export const revalidate = 60;
 
 interface ProductPageProps {
   params: {

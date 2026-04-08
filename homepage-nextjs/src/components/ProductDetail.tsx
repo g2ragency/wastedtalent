@@ -28,6 +28,15 @@ export default function ProductDetail({
   const sizeSheetRef = useRef<HTMLDivElement>(null);
   const stickyBarRef = useRef<HTMLDivElement>(null);
   const [stickyBarHeight, setStickyBarHeight] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Detect mobile vs desktop
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Fetch variations when component mounts
   useEffect(() => {
@@ -144,10 +153,12 @@ export default function ProductDetail({
         slug: product.slug,
         image: product.images?.[0]?.src,
       },
-      true, // suppress default drawer on mobile
+      isMobile, // suppress default drawer only on mobile
     );
-    // Show cart sheet instead of default drawer
-    setCartSheetOpen(true);
+    if (isMobile) {
+      // Show cart sheet instead of default drawer on mobile
+      setCartSheetOpen(true);
+    }
   };
 
   const handleSizeButtonClick = () => {
@@ -405,7 +416,9 @@ export default function ProductDetail({
           bottom: 0,
           maxHeight: "70vh",
           overflowY: "auto",
-          transform: sizeSheetOpen ? `translateY(-${stickyBarHeight}px)` : "translateY(100%)",
+          transform: sizeSheetOpen
+            ? `translateY(-${stickyBarHeight}px)`
+            : "translateY(100%)",
           visibility: sizeSheetOpen ? "visible" : "hidden",
           transition: sizeSheetOpen
             ? "transform 300ms ease-out, visibility 0s"
@@ -539,25 +552,25 @@ export default function ProductDetail({
               : "Free Shipping"}
           </p>
           <div style={{ marginTop: "16px" }}>
-          <Link
-            href="/checkout"
-            className="block w-full py-3 text-center text-sm font-bold uppercase bg-[#222222] text-white mb-3"
-            style={{ fontFamily: "Helvetica Neue, sans-serif" }}
-            onClick={() => setCartSheetOpen(false)}
-          >
-            Checkout
-          </Link>
-          <Link
-            href="/shop"
-            className="block w-full text-center text-sm hover:underline"
-            style={{
-              fontFamily: "Helvetica Neue, sans-serif",
-              color: "#999999",
-            }}
-            onClick={() => setCartSheetOpen(false)}
-          >
-            Continue shopping
-          </Link>
+            <Link
+              href="/checkout"
+              className="block w-full py-3 text-center text-sm font-bold uppercase bg-[#222222] text-white mb-3"
+              style={{ fontFamily: "Helvetica Neue, sans-serif" }}
+              onClick={() => setCartSheetOpen(false)}
+            >
+              Checkout
+            </Link>
+            <Link
+              href="/shop"
+              className="block w-full text-center text-sm hover:underline"
+              style={{
+                fontFamily: "Helvetica Neue, sans-serif",
+                color: "#999999",
+              }}
+              onClick={() => setCartSheetOpen(false)}
+            >
+              Continue shopping
+            </Link>
           </div>
         </div>
       </div>
