@@ -96,7 +96,6 @@ export default function RegisterContent({ contactInfo }: RegisterContentProps) {
             <h1
               className="text-center mb-10"
               style={{
-                fontSize: "40px",
                 fontFamily: "Helvetica Neue, sans-serif",
                 fontWeight: 300,
               }}

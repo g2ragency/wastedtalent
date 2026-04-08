@@ -9,7 +9,7 @@ export default async function TrackOrderPage() {
       <HeaderDynamic data={headerData} />
       <main className="min-h-screen bg-white pt-32 pb-16">
         <div className="w-full px-6">
-          <h1 className="text-4xl font-light mb-8">Track Your Order</h1>
+          <h1 className="font-light mb-8">Track Your Order</h1>
 
           <div className="space-y-6">
             <div>

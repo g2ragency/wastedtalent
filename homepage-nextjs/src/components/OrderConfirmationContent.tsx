@@ -29,9 +29,7 @@ export default function OrderConfirmationContent() {
             </svg>
           </div>
 
-          <h1 className="text-4xl font-light mb-4">
-            Thank you for your order!
-          </h1>
+          <h1 className="font-light mb-4">Thank you for your order!</h1>
           <p className="text-gray-600 mb-8">
             Your order has been received and is being processed. You will
             receive a confirmation email shortly.

@@ -9,7 +9,7 @@ export default async function ShippingPage() {
       <HeaderDynamic data={headerData} />
       <main className="min-h-screen bg-white pt-32 pb-16">
         <div className="w-full px-6">
-          <h1 className="text-4xl font-light mb-8">Shipping Information</h1>
+          <h1 className="font-light mb-8">Shipping Information</h1>
 
           <div className="prose max-w-none">
             <h2 className="text-2xl font-bold mb-4">Shipping Methods</h2>

@@ -1,29 +1,31 @@
-'use client'
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { LookbookDetail } from "@/lib/api"
-import Footer from "@/components/Footer"
-import { ContactInfo } from "@/lib/api"
+import Image from "next/image";
+import Link from "next/link";
+import { LookbookDetail } from "@/lib/api";
+import Footer from "@/components/Footer";
+import { ContactInfo } from "@/lib/api";
 
 interface LookbookDetailContentProps {
   lookbook: LookbookDetail;
   contactInfo?: ContactInfo;
 }
 
-export default function LookbookDetailContent({ lookbook, contactInfo }: LookbookDetailContentProps) {
+export default function LookbookDetailContent({
+  lookbook,
+  contactInfo,
+}: LookbookDetailContentProps) {
   return (
     <main className="min-h-screen bg-white">
-
       {/* Title */}
       <section className="pt-32 pb-12 px-3 md:px-6">
-        <h1 style={{
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-          fontWeight: 300,
-          fontSize: '60px',
-          lineHeight: '95%',
-          letterSpacing: '0%',
-        }}>
+        <h1
+          style={{
+            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+            fontWeight: 300,
+            letterSpacing: "0%",
+          }}
+        >
           {lookbook.title}
         </h1>
       </section>
@@ -41,13 +43,15 @@ export default function LookbookDetailContent({ lookbook, contactInfo }: Lookboo
                   height={1707}
                   className="w-full h-auto"
                   sizes="100vw"
-                  style={{ objectFit: 'cover' }}
+                  style={{ objectFit: "cover" }}
                 />
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-gray-400 text-sm">No images in this lookbook yet.</p>
+          <p className="text-gray-400 text-sm">
+            No images in this lookbook yet.
+          </p>
         )}
       </section>
 
@@ -58,7 +62,6 @@ export default function LookbookDetailContent({ lookbook, contactInfo }: Lookboo
         </Link>
       </section>
       <Footer contactInfo={contactInfo} />
-
     </main>
-  )
+  );
 }

@@ -10,7 +10,7 @@ export default async function MyAccountPage() {
       <HeaderDynamic data={headerData} />
       <main className="min-h-screen bg-white pt-32 pb-16">
         <div className="w-full px-6">
-          <h1 className="text-4xl font-light mb-8">My Account</h1>
+          <h1 className="font-light mb-8">My Account</h1>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Link

@@ -1,21 +1,24 @@
-'use client'
+"use client";
 
-import { useEffect, useRef } from "react"
-import Footer from "@/components/Footer"
-import { ContactInfo } from "@/lib/api"
+import { useEffect, useRef } from "react";
+import Footer from "@/components/Footer";
+import { ContactInfo } from "@/lib/api";
 
 interface ContactContentProps {
   formHtml: string;
   contactInfo?: ContactInfo;
 }
 
-export default function ContactContent({ formHtml, contactInfo }: ContactContentProps) {
+export default function ContactContent({
+  formHtml,
+  contactInfo,
+}: ContactContentProps) {
   const formWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!formWrapperRef.current) return;
 
-    const form = formWrapperRef.current.querySelector('form');
+    const form = formWrapperRef.current.querySelector("form");
     if (!form) return;
 
     const handleSubmit = async (e: Event) => {
@@ -25,14 +28,16 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
       const formData = new FormData(formElement);
 
       // Get the form ID from the hidden _wpcf7 field (set by CF7 automatically)
-      const wpcf7Id = formData.get('_wpcf7');
+      const wpcf7Id = formData.get("_wpcf7");
       if (!wpcf7Id) {
-        console.error('CF7 form ID not found in form data');
+        console.error("CF7 form ID not found in form data");
         return;
       }
 
       // Check required fields
-      const inputs = formElement.querySelectorAll('[aria-required="true"], [required]');
+      const inputs = formElement.querySelectorAll(
+        '[aria-required="true"], [required]',
+      );
       let allFilled = true;
       inputs.forEach((input) => {
         const el = input as HTMLInputElement | HTMLTextAreaElement;
@@ -42,66 +47,79 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
       });
 
       if (!allFilled) {
-        let responseOutput = formElement.querySelector('.wpcf7-response-output');
+        let responseOutput = formElement.querySelector(
+          ".wpcf7-response-output",
+        );
         if (!responseOutput) {
-          responseOutput = document.createElement('div');
-          responseOutput.className = 'wpcf7-response-output';
+          responseOutput = document.createElement("div");
+          responseOutput.className = "wpcf7-response-output";
           formElement.appendChild(responseOutput);
         }
-        responseOutput.textContent = 'Please fill in all required fields before submitting.';
-        (responseOutput as HTMLElement).style.borderColor = '#dc2626';
-        (responseOutput as HTMLElement).style.color = '#dc2626';
+        responseOutput.textContent =
+          "Please fill in all required fields before submitting.";
+        (responseOutput as HTMLElement).style.borderColor = "#dc2626";
+        (responseOutput as HTMLElement).style.color = "#dc2626";
         return;
       }
 
       try {
         // Submit directly to the CF7 REST API on WordPress
-        const wpBase = (process.env.NEXT_PUBLIC_WP_API_URL || 'http://wasted-talent.local/wp-json/site-manager/v1').replace('/site-manager/v1', '');
+        const wpBase = (
+          process.env.NEXT_PUBLIC_WP_API_URL ||
+          "http://wasted-talent.local/wp-json/site-manager/v1"
+        ).replace("/site-manager/v1", "");
         const response = await fetch(
           `${wpBase}/contact-form-7/v1/contact-forms/${wpcf7Id}/feedback`,
           {
-            method: 'POST',
+            method: "POST",
             body: formData,
-          }
+          },
         );
 
         const result = await response.json();
 
-        let responseOutput = formElement.querySelector('.wpcf7-response-output');
+        let responseOutput = formElement.querySelector(
+          ".wpcf7-response-output",
+        );
         if (!responseOutput) {
-          responseOutput = document.createElement('div');
-          responseOutput.className = 'wpcf7-response-output';
+          responseOutput = document.createElement("div");
+          responseOutput.className = "wpcf7-response-output";
           formElement.appendChild(responseOutput);
         }
 
-        if (result.status === 'mail_sent') {
-          responseOutput.textContent = result.message || 'Thank you for your message. It has been sent.';
-          (responseOutput as HTMLElement).style.borderColor = '#16a34a';
-          (responseOutput as HTMLElement).style.color = '#16a34a';
+        if (result.status === "mail_sent") {
+          responseOutput.textContent =
+            result.message || "Thank you for your message. It has been sent.";
+          (responseOutput as HTMLElement).style.borderColor = "#16a34a";
+          (responseOutput as HTMLElement).style.color = "#16a34a";
           formElement.reset();
         } else {
-          responseOutput.textContent = result.message || 'An error occurred. Please try again.';
-          (responseOutput as HTMLElement).style.borderColor = '#dc2626';
-          (responseOutput as HTMLElement).style.color = '#dc2626';
+          responseOutput.textContent =
+            result.message || "An error occurred. Please try again.";
+          (responseOutput as HTMLElement).style.borderColor = "#dc2626";
+          (responseOutput as HTMLElement).style.color = "#dc2626";
         }
       } catch (error) {
-        console.error('Form submission error:', error);
-        let responseOutput = formElement.querySelector('.wpcf7-response-output');
+        console.error("Form submission error:", error);
+        let responseOutput = formElement.querySelector(
+          ".wpcf7-response-output",
+        );
         if (!responseOutput) {
-          responseOutput = document.createElement('div');
-          responseOutput.className = 'wpcf7-response-output';
+          responseOutput = document.createElement("div");
+          responseOutput.className = "wpcf7-response-output";
           formElement.appendChild(responseOutput);
         }
-        responseOutput.textContent = 'An error occurred. Please try again later.';
-        (responseOutput as HTMLElement).style.borderColor = '#dc2626';
-        (responseOutput as HTMLElement).style.color = '#dc2626';
+        responseOutput.textContent =
+          "An error occurred. Please try again later.";
+        (responseOutput as HTMLElement).style.borderColor = "#dc2626";
+        (responseOutput as HTMLElement).style.color = "#dc2626";
       }
     };
 
-    form.addEventListener('submit', handleSubmit);
+    form.addEventListener("submit", handleSubmit);
 
     return () => {
-      form.removeEventListener('submit', handleSubmit);
+      form.removeEventListener("submit", handleSubmit);
     };
   }, []);
 
@@ -109,17 +127,19 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
     <main className="min-h-screen bg-white pt-24">
       {/* Contact Form Section */}
       <section className="max-w-[700px] mx-auto px-3 md:px-6 pt-12 pb-16">
-        <h1 style={{
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-          fontWeight: 300,
-          fontSize: '60px',
-          textAlign: 'center',
-          marginBottom: '16px',
-        }}>
+        <h1
+          style={{
+            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+            fontWeight: 300,
+            textAlign: "center",
+            marginBottom: "16px",
+          }}
+        >
           Contact us
         </h1>
         <p className="text-center text-[14px] text-[#222222] mb-10">
-          Have a question or need support?<br />
+          Have a question or need support?
+          <br />
           Send us a message and we&apos;ll get back to you as soon as possible.
         </p>
 
@@ -131,31 +151,53 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
             dangerouslySetInnerHTML={{ __html: formHtml }}
           />
         ) : (
-          <p className="text-gray-400 text-sm text-center">Contact form not configured yet.</p>
+          <p className="text-gray-400 text-sm text-center">
+            Contact form not configured yet.
+          </p>
         )}
       </section>
 
       {/* Follow Us Section */}
       <section className="pb-20 text-center">
-        <h2 style={{
-          fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
-          fontWeight: 300,
-          fontSize: '60px',
-          marginBottom: '16px',
-        }}>
+        <h2
+          style={{
+            fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif",
+            fontWeight: 300,
+            fontSize: "60px",
+            marginBottom: "16px",
+          }}
+        >
           Follow us
         </h2>
         <div className="flex items-center justify-center gap-2 text-[14px]">
           {(contactInfo?.social_instagram || "https://instagram.com") && (
-            <a href={contactInfo?.social_instagram || "https://instagram.com"} target="_blank" className="hover:underline">Instagram</a>
+            <a
+              href={contactInfo?.social_instagram || "https://instagram.com"}
+              target="_blank"
+              className="hover:underline"
+            >
+              Instagram
+            </a>
           )}
           <span className="text-gray-400">|</span>
           {(contactInfo?.social_facebook || "https://facebook.com") && (
-            <a href={contactInfo?.social_facebook || "https://facebook.com"} target="_blank" className="hover:underline">Facebook</a>
+            <a
+              href={contactInfo?.social_facebook || "https://facebook.com"}
+              target="_blank"
+              className="hover:underline"
+            >
+              Facebook
+            </a>
           )}
           <span className="text-gray-400">|</span>
           {(contactInfo?.social_spotify || "https://spotify.com") && (
-            <a href={contactInfo?.social_spotify || "https://spotify.com"} target="_blank" className="hover:underline">Spotify</a>
+            <a
+              href={contactInfo?.social_spotify || "https://spotify.com"}
+              target="_blank"
+              className="hover:underline"
+            >
+              Spotify
+            </a>
           )}
         </div>
       </section>
@@ -191,7 +233,7 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
           font-size: 14px;
           font-family: inherit;
           outline: none;
-          background: #F2F2F2;
+          background: #f2f2f2;
           box-sizing: border-box;
           -webkit-appearance: none;
           border-radius: 0;
@@ -280,7 +322,7 @@ export default function ContactContent({ formHtml, contactInfo }: ContactContent
           margin-top: 2px;
           cursor: pointer;
           flex-shrink: 0;
-          background: #F2F2F2;
+          background: #f2f2f2;
         }
         .cf7-form-wrapper .acceptance a {
           text-decoration: underline;

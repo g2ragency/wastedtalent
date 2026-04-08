@@ -64,7 +64,6 @@ export default function ForgotPasswordContent({
               <h1
                 className="mb-6"
                 style={{
-                  fontSize: "40px",
                   fontFamily: "Helvetica Neue, sans-serif",
                   fontWeight: 300,
                 }}
@@ -107,7 +106,6 @@ export default function ForgotPasswordContent({
             <h1
               className="text-center mb-4"
               style={{
-                fontSize: "40px",
                 fontFamily: "Helvetica Neue, sans-serif",
                 fontWeight: 300,
               }}

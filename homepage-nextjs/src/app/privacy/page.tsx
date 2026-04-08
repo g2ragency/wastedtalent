@@ -9,7 +9,7 @@ export default async function PrivacyPage() {
       <HeaderDynamic data={headerData} />
       <main className="min-h-screen bg-white pt-32 pb-16">
         <div className="w-full px-6">
-          <h1 className="text-4xl font-light mb-8">Privacy Policy</h1>
+          <h1 className="font-light mb-8">Privacy Policy</h1>
 
           <div className="prose max-w-none space-y-6">
             <section>

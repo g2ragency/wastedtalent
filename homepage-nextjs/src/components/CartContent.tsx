@@ -12,7 +12,7 @@ export default function CartContent() {
     return (
       <main className="min-h-screen bg-white pt-32 pb-16">
         <div className="w-full px-3 md:px-6">
-          <h1 className="text-4xl font-light mb-8">Shopping Cart</h1>
+          <h1 className="font-light mb-8">Shopping Cart</h1>
           <div className="text-center py-20">
             <p className="text-gray-500 mb-6">Your cart is empty</p>
             <Link
@@ -30,9 +30,7 @@ export default function CartContent() {
   return (
     <main className="min-h-screen bg-white pt-32 pb-16">
       <div className="w-full px-3 md:px-6">
-        <h1 className="text-4xl font-light mb-8">
-          Shopping Cart ({totalItems})
-        </h1>
+        <h1 className="font-light mb-8">Shopping Cart ({totalItems})</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Cart Items */}
