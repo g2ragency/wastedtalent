@@ -84,6 +84,26 @@ export default function AccountContent({
   const { user, logout, isLoading } = useAuth();
   const activeSection = section;
 
+  // All hooks must be before any conditional returns
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileShowContent, setMobileShowContent] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+
+  // On mobile, if we navigate to a sub-section via URL, show content
+  useEffect(() => {
+    if (activeSection !== 'account') {
+      setMobileShowContent(true);
+    } else {
+      setMobileShowContent(false);
+    }
+  }, [activeSection]);
+
   const handleLogout = () => {
     logout();
     router.push("/");
@@ -98,7 +118,7 @@ export default function AccountContent({
   if (isLoading) {
     return (
       <>
-        <main className="min-h-screen bg-white pt-32 pb-16">
+        <main className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}>
           <div className="max-w-[1440px] mx-auto px-3 md:px-6">
             <p
               className="text-sm"
@@ -118,14 +138,16 @@ export default function AccountContent({
 
   return (
     <>
-      <main className="min-h-screen bg-white pt-32 pb-16">
+      <main className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}>
         <div className="max-w-[1440px] mx-auto px-3 md:px-6">
-          <div className="flex gap-12">
-            {/* Left Sidebar */}
-            <div className="w-[325px] flex-shrink-0">
+          <div className="flex flex-col md:flex-row gap-0 md:gap-12" >
+            {/* Left Sidebar - always visible on desktop, on mobile only when no sub-section is active */}
+            <div
+              className={`w-full md:w-[325px] md:flex-shrink-0 ${isMobile && mobileShowContent ? 'hidden' : ''}`}
+            >
               <nav className="flex flex-col">
                 {menuItems.map((item, index) => {
-                  const isActive = activeSection === item.key;
+                  const isActive = isMobile && !mobileShowContent ? false : activeSection === item.key;
                   const borderColor = isActive ? "#222222" : "#DDD";
                   const arrowColor = isActive ? "#222222" : "#DDD";
 
@@ -133,6 +155,14 @@ export default function AccountContent({
                     <Link
                       key={item.key}
                       href={item.href}
+                      onClick={(e) => {
+                        if (isMobile && item.key === 'account') {
+                          e.preventDefault();
+                          setMobileShowContent(true);
+                        } else if (isMobile) {
+                          setMobileShowContent(true);
+                        }
+                      }}
                       className="flex items-center justify-between w-full text-left uppercase transition-colors"
                       style={{
                         fontFamily: "Helvetica Neue, sans-serif",
@@ -157,13 +187,15 @@ export default function AccountContent({
                 {/* Log Out */}
                 <button
                   onClick={handleLogout}
-                  className="flex items-center gap-2 w-full text-left uppercase transition-opacity hover:opacity-60 mt-4"
+                  className="flex items-center gap-2 w-full text-left uppercase transition-opacity hover:opacity-60"
                   style={{
                     fontFamily: "Helvetica Neue, sans-serif",
                     fontSize: "14px",
                     fontWeight: 700,
                     color: "#222222",
                     padding: "24px 14px",
+                    paddingLeft: isMobile ? "0" : "14px",
+                    marginTop: "34px",
                   }}
                 >
                   Log Out
@@ -172,8 +204,27 @@ export default function AccountContent({
               </nav>
             </div>
 
-            {/* Right Content */}
-            <div className="flex-1">
+            {/* Right Content - always visible on desktop, on mobile only when a sub-section is active */}
+            <div className={`flex-1 ${isMobile && !mobileShowContent ? 'hidden' : ''}`}
+            >
+              {/* Mobile back button */}
+              {isMobile && mobileShowContent && (
+                <button
+                  onClick={() => { setMobileShowContent(false); router.push('/account'); }}
+                  className="flex items-center gap-2 mb-4 hover:opacity-60 transition-opacity"
+                  style={{
+                    fontFamily: "Helvetica Neue, sans-serif",
+                    fontSize: "14px",
+                    fontWeight: 700,
+                    color: "#222222",
+                  }}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="15 18 9 12 15 6" stroke="#222222" />
+                  </svg>
+                  Back
+                </button>
+              )}
               {activeSection === "account" && <AccountDetails user={user!} />}
               {activeSection === "orders" && <MyOrders />}
               {activeSection === "delivery" && <DeliveryAddress />}
@@ -340,9 +391,27 @@ function AccountDetails({
 
   return (
     <div
-      className="w-full"
+      className="w-full account-details-wrapper"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
+      <style jsx global>{`
+        @media (max-width: 767px) {
+          .account-details-wrapper {
+            background-color: transparent !important;
+            padding: 0 !important;
+          }
+          .account-field-card {
+            background-color: white !important;
+            padding: 30px 20px !important;
+          }
+          .account-inner-card {
+            padding: 24px 16px 30px !important;
+          }
+          .account-order-card {
+            padding: 24px 16px 30px !important;
+          }
+        }
+      `}</style>
       {/* Feedback messages */}
       {error && (
         <div
@@ -376,7 +445,7 @@ function AccountDetails({
       {/* Row 1: First Name + Last Name */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* First Name */}
-        <div className="bg-white" style={{ padding: "20px" }}>
+        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -433,7 +502,7 @@ function AccountDetails({
         </div>
 
         {/* Last Name */}
-        <div className="bg-white" style={{ padding: "20px" }}>
+        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -516,7 +585,7 @@ function AccountDetails({
 
       {/* Row 2: Email (full width) */}
       <div className="mb-6">
-        <div className="bg-white" style={{ padding: "20px" }}>
+        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -599,7 +668,7 @@ function AccountDetails({
 
       {/* Row 3: Password (full width) */}
       <div className="mb-6">
-        <div className="bg-white" style={{ padding: "20px" }}>
+        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -862,7 +931,7 @@ function MyOrders() {
   if (loading) {
     return (
       <div
-        className="w-full"
+        className="w-full account-details-wrapper"
         style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
       >
         <p
@@ -881,7 +950,7 @@ function MyOrders() {
   if (error) {
     return (
       <div
-        className="w-full"
+        className="w-full account-details-wrapper"
         style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
       >
         <p
@@ -900,7 +969,7 @@ function MyOrders() {
   if (orders.length === 0) {
     return (
       <div
-        className="w-full"
+        className="w-full account-details-wrapper"
         style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
       >
         <p
@@ -920,7 +989,7 @@ function MyOrders() {
   if (selectedOrder) {
     return (
       <div
-        className="w-full"
+        className="w-full account-details-wrapper"
         style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
       >
         {/* Back button */}
@@ -949,7 +1018,7 @@ function MyOrders() {
           Back to Orders
         </button>
 
-        <div className="bg-white" style={{ padding: "40px 40px 60px" }}>
+        <div className="bg-white account-inner-card" style={{ padding: "40px 40px 60px" }}>
           {/* Order header info */}
           <div
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -1124,14 +1193,14 @@ function MyOrders() {
   // ── Orders Grid View ──
   return (
     <div
-      className="w-full"
+      className="w-full account-details-wrapper"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {orders.map((order) => (
           <div
             key={order.id}
-            className="bg-white cursor-pointer hover:shadow-md transition-shadow"
+            className="bg-white cursor-pointer hover:shadow-md transition-shadow account-order-card"
             style={{ padding: "40px 40px 60px" }}
             onClick={() => setSelectedOrder(order)}
           >
@@ -1342,7 +1411,7 @@ function AddressSection({
   if (loading) {
     return (
       <div
-        className="w-full"
+        className="w-full account-details-wrapper"
         style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
       >
         <p
@@ -1360,7 +1429,7 @@ function AddressSection({
 
   return (
     <div
-      className="w-full"
+      className="w-full account-details-wrapper"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
       {error && (
@@ -1417,7 +1486,7 @@ function AddressSection({
       )}
 
       {!editing && hasAddress && (
-        <div className="bg-white" style={{ padding: "40px 40px 60px" }}>
+        <div className="bg-white account-inner-card" style={{ padding: "40px 40px 60px" }}>
           {/* Edit button */}
           <div className="flex justify-end mb-4">
             <button
@@ -1507,7 +1576,7 @@ function AddressSection({
 
       {/* Edit Form */}
       {editing && (
-        <div className="bg-white" style={{ padding: "40px 40px 60px" }}>
+        <div className="bg-white account-inner-card" style={{ padding: "40px 40px 60px" }}>
           {/* Row 1: First Name, Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>

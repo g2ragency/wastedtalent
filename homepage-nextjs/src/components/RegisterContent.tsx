@@ -70,7 +70,7 @@ export default function RegisterContent({ contactInfo }: RegisterContentProps) {
     const result = await register(firstName, lastName, email, password);
 
     if (result.success) {
-      router.push("/");
+      router.push("/account");
     } else {
       setApiError(result.message || "Registration failed. Please try again.");
       setIsSubmitting(false);
@@ -90,9 +90,9 @@ export default function RegisterContent({ contactInfo }: RegisterContentProps) {
 
   return (
     <>
-      <main className="min-h-screen bg-white pt-32 pb-16">
-        <div className="w-full px-3 md:px-6">
-          <div className="max-w-[500px] mx-auto">
+      <main className="min-h-screen bg-white flex items-center justify-center px-3 md:px-6 pt-20 pb-16">
+        <div className="w-full max-w-[500px]">
+          <div>
             <h1
               className="text-center mb-10"
               style={{
@@ -269,7 +269,7 @@ export default function RegisterContent({ contactInfo }: RegisterContentProps) {
                 color: "#222222",
               }}
             >
-              Already have a Wasted Talent United account?{" "}
+              Already have a WTU account?{" "}
               <Link
                 href="/login"
                 className="underline font-bold hover:opacity-60 transition-opacity"

@@ -58,9 +58,9 @@ export default function ForgotPasswordContent({
   if (success) {
     return (
       <>
-        <main className="min-h-screen bg-white pt-32 pb-16">
-          <div className="w-full px-3 md:px-6">
-            <div className="max-w-[500px] mx-auto text-center">
+        <main className="min-h-screen bg-white flex items-center justify-center px-3 md:px-6 pt-20 pb-16">
+          <div className="w-full max-w-[500px] text-center">
+            <div>
               <h1
                 className="mb-6"
                 style={{
@@ -100,9 +100,9 @@ export default function ForgotPasswordContent({
 
   return (
     <>
-      <main className="min-h-screen bg-white pt-32 pb-16">
-        <div className="w-full px-3 md:px-6">
-          <div className="max-w-[500px] mx-auto">
+      <main className="min-h-screen bg-white flex items-center justify-center px-3 md:px-6 pt-20 pb-16">
+        <div className="w-full max-w-[500px]">
+          <div>
             <h1
               className="text-center mb-4"
               style={{

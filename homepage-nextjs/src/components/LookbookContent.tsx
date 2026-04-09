@@ -55,7 +55,7 @@ export default function LookbookContent({
                   >
                     <div
                       className="relative w-full flex-1 overflow-hidden bg-gray-100"
-                      style={{ aspectRatio: isEven ? "16/9" : undefined }}
+                      style={{ aspectRatio: "16/9" }}
                     >
                       {row[0].cover_image ? (
                         <Image
@@ -91,7 +91,7 @@ export default function LookbookContent({
                   >
                     <div
                       className="relative w-full flex-1 overflow-hidden bg-gray-100"
-                      style={{ aspectRatio: !isEven ? "16/9" : undefined }}
+                      style={{ aspectRatio: "16/9" }}
                     >
                       {row[1].cover_image ? (
                         <Image

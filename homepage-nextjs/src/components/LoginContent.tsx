@@ -54,7 +54,7 @@ export default function LoginContent({ contactInfo }: LoginContentProps) {
     const result = await login(email, password, rememberMe);
 
     if (result.success) {
-      router.push("/");
+      router.push("/account");
     } else {
       setApiError(result.message || "Login failed. Please try again.");
       setIsSubmitting(false);
@@ -72,9 +72,9 @@ export default function LoginContent({ contactInfo }: LoginContentProps) {
 
   return (
     <>
-      <main className="min-h-screen bg-white pt-32 pb-16">
-        <div className="w-full px-3 md:px-6">
-          <div className="max-w-[500px] mx-auto">
+      <main className="min-h-screen bg-white flex items-center justify-center px-3 md:px-6 pt-20 pb-16">
+        <div className="w-full max-w-[500px]">
+          <div>
             <h1
               className="text-center mb-10"
               style={{
@@ -201,7 +201,7 @@ export default function LoginContent({ contactInfo }: LoginContentProps) {
                       color: "#222222",
                     }}
                   >
-                    Ricordami
+                    Remember me
                   </span>
                 </label>
 
@@ -213,7 +213,7 @@ export default function LoginContent({ contactInfo }: LoginContentProps) {
                     color: "#222222",
                   }}
                 >
-                  Password dimenticata?
+                  Forgot password?
                 </Link>
               </div>
 
@@ -233,7 +233,7 @@ export default function LoginContent({ contactInfo }: LoginContentProps) {
                 color: "#222222",
               }}
             >
-              Don&apos;t have an account?{" "}
+              Don&apos;t have a WTU account?{" "}
               <Link
                 href="/register"
                 className="underline font-bold hover:opacity-60 transition-opacity"
