@@ -1,12 +1,14 @@
 "use client";
 
 import { useCart } from "@/context/CartContext";
-import { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function CheckoutContent() {
   const { items, totalPrice, totalItems, clearCart } = useCart();
+  const { user, getAddress } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
@@ -20,6 +22,37 @@ export default function CheckoutContent() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  // Pre-fill form with logged-in user data
+  useEffect(() => {
+    if (!user) return;
+
+    // Start with user basic info
+    setFormData((prev) => ({
+      ...prev,
+      email: prev.email || user.email || "",
+      firstName: prev.firstName || user.firstName || "",
+      lastName: prev.lastName || user.lastName || "",
+    }));
+
+    // Fetch billing address for full details
+    getAddress("billing").then((res) => {
+      if (res.success && res.data) {
+        const addr = res.data;
+        setFormData((prev) => ({
+          ...prev,
+          email: prev.email || addr.email || user.email || "",
+          firstName: prev.firstName || addr.firstName || user.firstName || "",
+          lastName: prev.lastName || addr.lastName || user.lastName || "",
+          address: prev.address || addr.address1 || "",
+          city: prev.city || addr.city || "",
+          postalCode: prev.postalCode || addr.postcode || "",
+          country: prev.country || addr.country || "",
+          phone: prev.phone || addr.phone || "",
+        }));
+      }
+    });
+  }, [user, getAddress]);
 
   if (items.length === 0) {
     return (

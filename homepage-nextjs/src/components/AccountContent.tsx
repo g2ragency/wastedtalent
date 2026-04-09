@@ -91,13 +91,13 @@ export default function AccountContent({
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   // On mobile, if we navigate to a sub-section via URL, show content
   useEffect(() => {
-    if (activeSection !== 'account') {
+    if (activeSection !== "account") {
       setMobileShowContent(true);
     } else {
       setMobileShowContent(false);
@@ -118,7 +118,9 @@ export default function AccountContent({
   if (isLoading) {
     return (
       <>
-        <main className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}>
+        <main
+          className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}
+        >
           <div className="max-w-[1440px] mx-auto px-3 md:px-6">
             <p
               className="text-sm"
@@ -138,16 +140,21 @@ export default function AccountContent({
 
   return (
     <>
-      <main className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}>
+      <main
+        className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}
+      >
         <div className="max-w-[1440px] mx-auto px-3 md:px-6">
-          <div className="flex flex-col md:flex-row gap-0 md:gap-12" >
+          <div className="flex flex-col md:flex-row gap-0 md:gap-12">
             {/* Left Sidebar - always visible on desktop, on mobile only when no sub-section is active */}
             <div
-              className={`w-full md:w-[325px] md:flex-shrink-0 ${isMobile && mobileShowContent ? 'hidden' : ''}`}
+              className={`w-full md:w-[325px] md:flex-shrink-0 ${isMobile && mobileShowContent ? "hidden" : ""}`}
             >
               <nav className="flex flex-col">
                 {menuItems.map((item, index) => {
-                  const isActive = isMobile && !mobileShowContent ? false : activeSection === item.key;
+                  const isActive =
+                    isMobile && !mobileShowContent
+                      ? false
+                      : activeSection === item.key;
                   const borderColor = isActive ? "#222222" : "#DDD";
                   const arrowColor = isActive ? "#222222" : "#DDD";
 
@@ -156,12 +163,12 @@ export default function AccountContent({
                       key={item.key}
                       href={item.href}
                       onClick={(e) => {
-                        if (isMobile && item.key === 'account') {
+                        if (isMobile && item.key === "account") {
                           e.preventDefault();
                           setMobileShowContent(true);
-                        } else if (isMobile) {
-                          setMobileShowContent(true);
                         }
+                        // For other items, let the Link navigate normally.
+                        // The useEffect on activeSection will set mobileShowContent.
                       }}
                       className="flex items-center justify-between w-full text-left uppercase transition-colors"
                       style={{
@@ -205,12 +212,16 @@ export default function AccountContent({
             </div>
 
             {/* Right Content - always visible on desktop, on mobile only when a sub-section is active */}
-            <div className={`flex-1 ${isMobile && !mobileShowContent ? 'hidden' : ''}`}
+            <div
+              className={`flex-1 ${isMobile && !mobileShowContent ? "hidden" : ""}`}
             >
               {/* Mobile back button */}
               {isMobile && mobileShowContent && (
                 <button
-                  onClick={() => { setMobileShowContent(false); router.push('/account'); }}
+                  onClick={() => {
+                    setMobileShowContent(false);
+                    router.push("/account");
+                  }}
                   className="flex items-center gap-2 mb-4 hover:opacity-60 transition-opacity"
                   style={{
                     fontFamily: "Helvetica Neue, sans-serif",
@@ -219,7 +230,16 @@ export default function AccountContent({
                     color: "#222222",
                   }}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#222222" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#222222"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <polyline points="15 18 9 12 15 6" stroke="#222222" />
                   </svg>
                   Back
@@ -445,7 +465,10 @@ function AccountDetails({
       {/* Row 1: First Name + Last Name */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* First Name */}
-        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
+        <div
+          className="bg-white account-field-card"
+          style={{ padding: "20px" }}
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -502,7 +525,10 @@ function AccountDetails({
         </div>
 
         {/* Last Name */}
-        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
+        <div
+          className="bg-white account-field-card"
+          style={{ padding: "20px" }}
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -585,7 +611,10 @@ function AccountDetails({
 
       {/* Row 2: Email (full width) */}
       <div className="mb-6">
-        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
+        <div
+          className="bg-white account-field-card"
+          style={{ padding: "20px" }}
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -668,7 +697,10 @@ function AccountDetails({
 
       {/* Row 3: Password (full width) */}
       <div className="mb-6">
-        <div className="bg-white account-field-card" style={{ padding: "20px" }}>
+        <div
+          className="bg-white account-field-card"
+          style={{ padding: "20px" }}
+        >
           <div className="flex items-start justify-between">
             <div className="flex-1">
               <p
@@ -1018,7 +1050,10 @@ function MyOrders() {
           Back to Orders
         </button>
 
-        <div className="bg-white account-inner-card" style={{ padding: "40px 40px 60px" }}>
+        <div
+          className="bg-white account-inner-card"
+          style={{ padding: "40px 40px 60px" }}
+        >
           {/* Order header info */}
           <div
             className="grid grid-cols-1 md:grid-cols-2 gap-6"
@@ -1486,7 +1521,10 @@ function AddressSection({
       )}
 
       {!editing && hasAddress && (
-        <div className="bg-white account-inner-card" style={{ padding: "40px 40px 60px" }}>
+        <div
+          className="bg-white account-inner-card"
+          style={{ padding: "40px 40px 60px" }}
+        >
           {/* Edit button */}
           <div className="flex justify-end mb-4">
             <button
@@ -1576,7 +1614,10 @@ function AddressSection({
 
       {/* Edit Form */}
       {editing && (
-        <div className="bg-white account-inner-card" style={{ padding: "40px 40px 60px" }}>
+        <div
+          className="bg-white account-inner-card"
+          style={{ padding: "40px 40px 60px" }}
+        >
           {/* Row 1: First Name, Last Name */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
             <div>

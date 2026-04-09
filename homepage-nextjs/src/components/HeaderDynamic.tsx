@@ -36,7 +36,13 @@ export default function Header({ data }: HeaderProps) {
     ...leftMenuItems,
     ...rightMenuItems,
     { id: 9999, title: "Contact", url: "/contact", target: "", classes: "" },
-    { id: 9998, title: user ? "My Account" : "Login", url: user ? "/account" : "/login", target: "", classes: "" },
+    {
+      id: 9998,
+      title: user ? "My Account" : "Login",
+      url: user ? "/account" : "/login",
+      target: "",
+      classes: "",
+    },
   ];
 
   useEffect(() => {
