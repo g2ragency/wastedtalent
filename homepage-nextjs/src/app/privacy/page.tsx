@@ -11,63 +11,88 @@ export default async function PrivacyPage() {
         <div className="w-full px-6">
           <h1 className="font-light mb-8">Privacy Policy</h1>
 
-          <div className="prose max-w-none space-y-6">
+          <div className="prose max-w-none space-y-8 text-[#222]">
             <section>
-              <h2 className="text-2xl font-bold mb-4">Introduction</h2>
+              <h2 className="text-lg font-bold mb-3">1. Data Controller</h2>
               <p>
-                This Privacy Policy describes how Wasted Talent United collects,
-                uses, and protects your personal information.
+                The data controller is HB production srl, Viale Parioli 39c,
+                00172 Roma. Email:{" "}
+                <a href="mailto:info@wastedtalent.it" className="underline">
+                  info@wastedtalent.it
+                </a>
+                .
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4">
-                Information We Collect
-              </h2>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Name and contact information</li>
-                <li>Shipping and billing addresses</li>
-                <li>Payment information</li>
-                <li>Order history</li>
-                <li>Website usage data</li>
+              <h2 className="text-lg font-bold mb-3">2. Data Collected</h2>
+              <p className="mb-2">
+                We collect personal data necessary for processing orders and
+                providing services, including:
+              </p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Contact information (Name, Email, Phone)</li>
+                <li>Shipping and Billing address</li>
+                <li>
+                  Payment information (processed securely via encrypted gateways)
+                </li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4">
-                How We Use Your Information
+              <h2 className="text-lg font-bold mb-3">
+                3. Purpose of Processing
               </h2>
-              <ul className="list-disc list-inside space-y-2">
-                <li>Process and fulfill your orders</li>
-                <li>Send order confirmations and updates</li>
-                <li>Improve our products and services</li>
-                <li>Send marketing communications (with your consent)</li>
-                <li>Comply with legal obligations</li>
+              <ul className="space-y-3">
+                <li>
+                  <strong>Order Fulfillment:</strong> To ship your clothing and
+                  manage payments.
+                </li>
+                <li>
+                  <strong>Marketing:</strong> If you subscribe to our Newsletter,
+                  we will send you updates and promotions. You can unsubscribe at
+                  any time.
+                </li>
+                <li>
+                  <strong>Analytics &amp; Tracking:</strong> We use Google
+                  Analytics and Facebook Pixel to understand website traffic and
+                  improve our advertising performance.
+                </li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4">Data Protection</h2>
+              <h2 className="text-lg font-bold mb-3">4. Data Sharing</h2>
+              <p className="mb-2">
+                We share your data only with essential third parties:
+              </p>
+              <ul className="list-disc list-inside space-y-1">
+                <li>Shipping carriers (for delivery)</li>
+                <li>Payment providers (PayPal, Klarna)</li>
+                <li>
+                  Marketing platforms (for newsletter and retargeting ads)
+                </li>
+              </ul>
+            </section>
+
+            <section>
+              <h2 className="text-lg font-bold mb-3">5. Your Rights</h2>
               <p>
-                We implement appropriate security measures to protect your
-                personal information from unauthorized access, disclosure, or
-                misuse.
+                Under the GDPR, you have the right to access, correct, or delete
+                your personal data. To exercise these rights, contact us at{" "}
+                <a href="mailto:info@wastedtalent.it" className="underline">
+                  info@wastedtalent.it
+                </a>
+                .
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-bold mb-4">Your Rights</h2>
+              <h2 className="text-lg font-bold mb-3">6. Cookies</h2>
               <p>
-                You have the right to access, correct, or delete your personal
-                information. Contact us to exercise these rights.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-bold mb-4">Contact Us</h2>
-              <p>
-                If you have questions about this Privacy Policy, please contact
-                us at privacy@wastedtalent.com
+                This site uses cookies to enhance user experience and for
+                marketing purposes. By using our site, you consent to our use of
+                cookies.
               </p>
             </section>
           </div>
