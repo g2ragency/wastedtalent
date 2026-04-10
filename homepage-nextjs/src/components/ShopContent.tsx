@@ -170,7 +170,7 @@ export default function ShopContent({
       <div className="w-full px-3 md:px-6">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="font-light mb-4">F/W 2026</h1>
+          <h1 className="font-light mb-4">Shop</h1>
         </div>
       </div>
 
