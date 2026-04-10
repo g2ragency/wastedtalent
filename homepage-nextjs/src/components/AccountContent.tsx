@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Footer from "@/components/Footer";
@@ -87,6 +87,7 @@ export default function AccountContent({
   // All hooks must be before any conditional returns
   const [isMobile, setIsMobile] = useState(false);
   const [mobileShowContent, setMobileShowContent] = useState(false);
+  const orderGoBackRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -140,6 +141,36 @@ export default function AccountContent({
 
   return (
     <>
+      <style jsx global>{`
+        @media (max-width: 767px) {
+          .account-details-wrapper {
+            background-color: transparent !important;
+            padding: 0 !important;
+          }
+          .account-field-card {
+            background-color: white !important;
+            padding: 30px 20px !important;
+          }
+          .account-inner-card {
+            padding: 24px 16px 30px !important;
+          }
+          .account-order-card {
+            padding: 44px 24px !important;
+          }
+          .account-order-card .order-row-gap {
+            margin-bottom: 30px !important;
+          }
+          .account-order-card .order-edit-icon {
+            margin-bottom: 8px !important;
+          }
+          .account-inner-card .order-detail-gap {
+            margin-bottom: 30px !important;
+          }
+          .account-inner-card .order-detail-padding {
+            padding: 24px 16px 30px !important;
+          }
+        }
+      `}</style>
       <main
         className={`min-h-screen pt-24 md:pt-32 pb-16 ${isMobile && mobileShowContent ? "bg-[#F2F2F2]" : "bg-white"}`}
       >
@@ -219,6 +250,10 @@ export default function AccountContent({
               {isMobile && mobileShowContent && (
                 <button
                   onClick={() => {
+                    if (orderGoBackRef.current) {
+                      orderGoBackRef.current();
+                      return;
+                    }
                     setMobileShowContent(false);
                     router.push("/account");
                   }}
@@ -246,7 +281,7 @@ export default function AccountContent({
                 </button>
               )}
               {activeSection === "account" && <AccountDetails user={user!} />}
-              {activeSection === "orders" && <MyOrders />}
+              {activeSection === "orders" && <MyOrders orderGoBackRef={orderGoBackRef} />}
               {activeSection === "delivery" && <DeliveryAddress />}
               {activeSection === "billing" && <BillingAddress />}
             </div>
@@ -414,24 +449,6 @@ function AccountDetails({
       className="w-full account-details-wrapper"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
-      <style jsx global>{`
-        @media (max-width: 767px) {
-          .account-details-wrapper {
-            background-color: transparent !important;
-            padding: 0 !important;
-          }
-          .account-field-card {
-            background-color: white !important;
-            padding: 30px 20px !important;
-          }
-          .account-inner-card {
-            padding: 24px 16px 30px !important;
-          }
-          .account-order-card {
-            padding: 24px 16px 30px !important;
-          }
-        }
-      `}</style>
       {/* Feedback messages */}
       {error && (
         <div
@@ -901,12 +918,22 @@ function PasswordToggleIcon({ show }: { show: boolean }) {
 /* ──────────────────────────────────────────────
    Placeholder sections (to be implemented)
    ────────────────────────────────────────────── */
-function MyOrders() {
+function MyOrders({ orderGoBackRef }: { orderGoBackRef: React.MutableRefObject<(() => void) | null> }) {
   const { getOrders } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+  // Register/unregister the back callback for the global Back button
+  useEffect(() => {
+    if (selectedOrder) {
+      orderGoBackRef.current = () => setSelectedOrder(null);
+    } else {
+      orderGoBackRef.current = null;
+    }
+    return () => { orderGoBackRef.current = null; };
+  }, [selectedOrder, orderGoBackRef]);
 
   const loadOrders = useCallback(async () => {
     setLoading(true);
@@ -1024,10 +1051,10 @@ function MyOrders() {
         className="w-full account-details-wrapper"
         style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
       >
-        {/* Back button */}
+        {/* Back button - desktop only (mobile uses the global Back) */}
         <button
           onClick={() => setSelectedOrder(null)}
-          className="flex items-center gap-2 mb-8 hover:opacity-60 transition-opacity"
+          className="hidden md:flex items-center gap-2 mb-8 hover:opacity-60 transition-opacity"
           style={{
             fontFamily: "Helvetica Neue, sans-serif",
             fontSize: "14px",
@@ -1056,7 +1083,7 @@ function MyOrders() {
         >
           {/* Order header info */}
           <div
-            className="grid grid-cols-1 md:grid-cols-2 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 order-detail-gap"
             style={{ marginBottom: "60px" }}
           >
             <div className="grid grid-cols-2 gap-6">
@@ -1098,7 +1125,7 @@ function MyOrders() {
 
           {/* Status & Payment */}
           <div
-            className="grid grid-cols-2 gap-6"
+            className="grid grid-cols-2 gap-6 order-detail-gap"
             style={{ marginBottom: "60px" }}
           >
             <div>
@@ -1231,7 +1258,7 @@ function MyOrders() {
       className="w-full account-details-wrapper"
       style={{ backgroundColor: "#F2F2F2", padding: "105px 55px" }}
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
         {orders.map((order) => (
           <div
             key={order.id}
@@ -1240,7 +1267,7 @@ function MyOrders() {
             onClick={() => setSelectedOrder(order)}
           >
             {/* Edit icon */}
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4 order-edit-icon">
               <div className="hover:opacity-60 transition-opacity">
                 <EditIcon />
               </div>
@@ -1248,7 +1275,7 @@ function MyOrders() {
 
             {/* Row 1: Order number, Products count */}
             <div
-              className="grid grid-cols-2 gap-6"
+              className="grid grid-cols-2 gap-6 order-row-gap"
               style={{ marginBottom: "60px" }}
             >
               <div>
