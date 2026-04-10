@@ -162,7 +162,20 @@ export default function ProductDetail({
     return [];
   };
 
-  const sizes = getSizes();
+  const SIZE_ORDER: Record<string, number> = {
+    // Abbreviated: S, M, L, XL etc.
+    Xxs: 0, Xs: 1, S: 2, M: 3, L: 4, Xl: 5, Xxl: 6, Xxxl: 7,
+    // Full names: Small, Medium, Large etc.
+    XXSmall: 0, XSmall: 1, Small: 2, Medium: 3, Large: 4, XLarge: 5, XXLarge: 6, XXXLarge: 7,
+    // Numeric
+    "2Xs": 0, "2Xl": 6, "3Xl": 7,
+  };
+
+  const sizes = getSizes().sort((a, b) => {
+    const orderA = SIZE_ORDER[a.name] ?? 99;
+    const orderB = SIZE_ORDER[b.name] ?? 99;
+    return orderA - orderB;
+  });
 
   // Check if product actually has a size attribute
   const hasSizes = (() => {
@@ -400,7 +413,7 @@ export default function ProductDetail({
 
           {/* Mobile: Product Description */}
           {product.description && (
-            <div className="px-3 pt-6 pb-4">
+            <div className="pt-6 pb-4">
               <h3 className="font-bold text-sm mb-3 uppercase">
                 Description
               </h3>
