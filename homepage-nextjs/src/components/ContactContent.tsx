@@ -170,35 +170,14 @@ export default function ContactContent({
           Follow us
         </h2>
         <div className="flex items-center justify-center gap-2 text-[14px]">
-          {(contactInfo?.social_instagram || "https://instagram.com") && (
-            <a
-              href={contactInfo?.social_instagram || "https://instagram.com"}
-              target="_blank"
-              className="hover:underline"
-            >
-              Instagram
-            </a>
-          )}
-          <span className="text-gray-400">|</span>
-          {(contactInfo?.social_facebook || "https://facebook.com") && (
-            <a
-              href={contactInfo?.social_facebook || "https://facebook.com"}
-              target="_blank"
-              className="hover:underline"
-            >
-              Facebook
-            </a>
-          )}
-          <span className="text-gray-400">|</span>
-          {(contactInfo?.social_spotify || "https://spotify.com") && (
-            <a
-              href={contactInfo?.social_spotify || "https://spotify.com"}
-              target="_blank"
-              className="hover:underline"
-            >
-              Spotify
-            </a>
-          )}
+          <a
+            href="https://www.instagram.com/wasted_talent_united"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:underline"
+          >
+            Instagram
+          </a>
         </div>
       </section>
 

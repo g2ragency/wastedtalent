@@ -247,7 +247,7 @@ class HPM_Lookbook_CPT {
                     galleryFrame.on('select', function() {
                         var attachments = galleryFrame.state().get('selection').toJSON();
                         attachments.forEach(function(attachment) {
-                            var url = attachment.sizes && attachment.sizes.large ? attachment.sizes.large.url : attachment.url;
+                            var url = attachment.sizes && attachment.sizes.full ? attachment.sizes.full.url : attachment.url;
                             var html = '<div class=\"lookbook-gallery-item\" style=\"position:relative; width:150px; height:150px; border:1px solid #ddd; cursor:move;\">';
                             html += '<img src=\"' + url + '\" style=\"width:100%; height:100%; object-fit:cover;\">';
                             html += '<input type=\"hidden\" name=\"lookbook_gallery[]\" value=\"' + url + '\">';

@@ -262,8 +262,9 @@ export default function Header({ data }: HeaderProps) {
               </p>
               <div className="flex flex-col items-end gap-1">
                 <a
-                  href="https://instagram.com"
+                  href="https://www.instagram.com/wasted_talent_united"
                   target="_blank"
+                  rel="noopener noreferrer"
                   style={{
                     fontFamily: "Helvetica Neue, sans-serif",
                     fontSize: "12px",
@@ -272,18 +273,6 @@ export default function Header({ data }: HeaderProps) {
                   }}
                 >
                   Instagram
-                </a>
-                <a
-                  href="https://facebook.com"
-                  target="_blank"
-                  style={{
-                    fontFamily: "Helvetica Neue, sans-serif",
-                    fontSize: "12px",
-                    color: "#222222",
-                    fontWeight: 700,
-                  }}
-                >
-                  Facebook
                 </a>
               </div>
             </div>

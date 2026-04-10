@@ -649,6 +649,11 @@ class HPM_REST_API {
             if (!is_array($gallery)) {
                 $gallery = array();
             }
+
+            // Convert any resized image URLs (e.g. -1024x683) to full-size originals
+            $gallery = array_map(function($url) {
+                return preg_replace('/-\d+x\d+(\.[a-zA-Z]+)$/', '$1', $url);
+            }, $gallery);
             
             $lookbook_data = array(
                 'id' => $post_id,

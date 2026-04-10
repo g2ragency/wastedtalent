@@ -7,9 +7,6 @@ interface FooterProps {
 }
 
 export default function Footer({ contactInfo }: FooterProps) {
-  const instagramUrl = contactInfo?.social_instagram || "https://instagram.com";
-  const facebookUrl = contactInfo?.social_facebook || "https://facebook.com";
-  const spotifyUrl = contactInfo?.social_spotify || "https://spotify.com";
 
   return (
     <footer className="w-full bg-[#f0f0f0] mt-[50px]">
@@ -56,27 +53,11 @@ export default function Footer({ contactInfo }: FooterProps) {
             </h4>
             <div className="w-full h-[1px] bg-[#999999] mb-6"></div>
             <ul className="space-y-0 text-[12px]">
-              {instagramUrl && (
-                <li>
-                  <a href={instagramUrl} target="_blank">
-                    Instagram
-                  </a>
-                </li>
-              )}
-              {facebookUrl && (
-                <li>
-                  <a href={facebookUrl} target="_blank">
-                    Facebook
-                  </a>
-                </li>
-              )}
-              {spotifyUrl && (
-                <li>
-                  <a href={spotifyUrl} target="_blank">
-                    Spotify
-                  </a>
-                </li>
-              )}
+              <li>
+                <a href="https://www.instagram.com/wasted_talent_united" target="_blank" rel="noopener noreferrer">
+                  Instagram
+                </a>
+              </li>
             </ul>
           </div>
           <div>
