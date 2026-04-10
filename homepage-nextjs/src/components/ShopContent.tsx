@@ -89,14 +89,14 @@ export default function ShopContent({
               href={`/shop/${product.slug}`}
               className="group"
             >
-              <div className="relative bg-gray-100 mb-3 overflow-hidden shop-product-image">
+              <div className="relative bg-gray-100 mb-3 overflow-hidden" style={{ aspectRatio: "65 / 81" }}>
                 {product.images && product.images[0] ? (
                   <>
                     <Image
                       src={product.images[0].src}
                       alt={product.images[0].alt || product.name}
-                      width={400}
-                      height={405}
+                      width={650}
+                      height={810}
                       className="w-full h-full object-cover transition-opacity duration-300"
                       style={{
                         opacity: 1,
@@ -106,8 +106,8 @@ export default function ShopContent({
                       <Image
                         src={product.images[1].src}
                         alt={product.images[1].alt || product.name}
-                        width={400}
-                        height={405}
+                        width={650}
+                        height={810}
                         className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       />
                     )}
@@ -159,15 +159,9 @@ export default function ShopContent({
         .shop-filters-sticky {
           top: 88px;
         }
-        .shop-product-image {
-          height: 250px;
-        }
         @media (min-width: 768px) {
           .shop-filters-sticky {
             top: 96px;
-          }
-          .shop-product-image {
-            height: 405px;
           }
         }
       `}</style>

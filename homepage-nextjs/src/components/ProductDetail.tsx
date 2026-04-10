@@ -108,7 +108,19 @@ export default function ProductDetail({
   }, []);
   const capitalizeOption = (str: string) => {
     if (!str) return str;
-    // Remove hyphens and capitalize each word
+    const lower = str.toLowerCase().replace(/-/g, "");
+    const sizeMap: { [key: string]: string } = {
+      "xxsmall": "XXSmall",
+      "xsmall": "XSmall",
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large",
+      "xlarge": "XLarge",
+      "xxlarge": "XXLarge",
+      "xxxlarge": "XXXLarge",
+    };
+    if (sizeMap[lower]) return sizeMap[lower];
+    // Fallback: capitalize first letter of each segment
     return str.split("-").map(
       (word) => word.charAt(0).toUpperCase() + word.slice(1)
     ).join("");
@@ -219,8 +231,10 @@ export default function ProductDetail({
                     <Image
                       src={image.src}
                       alt={image.alt || `${product.name} ${index + 1}`}
-                      width={800}
-                      height={1067}
+                      width={1200}
+                      height={1600}
+                      quality={90}
+                      sizes="50vw"
                       className="w-full h-auto object-cover block"
                     />
                   </div>
@@ -329,8 +343,10 @@ export default function ProductDetail({
                 <Image
                   src={image.src}
                   alt={image.alt || `${product.name} ${index + 1}`}
-                  width={800}
-                  height={1067}
+                  width={1200}
+                  height={1600}
+                  quality={90}
+                  sizes="100vw"
                   className="w-full h-auto object-cover block"
                 />
               </div>
