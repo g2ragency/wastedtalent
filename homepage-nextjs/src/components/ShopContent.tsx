@@ -2,14 +2,35 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { WooCommerceProduct } from "@/lib/api";
 import Footer from "@/components/Footer";
 import { ContactInfo } from "@/lib/api";
+import FilterDrawer from "@/components/FilterDrawer";
 
 interface ShopContentProps {
   products: WooCommerceProduct[];
   contactInfo?: ContactInfo;
+}
+
+/**
+ * Normalize a size string from WooCommerce attributes to the short display format.
+ * E.g. "small" -> "S", "x-large" -> "XL", "28" -> "28"
+ */
+function normalizeSize(raw: string): string {
+  const lower = raw.toLowerCase().replace(/-/g, "").trim();
+  const map: { [key: string]: string } = {
+    xxsmall: "XXS",
+    xsmall: "XS",
+    small: "S",
+    medium: "M",
+    large: "L",
+    xlarge: "XL",
+    xxlarge: "XXL",
+    xxxlarge: "XXXL",
+  };
+  if (map[lower]) return map[lower];
+  return raw.trim();
 }
 
 export default function ShopContent({
@@ -17,6 +38,9 @@ export default function ShopContent({
   contactInfo,
 }: ShopContentProps) {
   const [scrolled, setScrolled] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
+  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -26,6 +50,54 @@ export default function ShopContent({
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleToggleSize = useCallback((size: string) => {
+    setSelectedSizes((prev) =>
+      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size],
+    );
+  }, []);
+
+  const handleToggleAvailable = useCallback(() => {
+    setShowOnlyAvailable((prev) => !prev);
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setSelectedSizes([]);
+    setShowOnlyAvailable(false);
+  }, []);
+
+  // Filter products based on selected sizes and availability
+  const filteredProducts = useMemo(() => {
+    let result = products;
+
+    // Filter by selected sizes
+    if (selectedSizes.length > 0) {
+      result = result.filter((product) => {
+        if (!product.attributes) return false;
+        const sizeAttr = product.attributes.find(
+          (a) =>
+            a.name.toLowerCase() === "size" ||
+            a.name.toLowerCase() === "taglia",
+        );
+        if (!sizeAttr) return false;
+        return sizeAttr.options.some((opt) =>
+          selectedSizes.includes(normalizeSize(opt)),
+        );
+      });
+    }
+
+    // Filter by availability
+    if (showOnlyAvailable) {
+      result = result.filter(
+        (product) =>
+          product.stock_status === "instock" || product.in_stock === true,
+      );
+    }
+
+    return result;
+  }, [products, selectedSizes, showOnlyAvailable]);
+
+  const hasActiveFilters = selectedSizes.length > 0 || showOnlyAvailable;
 
   return (
     <main className="min-h-screen bg-white pt-24">
@@ -53,15 +125,24 @@ export default function ShopContent({
       >
         <button
           className="text-sm flex items-center gap-2"
-          style={{ color: "#999999" }}
+          style={{ color: hasActiveFilters ? "#222222" : "#999999" }}
+          onClick={() => setFilterOpen(true)}
         >
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M2 8h12M8 2v12" stroke="currentColor" strokeWidth="1.5" />
           </svg>
           Filters
+          {hasActiveFilters && (
+            <span
+              className="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-[#222222] text-white"
+              style={{ fontSize: "10px", fontWeight: "bold" }}
+            >
+              {selectedSizes.length + (showOnlyAvailable ? 1 : 0)}
+            </span>
+          )}
         </button>
         <p className="text-sm" style={{ color: "#999999" }}>
-          {products.length} products
+          {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
         </p>
         <button className="text-sm" style={{ color: "#999999" }}>
           Sort by
@@ -83,7 +164,7 @@ export default function ShopContent({
 
         {/* Products Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-[20px] mt-12">
-          {products.map((product) => (
+          {filteredProducts.map((product) => (
             <Link
               key={product.id}
               href={`/shop/${product.slug}`}
@@ -151,12 +232,35 @@ export default function ShopContent({
         </div>
 
         {/* Empty State */}
-        {products.length === 0 && (
+        {filteredProducts.length === 0 && (
           <div className="text-center py-20">
-            <p className="text-gray-500">Nessun prodotto disponibile</p>
+            <p className="text-gray-500 mb-4">No products match your filters</p>
+            {hasActiveFilters && (
+              <button
+                onClick={handleReset}
+                className="text-sm underline hover:text-[#222222] transition-colors"
+                style={{ color: "#999999" }}
+              >
+                Reset filters
+              </button>
+            )}
           </div>
         )}
       </div>
+
+      {/* Filter Drawer */}
+      <FilterDrawer
+        isOpen={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        products={products}
+        selectedSizes={selectedSizes}
+        onToggleSize={handleToggleSize}
+        showOnlyAvailable={showOnlyAvailable}
+        onToggleAvailable={handleToggleAvailable}
+        onReset={handleReset}
+        filteredCount={filteredProducts.length}
+      />
+
       <Footer contactInfo={contactInfo} />
       <style jsx global>{`
         .shop-filters-sticky {
