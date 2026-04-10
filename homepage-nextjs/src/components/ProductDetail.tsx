@@ -267,7 +267,7 @@ export default function ProductDetail({
                       height={1600}
                       quality={90}
                       sizes="50vw"
-                      className="w-full h-auto object-cover block"
+                      className="w-full h-full object-cover block"
                     />
                   </div>
                 ))
@@ -383,7 +383,7 @@ export default function ProductDetail({
                   height={1600}
                   quality={90}
                   sizes="100vw"
-                  className="w-full h-auto object-cover block"
+                  className="w-full h-full object-cover block"
                 />
               </div>
             ))
