@@ -194,13 +194,16 @@ export default function ProductDetail({
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
+    const selectedVariation = sizes.find((s) => s.name === selectedSize);
     addItem(
       {
         id: product.id,
+        variationId: selectedVariation?.variationId || 0,
         name: product.name,
         price: product.price,
         slug: product.slug,
         image: product.images?.[0]?.src,
+        size: selectedSize,
       },
       isMobile, // suppress default drawer only on mobile
     );

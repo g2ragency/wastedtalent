@@ -31,6 +31,7 @@ export default function CheckoutContent() {
   });
   const [sameAsShipping, setSameAsShipping] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [orderError, setOrderError] = useState("");
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   // Pre-fill form with logged-in user data
@@ -182,12 +183,73 @@ export default function CheckoutContent() {
     }
 
     setIsProcessing(true);
+    setOrderError("");
 
-    // Simulate order processing
-    setTimeout(() => {
+    try {
+      const orderPayload = {
+        items: items.map((item) => ({
+          id: item.id,
+          variationId: item.variationId || 0,
+          quantity: item.quantity,
+          size: item.size || "",
+        })),
+        shipping: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          address: formData.address,
+          city: formData.city,
+          postalCode: formData.postalCode,
+          country: formData.country,
+          phone: formData.phone,
+        },
+        billing: sameAsShipping
+          ? null
+          : {
+              firstName: billingData.firstName,
+              lastName: billingData.lastName,
+              address: billingData.address,
+              city: billingData.city,
+              postalCode: billingData.postalCode,
+              country: billingData.country,
+              phone: billingData.phone,
+            },
+        email: formData.email,
+        sameAsShipping,
+      };
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(orderPayload),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to create order");
+      }
+
+      // Clear cart
       clearCart();
-      router.push("/order-confirmation");
-    }, 2000);
+
+      // Redirect to WooPayments payment page
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        // Fallback: go to order confirmation directly (shouldn't happen with WooPayments)
+        router.push(
+          `/order-confirmation?id=${data.orderId}&key=${data.orderKey}`,
+        );
+      }
+    } catch (error) {
+      console.error("Order error:", error);
+      setOrderError(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
+      setIsProcessing(false);
+    }
   };
 
   const shippingCost = 10;
@@ -570,13 +632,23 @@ export default function CheckoutContent() {
 
             {/* Payment Information */}
             <div>
-              <h2 className="text-xl font-bold mb-4">Payment Information</h2>
+              <h2 className="text-xl font-bold mb-4">Payment</h2>
               <div className="border border-gray-300 p-6">
-                <p className="text-sm text-gray-600">
-                  Payment processing will be implemented with Stripe, PayPal, or
-                  your preferred payment gateway.
-                </p>
+                <div className="flex items-center gap-3">
+                  <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
+                    <rect width="32" height="20" rx="3" fill="#1A1F71"/>
+                    <text x="16" y="13" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">CARD</text>
+                  </svg>
+                  <p className="text-sm text-gray-600">
+                    You will be redirected to complete payment securely.
+                  </p>
+                </div>
               </div>
+              {orderError && (
+                <div className="mt-4 p-4 bg-red-50 border border-red-200">
+                  <p className="text-red-600 text-sm">{orderError}</p>
+                </div>
+              )}
             </div>
           </div>
 
@@ -601,6 +673,9 @@ export default function CheckoutContent() {
                     )}
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.name}</p>
+                      {item.size && (
+                        <p className="text-sm text-gray-500">Size: {item.size}</p>
+                      )}
                       <p className="text-sm text-gray-500">
                         Qty: {item.quantity}
                       </p>

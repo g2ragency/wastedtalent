@@ -155,6 +155,12 @@ export default function CartDrawer() {
                       {item.name}
                     </Link>
 
+                    {item.size && (
+                      <p className="text-xs mt-1" style={{ color: "#999999" }}>
+                        Size: {item.size}
+                      </p>
+                    )}
+
                     <p className="text-sm text-gray-500 mt-1">
                       €{parseFloat(item.price).toFixed(2)}
                     </p>
@@ -163,7 +169,7 @@ export default function CartDrawer() {
                     <div className="flex items-center gap-0 mt-3">
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1)
+                          updateQuantity(item.id, item.quantity - 1, item.variationId)
                         }
                         className="w-8 h-8 border border-gray-300 flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
                       >
@@ -174,7 +180,7 @@ export default function CartDrawer() {
                       </span>
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1)
+                          updateQuantity(item.id, item.quantity + 1, item.variationId)
                         }
                         className="w-8 h-8 border border-gray-300 flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
                       >
@@ -184,7 +190,7 @@ export default function CartDrawer() {
 
                     {/* Remove */}
                     <button
-                      onClick={() => removeItem(item.id)}
+                      onClick={() => removeItem(item.id, item.variationId)}
                       className="text-xs text-gray-500 underline hover:text-[#222222] mt-2 transition-colors"
                     >
                       Remove
