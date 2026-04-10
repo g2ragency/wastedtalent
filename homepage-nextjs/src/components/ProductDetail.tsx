@@ -158,16 +158,33 @@ export default function ProductDetail({
       }));
     }
 
-    // Ultimate fallback
-    return ["Small", "Medium", "Large", "Xlarge"].map((s) => ({
-      name: s,
-      stockQuantity: null as number | null,
-      stockStatus: "instock",
-      variationId: 0,
-    }));
+    // No size attribute found
+    return [];
   };
 
   const sizes = getSizes();
+
+  // Check if product actually has a size attribute
+  const hasSizes = (() => {
+    // Check variations for size attribute
+    if (variations.length > 0) {
+      return variations.some((v) =>
+        v.attributes.some(
+          (a) =>
+            a.name.toLowerCase() === "size" ||
+            a.name.toLowerCase() === "taglia",
+        ),
+      );
+    }
+    // Check product attributes
+    if (product.attributes?.length) {
+      return product.attributes.some(
+        (a) =>
+          a.name.toLowerCase() === "size" || a.name.toLowerCase() === "taglia",
+      );
+    }
+    return false;
+  })();
 
   const getStockLabel = (size: {
     stockQuantity: number | null;
@@ -201,7 +218,7 @@ export default function ProductDetail({
   };
 
   const handleAddToCart = () => {
-    if (!selectedSize) return;
+    if (hasSizes && !selectedSize) return;
     const selectedVariation = sizes.find((s) => s.name === selectedSize);
     addItem(
       {
@@ -211,7 +228,7 @@ export default function ProductDetail({
         price: product.price,
         slug: product.slug,
         image: product.images?.[0]?.src,
-        size: selectedSize,
+        size: selectedSize || "",
       },
       isMobile, // suppress default drawer only on mobile
     );
@@ -382,7 +399,7 @@ export default function ProductDetail({
       </div>
 
       {/* Mobile: Overlay backdrop */}
-      {(sizeSheetOpen || cartSheetOpen) && (
+      {((hasSizes && sizeSheetOpen) || cartSheetOpen) && (
         <div
           className="md:hidden fixed inset-0 bg-black/40 z-[80]"
           onClick={() => {
@@ -399,7 +416,7 @@ export default function ProductDetail({
         style={{
           paddingBottom: "env(safe-area-inset-bottom, 0px)",
           zIndex: cartSheetOpen ? 70 : 85,
-          borderTop: sizeSheetOpen ? "1px solid #DDD" : "none",
+          borderTop: hasSizes && sizeSheetOpen ? "1px solid #DDD" : "none",
         }}
       >
         <div className="px-3 pb-3" style={{ paddingTop: "30px" }}>
@@ -437,6 +454,7 @@ export default function ProductDetail({
 
           {/* Select Size + Add to Cart row */}
           <div className="flex gap-3">
+            {hasSizes && (
             <button
               onClick={handleSizeButtonClick}
               className="flex-1 flex items-center justify-between px-3 py-3 border border-[#222222] bg-white"
@@ -461,11 +479,12 @@ export default function ProductDetail({
                 />
               </svg>
             </button>
+            )}
             <button
               onClick={handleAddToCart}
-              disabled={!selectedSize}
+              disabled={hasSizes && !selectedSize}
               className={`flex-1 py-3 font-bold text-sm uppercase transition-all ${
-                !selectedSize
+                hasSizes && !selectedSize
                   ? "bg-[#222222] text-white opacity-40 cursor-not-allowed"
                   : "bg-[#222222] text-white"
               }`}
@@ -481,6 +500,7 @@ export default function ProductDetail({
       </div>
 
       {/* Mobile: Size Selector Bottom Sheet - slides up ABOVE the sticky bar */}
+        {hasSizes && (
       <div
         ref={sizeSheetRef}
         className="md:hidden fixed left-0 right-0 bg-white z-[82]"
@@ -560,6 +580,7 @@ export default function ProductDetail({
           </div>
         </div>
       </div>
+      )}
 
       {/* Mobile: Cart Summary Bottom Sheet - replaces the sticky bar */}
       <div
