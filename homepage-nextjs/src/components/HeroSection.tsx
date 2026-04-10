@@ -84,10 +84,12 @@ function SlideContent({ slide }: { slide: any }) {
 export default function HeroSection({ data }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
 
   const slides = data?.slides || [];
 
   const goToSlide = (index: number) => {
+    setIsFirstLoad(false);
     setDirection(index > currentSlide % slides.length ? "forward" : "backward");
     setCurrentSlide(index);
   };
@@ -97,6 +99,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
     if (slides.length <= 1) return;
 
     const interval = setInterval(() => {
+      setIsFirstLoad(false);
       setDirection("forward");
       setCurrentSlide((prev) => prev + 1);
     }, 5000);
@@ -143,7 +146,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
       {/* Current Slide with curtain effect */}
       <div
         className="absolute inset-0"
-        style={{
+        style={isFirstLoad ? {} : {
           animation: "heroSlideIn 1000ms ease-in-out forwards",
           clipPath: "inset(0 0 0 100%)",
         }}
