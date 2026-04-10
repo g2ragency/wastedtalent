@@ -98,6 +98,8 @@ interface FilterDrawerProps {
   products: WooCommerceProduct[];
   selectedSizes: string[];
   onToggleSize: (size: string) => void;
+  selectedCategories: string[];
+  onToggleCategory: (slug: string) => void;
   showOnlyAvailable: boolean;
   onToggleAvailable: () => void;
   onReset: () => void;
@@ -110,6 +112,8 @@ export default function FilterDrawer({
   products,
   selectedSizes,
   onToggleSize,
+  selectedCategories,
+  onToggleCategory,
   showOnlyAvailable,
   onToggleAvailable,
   onReset,
@@ -142,6 +146,31 @@ export default function FilterDrawer({
     }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
+
+  /**
+   * Build unique categories list from product data.
+   * Skips "Uncategorized".
+   */
+  const categories = useMemo(() => {
+    const catMap = new Map<string, { name: string; slug: string }>();
+    products.forEach((product) => {
+      if (product.categories) {
+        product.categories.forEach((cat) => {
+          if (
+            cat.slug !== "uncategorized" &&
+            cat.slug !== "non-categorizzato" &&
+            !catMap.has(cat.slug)
+          ) {
+            catMap.set(cat.slug, { name: cat.name, slug: cat.slug });
+          }
+        });
+      }
+    });
+    // Sort alphabetically by name
+    return Array.from(catMap.values()).sort((a, b) =>
+      a.name.localeCompare(b.name),
+    );
+  }, [products]);
 
   /**
    * Build size groups dynamically from product data.
@@ -252,6 +281,51 @@ export default function FilterDrawer({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
+          {/* Category Section */}
+          {categories.length > 0 && (
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3
+                  className="text-base font-bold"
+                  style={{ fontFamily: "Helvetica Neue, sans-serif" }}
+                >
+                  Category
+                </h3>
+                <svg
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                >
+                  <path d="M1 7l5-5 5 5" stroke="#222222" strokeWidth="1.5" />
+                </svg>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => {
+                  const isSelected = selectedCategories.includes(cat.slug);
+                  return (
+                    <button
+                      key={cat.slug}
+                      onClick={() => onToggleCategory(cat.slug)}
+                      className={`px-4 py-3 text-sm border transition-colors ${
+                        isSelected
+                          ? "bg-[#222222] text-white border-[#222222]"
+                          : "bg-white text-[#222222] border-gray-300 hover:border-[#222222]"
+                      }`}
+                      style={{
+                        fontFamily: "Helvetica Neue, sans-serif",
+                        fontSize: "13px",
+                      }}
+                    >
+                      {cat.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Size Section */}
           {sizeGroups.length > 0 && (
             <div>

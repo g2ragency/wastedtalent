@@ -40,6 +40,7 @@ export default function ShopContent({
   const [scrolled, setScrolled] = useState(false);
   const [filterOpen, setFilterOpen] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showOnlyAvailable, setShowOnlyAvailable] = useState(false);
 
   useEffect(() => {
@@ -57,18 +58,35 @@ export default function ShopContent({
     );
   }, []);
 
+  const handleToggleCategory = useCallback((slug: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
+    );
+  }, []);
+
   const handleToggleAvailable = useCallback(() => {
     setShowOnlyAvailable((prev) => !prev);
   }, []);
 
   const handleReset = useCallback(() => {
     setSelectedSizes([]);
+    setSelectedCategories([]);
     setShowOnlyAvailable(false);
   }, []);
 
   // Filter products based on selected sizes and availability
   const filteredProducts = useMemo(() => {
     let result = products;
+
+    // Filter by selected categories
+    if (selectedCategories.length > 0) {
+      result = result.filter((product) => {
+        if (!product.categories) return false;
+        return product.categories.some((cat) =>
+          selectedCategories.includes(cat.slug),
+        );
+      });
+    }
 
     // Filter by selected sizes
     if (selectedSizes.length > 0) {
@@ -95,9 +113,12 @@ export default function ShopContent({
     }
 
     return result;
-  }, [products, selectedSizes, showOnlyAvailable]);
+  }, [products, selectedCategories, selectedSizes, showOnlyAvailable]);
 
-  const hasActiveFilters = selectedSizes.length > 0 || showOnlyAvailable;
+  const hasActiveFilters =
+    selectedSizes.length > 0 ||
+    selectedCategories.length > 0 ||
+    showOnlyAvailable;
 
   return (
     <main className="min-h-screen bg-white pt-24">
@@ -137,7 +158,9 @@ export default function ShopContent({
               className="inline-flex items-center justify-center w-5 h-5 text-xs rounded-full bg-[#222222] text-white"
               style={{ fontSize: "10px", fontWeight: "bold" }}
             >
-              {selectedSizes.length + (showOnlyAvailable ? 1 : 0)}
+              {selectedSizes.length +
+                selectedCategories.length +
+                (showOnlyAvailable ? 1 : 0)}
             </span>
           )}
         </button>
@@ -255,6 +278,8 @@ export default function ShopContent({
         products={products}
         selectedSizes={selectedSizes}
         onToggleSize={handleToggleSize}
+        selectedCategories={selectedCategories}
+        onToggleCategory={handleToggleCategory}
         showOnlyAvailable={showOnlyAvailable}
         onToggleAvailable={handleToggleAvailable}
         onReset={handleReset}

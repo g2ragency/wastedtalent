@@ -174,6 +174,7 @@ export default function ProductDetail({
     stockStatus: string;
   }) => {
     if (size.stockStatus === "outofstock") return "Sold out";
+    if (size.stockQuantity !== null && size.stockQuantity <= 0) return "Sold out";
     if (
       size.stockQuantity !== null &&
       size.stockQuantity > 0 &&
@@ -183,8 +184,10 @@ export default function ProductDetail({
     return "";
   };
 
-  const isSoldOut = (size: { stockStatus: string }) => {
-    return size.stockStatus === "outofstock";
+  const isSoldOut = (size: { stockQuantity: number | null; stockStatus: string }) => {
+    if (size.stockStatus === "outofstock") return true;
+    if (size.stockQuantity !== null && size.stockQuantity <= 0) return true;
+    return false;
   };
 
   const handleSelectSize = (sizeName: string, soldOut: boolean) => {
