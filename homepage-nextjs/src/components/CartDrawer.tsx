@@ -169,7 +169,11 @@ export default function CartDrawer() {
                     <div className="flex items-center gap-0 mt-3">
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity - 1, item.variationId)
+                          updateQuantity(
+                            item.id,
+                            item.quantity - 1,
+                            item.variationId,
+                          )
                         }
                         className="w-8 h-8 border border-gray-300 flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
                       >
@@ -180,7 +184,11 @@ export default function CartDrawer() {
                       </span>
                       <button
                         onClick={() =>
-                          updateQuantity(item.id, item.quantity + 1, item.variationId)
+                          updateQuantity(
+                            item.id,
+                            item.quantity + 1,
+                            item.variationId,
+                          )
                         }
                         className="w-8 h-8 border border-gray-300 flex items-center justify-center text-sm hover:bg-gray-100 transition-colors"
                       >

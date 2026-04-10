@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function CheckoutContent() {
-  const { items, totalPrice, totalItems, clearCart } = useCart();
+  const { items, totalPrice, totalItems } = useCart();
   const { user, getAddress } = useAuth();
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -47,39 +47,48 @@ export default function CheckoutContent() {
     }));
 
     // Fetch shipping address first (priority), then billing as fallback
-    Promise.all([
-      getAddress("shipping"),
-      getAddress("billing"),
-    ]).then(([shippingRes, billingRes]) => {
-      const ship = shippingRes.success ? shippingRes.data : null;
-      const bill = billingRes.success ? billingRes.data : null;
+    Promise.all([getAddress("shipping"), getAddress("billing")]).then(
+      ([shippingRes, billingRes]) => {
+        const ship = shippingRes.success ? shippingRes.data : null;
+        const bill = billingRes.success ? billingRes.data : null;
 
-      setFormData((prev) => ({
-        ...prev,
-        email: prev.email || bill?.email || user.email || "",
-        firstName: prev.firstName || ship?.firstName || bill?.firstName || user.firstName || "",
-        lastName: prev.lastName || ship?.lastName || bill?.lastName || user.lastName || "",
-        address: prev.address || ship?.address1 || bill?.address1 || "",
-        city: prev.city || ship?.city || bill?.city || "",
-        postalCode: prev.postalCode || ship?.postcode || bill?.postcode || "",
-        country: prev.country || ship?.country || bill?.country || "",
-        phone: prev.phone || ship?.phone || bill?.phone || "",
-      }));
-
-      // Pre-fill billing data from billing address
-      if (bill) {
-        setBillingData((prev) => ({
+        setFormData((prev) => ({
           ...prev,
-          firstName: prev.firstName || bill.firstName || "",
-          lastName: prev.lastName || bill.lastName || "",
-          address: prev.address || bill.address1 || "",
-          city: prev.city || bill.city || "",
-          postalCode: prev.postalCode || bill.postcode || "",
-          country: prev.country || bill.country || "",
-          phone: prev.phone || bill.phone || "",
+          email: prev.email || bill?.email || user.email || "",
+          firstName:
+            prev.firstName ||
+            ship?.firstName ||
+            bill?.firstName ||
+            user.firstName ||
+            "",
+          lastName:
+            prev.lastName ||
+            ship?.lastName ||
+            bill?.lastName ||
+            user.lastName ||
+            "",
+          address: prev.address || ship?.address1 || bill?.address1 || "",
+          city: prev.city || ship?.city || bill?.city || "",
+          postalCode: prev.postalCode || ship?.postcode || bill?.postcode || "",
+          country: prev.country || ship?.country || bill?.country || "",
+          phone: prev.phone || ship?.phone || bill?.phone || "",
         }));
-      }
-    });
+
+        // Pre-fill billing data from billing address
+        if (bill) {
+          setBillingData((prev) => ({
+            ...prev,
+            firstName: prev.firstName || bill.firstName || "",
+            lastName: prev.lastName || bill.lastName || "",
+            address: prev.address || bill.address1 || "",
+            city: prev.city || bill.city || "",
+            postalCode: prev.postalCode || bill.postcode || "",
+            country: prev.country || bill.country || "",
+            phone: prev.phone || bill.phone || "",
+          }));
+        }
+      },
+    );
   }, [user, getAddress]);
 
   if (items.length === 0) {
@@ -163,8 +172,7 @@ export default function CheckoutContent() {
         newErrors.billing_lastName = "Please enter your last name";
       if (!billingData.address)
         newErrors.billing_address = "Please enter your address";
-      if (!billingData.city)
-        newErrors.billing_city = "Please enter your city";
+      if (!billingData.city) newErrors.billing_city = "Please enter your city";
       if (!billingData.postalCode)
         newErrors.billing_postalCode = "Please enter your postal code";
       if (!billingData.country)
@@ -229,10 +237,8 @@ export default function CheckoutContent() {
         throw new Error(data.error || "Failed to create order");
       }
 
-      // Clear cart
-      clearCart();
-
       // Redirect to WooPayments payment page
+      // Cart will be cleared on the order confirmation page
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {
@@ -470,7 +476,9 @@ export default function CheckoutContent() {
 
               {!sameAsShipping && (
                 <div className="mt-6">
-                  <h2 className="text-xl font-bold mb-4">Billing Information</h2>
+                  <h2 className="text-xl font-bold mb-4">
+                    Billing Information
+                  </h2>
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
@@ -636,8 +644,17 @@ export default function CheckoutContent() {
               <div className="border border-gray-300 p-6">
                 <div className="flex items-center gap-3">
                   <svg width="32" height="20" viewBox="0 0 32 20" fill="none">
-                    <rect width="32" height="20" rx="3" fill="#1A1F71"/>
-                    <text x="16" y="13" textAnchor="middle" fill="white" fontSize="8" fontWeight="bold">CARD</text>
+                    <rect width="32" height="20" rx="3" fill="#1A1F71" />
+                    <text
+                      x="16"
+                      y="13"
+                      textAnchor="middle"
+                      fill="white"
+                      fontSize="8"
+                      fontWeight="bold"
+                    >
+                      CARD
+                    </text>
                   </svg>
                   <p className="text-sm text-gray-600">
                     You will be redirected to complete payment securely.
@@ -674,7 +691,9 @@ export default function CheckoutContent() {
                     <div className="flex-1">
                       <p className="text-sm font-medium">{item.name}</p>
                       {item.size && (
-                        <p className="text-sm text-gray-500">Size: {item.size}</p>
+                        <p className="text-sm text-gray-500">
+                          Size: {item.size}
+                        </p>
                       )}
                       <p className="text-sm text-gray-500">
                         Qty: {item.quantity}

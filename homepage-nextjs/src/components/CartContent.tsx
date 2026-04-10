@@ -70,7 +70,9 @@ export default function CartContent() {
                       {item.name}
                     </Link>
                     {item.size && (
-                      <p className="text-sm text-gray-500 mt-1">Size: {item.size}</p>
+                      <p className="text-sm text-gray-500 mt-1">
+                        Size: {item.size}
+                      </p>
                     )}
                     <button
                       onClick={() => removeItem(item.id, item.variationId)}
@@ -89,14 +91,26 @@ export default function CartContent() {
                 {/* Quantity */}
                 <div className="col-span-2 flex items-center justify-center gap-2">
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1, item.variationId)}
+                    onClick={() =>
+                      updateQuantity(
+                        item.id,
+                        item.quantity - 1,
+                        item.variationId,
+                      )
+                    }
                     className="w-8 h-8 border flex items-center justify-center hover:bg-gray-100"
                   >
                     -
                   </button>
                   <span className="w-12 text-center">{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1, item.variationId)}
+                    onClick={() =>
+                      updateQuantity(
+                        item.id,
+                        item.quantity + 1,
+                        item.variationId,
+                      )
+                    }
                     className="w-8 h-8 border flex items-center justify-center hover:bg-gray-100"
                   >
                     +

@@ -89,7 +89,10 @@ export default function ShopContent({
               href={`/shop/${product.slug}`}
               className="group"
             >
-              <div className="relative bg-gray-100 mb-3 overflow-hidden" style={{ aspectRatio: "65 / 81" }}>
+              <div
+                className="relative bg-gray-100 mb-3 overflow-hidden"
+                style={{ aspectRatio: "65 / 81" }}
+              >
                 {product.images && product.images[0] ? (
                   <>
                     <Image

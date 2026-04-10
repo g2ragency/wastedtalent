@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useCart } from "@/context/CartContext";
 
 interface OrderLineItem {
   id: number;
@@ -50,8 +51,11 @@ export default function OrderConfirmationContent() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
+  const { clearCart } = useCart();
+
   useEffect(() => {
-    // Clear cart from localStorage
+    // Clear cart
+    clearCart();
     localStorage.removeItem("cart");
 
     if (!orderId) {
@@ -251,7 +255,9 @@ export default function OrderConfirmationContent() {
                       Qty: {item.quantity}
                     </p>
                   </div>
-                  <p className="text-sm font-bold">€{parseFloat(item.total).toFixed(2)}</p>
+                  <p className="text-sm font-bold">
+                    €{parseFloat(item.total).toFixed(2)}
+                  </p>
                 </div>
               ))}
             </div>
@@ -266,9 +272,7 @@ export default function OrderConfirmationContent() {
             <div className="flex justify-between text-sm mb-2">
               <span className="text-gray-500">Shipping</span>
               <span>
-                {shippingTotal === 0
-                  ? "Free"
-                  : `€${shippingTotal.toFixed(2)}`}
+                {shippingTotal === 0 ? "Free" : `€${shippingTotal.toFixed(2)}`}
               </span>
             </div>
             <div className="flex justify-between font-bold text-lg border-t pt-3 mt-3">

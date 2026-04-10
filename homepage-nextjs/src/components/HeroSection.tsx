@@ -146,10 +146,14 @@ export default function HeroSection({ data }: HeroSectionProps) {
       {/* Current Slide with curtain effect */}
       <div
         className="absolute inset-0"
-        style={isFirstLoad ? {} : {
-          animation: "heroSlideIn 1000ms ease-in-out forwards",
-          clipPath: "inset(0 0 0 100%)",
-        }}
+        style={
+          isFirstLoad
+            ? {}
+            : {
+                animation: "heroSlideIn 1000ms ease-in-out forwards",
+                clipPath: "inset(0 0 0 100%)",
+              }
+        }
         key={currentSlide}
       >
         <SlideContent slide={slides[currentIndex]} />

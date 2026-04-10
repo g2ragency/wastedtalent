@@ -281,7 +281,9 @@ export default function AccountContent({
                 </button>
               )}
               {activeSection === "account" && <AccountDetails user={user!} />}
-              {activeSection === "orders" && <MyOrders orderGoBackRef={orderGoBackRef} />}
+              {activeSection === "orders" && (
+                <MyOrders orderGoBackRef={orderGoBackRef} />
+              )}
               {activeSection === "delivery" && <DeliveryAddress />}
               {activeSection === "billing" && <BillingAddress />}
             </div>
@@ -918,7 +920,11 @@ function PasswordToggleIcon({ show }: { show: boolean }) {
 /* ──────────────────────────────────────────────
    Placeholder sections (to be implemented)
    ────────────────────────────────────────────── */
-function MyOrders({ orderGoBackRef }: { orderGoBackRef: React.MutableRefObject<(() => void) | null> }) {
+function MyOrders({
+  orderGoBackRef,
+}: {
+  orderGoBackRef: React.MutableRefObject<(() => void) | null>;
+}) {
   const { getOrders } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -932,7 +938,9 @@ function MyOrders({ orderGoBackRef }: { orderGoBackRef: React.MutableRefObject<(
     } else {
       orderGoBackRef.current = null;
     }
-    return () => { orderGoBackRef.current = null; };
+    return () => {
+      orderGoBackRef.current = null;
+    };
   }, [selectedOrder, orderGoBackRef]);
 
   const loadOrders = useCallback(async () => {

@@ -110,20 +110,21 @@ export default function ProductDetail({
     if (!str) return str;
     const lower = str.toLowerCase().replace(/-/g, "");
     const sizeMap: { [key: string]: string } = {
-      "xxsmall": "XXSmall",
-      "xsmall": "XSmall",
-      "small": "Small",
-      "medium": "Medium",
-      "large": "Large",
-      "xlarge": "XLarge",
-      "xxlarge": "XXLarge",
-      "xxxlarge": "XXXLarge",
+      xxsmall: "XXSmall",
+      xsmall: "XSmall",
+      small: "Small",
+      medium: "Medium",
+      large: "Large",
+      xlarge: "XLarge",
+      xxlarge: "XXLarge",
+      xxxlarge: "XXXLarge",
     };
     if (sizeMap[lower]) return sizeMap[lower];
     // Fallback: capitalize first letter of each segment
-    return str.split("-").map(
-      (word) => word.charAt(0).toUpperCase() + word.slice(1)
-    ).join("");
+    return str
+      .split("-")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join("");
   };
 
   const getSizes = () => {

@@ -64,7 +64,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
   ) => {
     setItems((currentItems) => {
       const existingItem = currentItems.find(
-        (i) => i.id === item.id && (i.variationId || 0) === (item.variationId || 0),
+        (i) =>
+          i.id === item.id && (i.variationId || 0) === (item.variationId || 0),
       );
 
       if (existingItem) {
