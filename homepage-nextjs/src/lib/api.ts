@@ -262,9 +262,41 @@ export async function getProducts(): Promise<WooCommerceProduct[]> {
       return [];
     }
 
-    const products = await res.json();
+    const products: WooCommerceProduct[] = await res.json();
     console.log("Products fetched via API route:", products.length);
-    return products;
+
+    // Enrich variable products that are missing variation stock data
+    // (needed for size filters to check stock per variation)
+    const enriched = await Promise.all(
+      products.map(async (product) => {
+        // If already has full variation objects, skip
+        if (
+          product.type === "variable" &&
+          (!product.variations ||
+            !Array.isArray(product.variations) ||
+            product.variations.length === 0 ||
+            typeof product.variations[0] === "number")
+        ) {
+          try {
+            const detailRes = await fetch(
+              `${API_URL}/products/${product.slug}`,
+              { cache: "no-store" },
+            );
+            if (detailRes.ok) {
+              const detail = await detailRes.json();
+              if (detail.variations && Array.isArray(detail.variations)) {
+                return { ...product, variations: detail.variations };
+              }
+            }
+          } catch (e) {
+            // Silently fail — product will just not have variation stock data
+          }
+        }
+        return product;
+      }),
+    );
+
+    return enriched;
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];
