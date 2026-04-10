@@ -99,6 +99,13 @@ export async function POST(request: NextRequest) {
       billing: billingAddress,
       shipping: shippingAddress,
       line_items,
+      shipping_lines: [
+        {
+          method_id: "flat_rate",
+          method_title: "Spedizione",
+          total: "10.00",
+        },
+      ],
       // Tell WooCommerce where to redirect after payment
       meta_data: [
         {

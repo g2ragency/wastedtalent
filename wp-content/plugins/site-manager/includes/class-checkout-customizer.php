@@ -26,6 +26,138 @@ class HPM_Checkout_Customizer {
         
         // Redirect dopo pagamento al frontend
         add_action('template_redirect', array($this, 'redirect_after_payment'));
+        
+        // Abilita checkout con totale zero (per coupon 100%)
+        add_filter('woocommerce_cart_needs_payment', array($this, 'maybe_skip_payment'), 10, 2);
+        
+        // Stripe / WooPayments appearance — font-size 14px dentro l'iframe
+        add_filter('wcpay_upe_appearance', array($this, 'customize_stripe_appearance'));
+        add_filter('wc_stripe_upe_appearance', array($this, 'customize_stripe_appearance'));
+        
+        // Inline script per sovrascrivere le opzioni Stripe Elements
+        add_action('wp_footer', array($this, 'stripe_font_override'));
+        
+        // Permetti pagamento su ordini pending (fix "cannot be paid for")
+        add_filter('woocommerce_valid_order_statuses_for_payment', array($this, 'allow_pending_payment'), 10, 2);
+    }
+
+    /**
+     * Consenti pagamento su ordini con stato pending
+     */
+    public function allow_pending_payment($statuses, $order) {
+        $statuses[] = 'pending';
+        $statuses[] = 'failed';
+        return array_unique($statuses);
+    }
+
+    /**
+     * Personalizza l'aspetto di Stripe Elements (dentro l'iframe)
+     */
+    public function customize_stripe_appearance($appearance) {
+        $appearance['rules'] = array(
+            '.Input' => array(
+                'fontSize' => '14px',
+                'fontFamily' => 'Helvetica Neue, Helvetica, Arial, sans-serif',
+                'color' => '#222222',
+            ),
+            '.Label' => array(
+                'fontSize' => '14px',
+                'fontFamily' => 'Helvetica Neue, Helvetica, Arial, sans-serif',
+                'color' => '#222222',
+                'fontWeight' => '500',
+            ),
+            '.Tab' => array(
+                'fontSize' => '14px',
+                'fontFamily' => 'Helvetica Neue, Helvetica, Arial, sans-serif',
+            ),
+            '.TabLabel' => array(
+                'fontSize' => '14px',
+            ),
+            '.Block' => array(
+                'fontSize' => '14px',
+            ),
+        );
+        $appearance['variables'] = array(
+            'fontFamily' => 'Helvetica Neue, Helvetica, Arial, sans-serif',
+            'fontSizeBase' => '14px',
+            'fontSizeSm' => '14px',
+            'fontSizeLg' => '14px',
+            'fontSizeXl' => '14px',
+            'colorText' => '#222222',
+            'colorTextSecondary' => '#666666',
+            'colorTextPlaceholder' => '#bbbbbb',
+        );
+        
+        if (!isset($appearance['theme'])) {
+            $appearance['theme'] = 'stripe';
+        }
+        
+        return $appearance;
+    }
+
+    /**
+     * Script inline per sovrascrivere font-size nell'iframe Stripe
+     */
+    public function stripe_font_override() {
+        if (!is_checkout_pay_page()) {
+            return;
+        }
+        ?>
+        <script>
+        (function() {
+            // Override WooPayments/Stripe appearance settings
+            if (typeof window.wc !== 'undefined' && window.wc.wcpay) {
+                var origCreate = window.wc.wcpay;
+            }
+            
+            // MutationObserver to catch when Stripe iframe loads and adjust container
+            var observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    mutation.addedNodes.forEach(function(node) {
+                        if (node.nodeType === 1) {
+                            // Look for Stripe iframe containers
+                            var stripeFrames = document.querySelectorAll(
+                                '.StripeElement, .__PrivateStripeElement, .wcpay-upe-element, #wcpay-upe-element, #wcpay-card-element, [data-elements-stable-field-name]'
+                            );
+                            stripeFrames.forEach(function(el) {
+                                el.style.fontSize = '14px';
+                                el.style.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+                                // Find iframes inside and adjust their container height
+                                var iframes = el.querySelectorAll('iframe');
+                                iframes.forEach(function(iframe) {
+                                    iframe.style.minHeight = '44px';
+                                });
+                            });
+                        }
+                    });
+                });
+            });
+            
+            observer.observe(document.body, { childList: true, subtree: true });
+            
+            // Also apply after a short delay for elements already loaded
+            setTimeout(function() {
+                var stripeFrames = document.querySelectorAll(
+                    '.StripeElement, .__PrivateStripeElement, .wcpay-upe-element, #wcpay-upe-element, #wcpay-card-element, [data-elements-stable-field-name]'
+                );
+                stripeFrames.forEach(function(el) {
+                    el.style.fontSize = '14px';
+                    el.style.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+                });
+            }, 2000);
+        })();
+        </script>
+        <?php
+    }
+
+    /**
+     * Permetti ordini con totale zero (coupon 100%) senza pagamento
+     */
+    public function maybe_skip_payment($needs_payment, $cart) {
+        if ($cart->get_total('edit') == 0) {
+            return false;
+        }
+        return $needs_payment;
     }
 
     /**
@@ -55,6 +187,11 @@ class HPM_Checkout_Customizer {
             'ajaxurl' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('hpm_coupon_nonce'),
         ));
+
+        // Inietta URL del logo nel CSS
+        $logo_url = HPM_PLUGIN_URL . 'assets/img/logo.svg';
+        $inline_css = 'body.woocommerce-order-pay .woocommerce::before { background-image: url(' . esc_url($logo_url) . '); }';
+        wp_add_inline_style('hpm-payment-page', $inline_css);
     }
 
     /**
@@ -91,12 +228,12 @@ class HPM_Checkout_Customizer {
                         <circle cx="11" cy="4.5" r="1" fill="#222222"/>
                     </svg>
                 </span>
-                <span>Do you have a coupon code?</span>
+                <span>Hai un codice sconto?</span>
             </div>
             <div class="hpm-coupon-form" id="hpm-coupon-form">
                 <div class="hpm-coupon-input-wrap">
-                    <input type="text" id="hpm-coupon-code" placeholder="Enter coupon code" />
-                    <button type="button" id="hpm-apply-coupon">Apply</button>
+                    <input type="text" id="hpm-coupon-code" placeholder="Inserisci il codice sconto" />
+                    <button type="button" id="hpm-apply-coupon">Applica</button>
                 </div>
                 <div id="hpm-coupon-message" class="hpm-coupon-message" style="display:none;"></div>
             </div>
@@ -114,27 +251,27 @@ class HPM_Checkout_Customizer {
         $order_id = isset($_POST['order_id']) ? absint($_POST['order_id']) : 0;
 
         if (empty($coupon_code) || empty($order_id)) {
-            wp_send_json_error(array('message' => 'Please enter a coupon code.'));
+            wp_send_json_error(array('message' => 'Inserisci un codice sconto.'));
             return;
         }
 
         $order = wc_get_order($order_id);
         if (!$order) {
-            wp_send_json_error(array('message' => 'Order not found.'));
+            wp_send_json_error(array('message' => 'Ordine non trovato.'));
             return;
         }
 
         // Verifica che il coupon esista e sia valido
         $coupon = new WC_Coupon($coupon_code);
         if (!$coupon->get_id()) {
-            wp_send_json_error(array('message' => 'Invalid coupon code.'));
+            wp_send_json_error(array('message' => 'Codice sconto non valido.'));
             return;
         }
 
         // Controlla se il coupon è già applicato
         $applied_coupons = $order->get_coupon_codes();
         if (in_array(strtolower($coupon_code), array_map('strtolower', $applied_coupons))) {
-            wp_send_json_error(array('message' => 'This coupon has already been applied.'));
+            wp_send_json_error(array('message' => 'Questo codice sconto è già stato applicato.'));
             return;
         }
 
@@ -150,7 +287,7 @@ class HPM_Checkout_Customizer {
         $order->save();
 
         wp_send_json_success(array(
-            'message' => 'Coupon applied successfully!',
+            'message' => 'Codice sconto applicato!',
             'new_total' => $order->get_formatted_order_total(),
             'discount' => wc_price($order->get_total_discount()),
         ));

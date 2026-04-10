@@ -3,8 +3,12 @@
    =========================================== */
 
 /* Reset & Base */
-body.woocommerce-order-pay {
+body.woocommerce-order-pay,
+body.woocommerce-order-pay * {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+body.woocommerce-order-pay {
   background-color: #ffffff !important;
   color: #222222 !important;
   margin: 0;
@@ -35,19 +39,29 @@ body.woocommerce-order-pay .woocommerce {
   padding: 60px 24px 80px;
 }
 
-/* Custom Header Bar */
+/* Custom Header Bar — Logo */
 body.woocommerce-order-pay .woocommerce::before {
-  content: "WASTED TALENT";
+  content: "";
   display: block;
-  text-align: center;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-  padding: 24px 0;
+  width: 87px;
+  height: 50px;
+  margin: 24px auto 40px;
+  padding: 0;
+  border-bottom: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+/* Separator line after logo */
+body.woocommerce-order-pay .woocommerce::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: #dddddd;
   margin-bottom: 40px;
-  border-bottom: 1px solid #dddddd;
-  color: #222222;
+  margin-top: -40px;
 }
 
 /* Page title */
@@ -186,11 +200,11 @@ body.woocommerce-order-pay #payment ul.payment_methods li .payment_box::before {
 /* Stripe / WooPayments Card Input */
 body.woocommerce-order-pay #payment .payment_box label {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 12px !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
-  color: #999999 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  color: #222222 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
   margin-bottom: 6px !important;
   display: block !important;
 }
@@ -212,6 +226,83 @@ body.woocommerce-order-pay #payment .payment_box select:focus {
   border-color: #222222 !important;
   outline: none !important;
   box-shadow: none !important;
+}
+
+/* WooPayments / Stripe Elements sizing */
+body.woocommerce-order-pay #payment .payment_box p,
+body.woocommerce-order-pay #payment .payment_box span,
+body.woocommerce-order-pay #payment .payment_box div,
+body.woocommerce-order-pay #payment .payment_box fieldset {
+  font-size: 14px !important;
+}
+
+body.woocommerce-order-pay #payment .payment_box fieldset label {
+  font-size: 14px !important;
+}
+
+body.woocommerce-order-pay .wc-payment-form label,
+body.woocommerce-order-pay .wc-stripe-elements-field label,
+body.woocommerce-order-pay .woocommerce-SavedPaymentMethods-saveNew label {
+  font-size: 14px !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  color: #222222 !important;
+}
+
+body.woocommerce-order-pay .wc-payment-form .form-row,
+body.woocommerce-order-pay .wc-payment-form .form-row label {
+  font-size: 14px !important;
+}
+
+/* WooPayments UPE / Stripe wrapper */
+body.woocommerce-order-pay #payment .payment_box .wc-block-gateway-container,
+body.woocommerce-order-pay #payment .payment_box .wcpay-upe-element,
+body.woocommerce-order-pay #payment .payment_box #wcpay-upe-element,
+body.woocommerce-order-pay #payment .payment_box #wc-stripe-card-element,
+body.woocommerce-order-pay #payment .payment_box .wc-stripe-elements-field {
+  font-size: 14px !important;
+}
+
+/* Stripe iframe container minimum height for readability */
+body.woocommerce-order-pay #payment .payment_box .wc-stripe-elements-field,
+body.woocommerce-order-pay #payment .payment_box #wcpay-card-element,
+body.woocommerce-order-pay #payment .payment_box #wcpay-upe-element {
+  min-height: 44px !important;
+}
+
+/* Stripe Elements iframe wrapper — force 14px context */
+body.woocommerce-order-pay #payment .payment_box .StripeElement,
+body.woocommerce-order-pay #payment .payment_box .__PrivateStripeElement,
+body.woocommerce-order-pay
+  #payment
+  .payment_box
+  [data-elements-stable-field-name] {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+body.woocommerce-order-pay #payment .payment_box .StripeElement iframe,
+body.woocommerce-order-pay
+  #payment
+  .payment_box
+  .__PrivateStripeElement
+  iframe {
+  min-height: 44px !important;
+}
+
+/* WooPayments UPE container */
+body.woocommerce-order-pay #payment .payment_box #wcpay-upe-element *,
+body.woocommerce-order-pay #payment .payment_box #wcpay-card-element *,
+body.woocommerce-order-pay #payment .payment_box .wcpay-upe-element * {
+  font-size: 14px !important;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+}
+
+/* Payment method description */
+body.woocommerce-order-pay #payment .payment_box p {
+  font-size: 14px !important;
+  color: #666666 !important;
+  line-height: 1.5 !important;
 }
 
 /* ===== PAY BUTTON ===== */
@@ -254,10 +345,9 @@ body.woocommerce-order-pay .woocommerce-privacy-policy-text a {
   text-decoration: underline !important;
 }
 
-/* ===== COUPON SECTION ===== */
+/* ===== COUPON SECTION (nascosto per ora) ===== */
 .hpm-coupon-section {
-  margin-bottom: 32px;
-  border: 1px solid #dddddd;
+  display: none !important;
 }
 
 .hpm-coupon-toggle {
@@ -349,6 +439,20 @@ body.woocommerce-order-pay .woocommerce-privacy-policy-text a {
 .hpm-coupon-message.error {
   background: #fff0f0;
   color: #cc0000;
+}
+
+/* ===== ZERO TOTAL (100% coupon) ===== */
+body.woocommerce-order-pay .woocommerce-info {
+  background-color: #f5f5f5 !important;
+  color: #222222 !important;
+  font-size: 14px !important;
+  padding: 16px 20px !important;
+  border: none !important;
+}
+
+body.woocommerce-order-pay .woocommerce-no-js,
+body.woocommerce-order-pay .woocommerce form.checkout_coupon {
+  display: none !important;
 }
 
 /* ===== RESPONSIVE ===== */

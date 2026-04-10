@@ -30,7 +30,7 @@
       var $btn = $("#hpm-apply-coupon");
 
       if (!code) {
-        showMessage("Please enter a coupon code.", "error");
+        showMessage("Inserisci un codice sconto.", "error");
         return;
       }
 
@@ -45,11 +45,11 @@
       }
 
       if (!orderId) {
-        showMessage("Could not identify order.", "error");
+        showMessage("Impossibile identificare l'ordine.", "error");
         return;
       }
 
-      $btn.prop("disabled", true).text("Applying...");
+      $btn.prop("disabled", true).text("Applicando...");
 
       $.ajax({
         url: hpmPayment.ajaxurl,
@@ -63,7 +63,10 @@
         success: function (response) {
           if (response.success) {
             showMessage(
-              response.data.message + " New total: " + response.data.new_total,
+              "Codice sconto applicato! Sconto: " +
+                response.data.discount +
+                ". Nuovo totale: " +
+                response.data.new_total,
               "success",
             );
             // Reload page to reflect new total
@@ -75,17 +78,17 @@
           }
         },
         error: function () {
-          showMessage("Something went wrong. Please try again.", "error");
+          showMessage("Qualcosa è andato storto. Riprova.", "error");
         },
         complete: function () {
-          $btn.prop("disabled", false).text("Apply");
+          $btn.prop("disabled", false).text("Applica");
         },
       });
     }
 
     function showMessage(text, type) {
       var $msg = $("#hpm-coupon-message");
-      $msg.text(text).removeClass("success error").addClass(type).fadeIn();
+      $msg.html(text).removeClass("success error").addClass(type).fadeIn();
     }
   });
 })(jQuery);
