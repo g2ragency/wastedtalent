@@ -106,6 +106,14 @@ export default function ProductDetail({
     window.addEventListener("resize", measureBar);
     return () => window.removeEventListener("resize", measureBar);
   }, []);
+  const capitalizeOption = (str: string) => {
+    if (!str) return str;
+    // Remove hyphens and capitalize each word
+    return str.split("-").map(
+      (word) => word.charAt(0).toUpperCase() + word.slice(1)
+    ).join("");
+  };
+
   const getSizes = () => {
     if (variations.length > 0) {
       return variations.map((v) => {
@@ -115,7 +123,7 @@ export default function ProductDetail({
             a.name.toLowerCase() === "taglia",
         );
         return {
-          name: sizeAttr?.option || "",
+          name: capitalizeOption(sizeAttr?.option || ""),
           stockQuantity: v.stock_quantity,
           stockStatus: v.stock_status,
           variationId: v.id,
@@ -130,7 +138,7 @@ export default function ProductDetail({
     );
     if (sizeAttr) {
       return sizeAttr.options.map((opt) => ({
-        name: opt,
+        name: capitalizeOption(opt),
         stockQuantity: null as number | null,
         stockStatus: "instock",
         variationId: 0,
