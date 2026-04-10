@@ -20,6 +20,16 @@ export default function CheckoutContent() {
     country: "",
     phone: "",
   });
+  const [billingData, setBillingData] = useState({
+    firstName: "",
+    lastName: "",
+    address: "",
+    city: "",
+    postalCode: "",
+    country: "",
+    phone: "",
+  });
+  const [sameAsShipping, setSameAsShipping] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -35,20 +45,37 @@ export default function CheckoutContent() {
       lastName: prev.lastName || user.lastName || "",
     }));
 
-    // Fetch billing address for full details
-    getAddress("billing").then((res) => {
-      if (res.success && res.data) {
-        const addr = res.data;
-        setFormData((prev) => ({
+    // Fetch shipping address first (priority), then billing as fallback
+    Promise.all([
+      getAddress("shipping"),
+      getAddress("billing"),
+    ]).then(([shippingRes, billingRes]) => {
+      const ship = shippingRes.success ? shippingRes.data : null;
+      const bill = billingRes.success ? billingRes.data : null;
+
+      setFormData((prev) => ({
+        ...prev,
+        email: prev.email || bill?.email || user.email || "",
+        firstName: prev.firstName || ship?.firstName || bill?.firstName || user.firstName || "",
+        lastName: prev.lastName || ship?.lastName || bill?.lastName || user.lastName || "",
+        address: prev.address || ship?.address1 || bill?.address1 || "",
+        city: prev.city || ship?.city || bill?.city || "",
+        postalCode: prev.postalCode || ship?.postcode || bill?.postcode || "",
+        country: prev.country || ship?.country || bill?.country || "",
+        phone: prev.phone || ship?.phone || bill?.phone || "",
+      }));
+
+      // Pre-fill billing data from billing address
+      if (bill) {
+        setBillingData((prev) => ({
           ...prev,
-          email: prev.email || addr.email || user.email || "",
-          firstName: prev.firstName || addr.firstName || user.firstName || "",
-          lastName: prev.lastName || addr.lastName || user.lastName || "",
-          address: prev.address || addr.address1 || "",
-          city: prev.city || addr.city || "",
-          postalCode: prev.postalCode || addr.postcode || "",
-          country: prev.country || addr.country || "",
-          phone: prev.phone || addr.phone || "",
+          firstName: prev.firstName || bill.firstName || "",
+          lastName: prev.lastName || bill.lastName || "",
+          address: prev.address || bill.address1 || "",
+          city: prev.city || bill.city || "",
+          postalCode: prev.postalCode || bill.postcode || "",
+          country: prev.country || bill.country || "",
+          phone: prev.phone || bill.phone || "",
         }));
       }
     });
@@ -83,7 +110,23 @@ export default function CheckoutContent() {
       ...formData,
       [name]: value,
     });
-    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
+  };
+
+  const handleBillingChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value } = e.target;
+    const field = name.replace("billing_", "");
+    setBillingData({
+      ...billingData,
+      [field]: value,
+    });
     if (errors[name]) {
       setErrors({
         ...errors,
@@ -110,6 +153,22 @@ export default function CheckoutContent() {
       newErrors.postalCode = "Please enter your postal code";
     if (!formData.country) newErrors.country = "Please select a country";
     if (!formData.phone) newErrors.phone = "Please enter your phone number";
+
+    // Validate billing if different from shipping
+    if (!sameAsShipping) {
+      if (!billingData.firstName)
+        newErrors.billing_firstName = "Please enter your first name";
+      if (!billingData.lastName)
+        newErrors.billing_lastName = "Please enter your last name";
+      if (!billingData.address)
+        newErrors.billing_address = "Please enter your address";
+      if (!billingData.city)
+        newErrors.billing_city = "Please enter your city";
+      if (!billingData.postalCode)
+        newErrors.billing_postalCode = "Please enter your postal code";
+      if (!billingData.country)
+        newErrors.billing_country = "Please select a country";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -331,6 +390,182 @@ export default function CheckoutContent() {
                   )}
                 </div>
               </div>
+            </div>
+
+            {/* Billing Information */}
+            <div>
+              <label className="flex items-center gap-3 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={sameAsShipping}
+                  onChange={(e) => setSameAsShipping(e.target.checked)}
+                  className="w-4 h-4 accent-[#222222]"
+                />
+                <span className="text-sm font-medium">
+                  Shipping and billing details are the same
+                </span>
+              </label>
+
+              {!sameAsShipping && (
+                <div className="mt-6">
+                  <h2 className="text-xl font-bold mb-4">Billing Information</h2>
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          First Name
+                        </label>
+                        <input
+                          type="text"
+                          name="billing_firstName"
+                          value={billingData.firstName}
+                          onChange={handleBillingChange}
+                          className={`w-full border px-4 py-3 focus:outline-none ${
+                            errors.billing_firstName
+                              ? "border-red-500"
+                              : "border-gray-300 focus:border-[#222222]"
+                          }`}
+                        />
+                        {errors.billing_firstName && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.billing_firstName}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Last Name
+                        </label>
+                        <input
+                          type="text"
+                          name="billing_lastName"
+                          value={billingData.lastName}
+                          onChange={handleBillingChange}
+                          className={`w-full border px-4 py-3 focus:outline-none ${
+                            errors.billing_lastName
+                              ? "border-red-500"
+                              : "border-gray-300 focus:border-[#222222]"
+                          }`}
+                        />
+                        {errors.billing_lastName && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.billing_lastName}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        name="billing_address"
+                        value={billingData.address}
+                        onChange={handleBillingChange}
+                        className={`w-full border px-4 py-3 focus:outline-none ${
+                          errors.billing_address
+                            ? "border-red-500"
+                            : "border-gray-300 focus:border-[#222222]"
+                        }`}
+                      />
+                      {errors.billing_address && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.billing_address}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          name="billing_city"
+                          value={billingData.city}
+                          onChange={handleBillingChange}
+                          className={`w-full border px-4 py-3 focus:outline-none ${
+                            errors.billing_city
+                              ? "border-red-500"
+                              : "border-gray-300 focus:border-[#222222]"
+                          }`}
+                        />
+                        {errors.billing_city && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.billing_city}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium mb-2">
+                          Postal Code
+                        </label>
+                        <input
+                          type="text"
+                          name="billing_postalCode"
+                          value={billingData.postalCode}
+                          onChange={handleBillingChange}
+                          className={`w-full border px-4 py-3 focus:outline-none ${
+                            errors.billing_postalCode
+                              ? "border-red-500"
+                              : "border-gray-300 focus:border-[#222222]"
+                          }`}
+                        />
+                        {errors.billing_postalCode && (
+                          <p className="text-red-500 text-sm mt-1">
+                            {errors.billing_postalCode}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Country
+                      </label>
+                      <select
+                        name="billing_country"
+                        value={billingData.country}
+                        onChange={handleBillingChange}
+                        className="w-full border border-gray-300 px-4 py-3 focus:outline-none focus:border-[#222222]"
+                      >
+                        <option value="">Select a country</option>
+                        <option value="IT">Italy</option>
+                        <option value="US">United States</option>
+                        <option value="GB">United Kingdom</option>
+                        <option value="FR">France</option>
+                        <option value="DE">Germany</option>
+                        <option value="ES">Spain</option>
+                      </select>
+                      {errors.billing_country && (
+                        <p className="text-red-500 text-sm mt-1">
+                          {errors.billing_country}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-2">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        name="billing_phone"
+                        value={billingData.phone}
+                        onChange={handleBillingChange}
+                        className={`w-full border px-4 py-3 focus:outline-none ${
+                          errors.billing_phone
+                            ? "border-red-500"
+                            : "border-gray-300 focus:border-[#222222]"
+                        }`}
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Payment Information */}
