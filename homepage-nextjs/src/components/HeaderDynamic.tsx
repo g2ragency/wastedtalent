@@ -122,8 +122,9 @@ export default function Header({ data }: HeaderProps) {
                 fontFamily: "Helvetica Neue, sans-serif",
                 fontSize: "12px",
                 fontWeight: "bold",
-                color: "#222222",
-              }}
+                color: isHomepage && !mobileMenuOpen && !scrolled ? "white" : "#222222",
+                mixBlendMode: isHomepage && !mobileMenuOpen && !scrolled ? "difference" : "normal",
+              } as React.CSSProperties}
             >
               {mobileMenuOpen ? "Close" : "Menu"}
             </button>
@@ -132,11 +133,15 @@ export default function Header({ data }: HeaderProps) {
           {/* Center Logo */}
           <div className="flex-shrink-0">
             <Link href="/" className="block">
-              {/* Mobile logo: no blend/filter */}
+              {/* Mobile logo: blend/invert on homepage when menu closed */}
               <img
                 src="/logo.svg"
                 alt="Wasted Talent United"
                 className="block md:hidden h-[40px] w-[68px]"
+                style={{
+                  mixBlendMode: isHomepage && !mobileMenuOpen && !scrolled ? "difference" : "normal",
+                  filter: isHomepage && !mobileMenuOpen && !scrolled ? "invert(1)" : "none",
+                }}
               />
               {/* Desktop logo: blend + invert for homepage */}
               <img
@@ -193,8 +198,9 @@ export default function Header({ data }: HeaderProps) {
                 fontFamily: "Helvetica Neue, sans-serif",
                 fontSize: "12px",
                 fontWeight: "bold",
-                color: "#222222",
-              }}
+                color: isHomepage && !mobileMenuOpen && !scrolled ? "white" : "#222222",
+                mixBlendMode: isHomepage && !mobileMenuOpen && !scrolled ? "difference" : "normal",
+              } as React.CSSProperties}
             >
               Cart ({totalItems})
             </button>
@@ -305,7 +311,7 @@ export default function Header({ data }: HeaderProps) {
                   fontWeight: 700,
                 }}
               >
-                Shipping & Returns
+                Shipping
               </Link>
             </div>
           </div>

@@ -7,7 +7,6 @@ interface FooterProps {
 }
 
 export default function Footer({ contactInfo }: FooterProps) {
-
   return (
     <footer className="w-full bg-[#f0f0f0] mt-[50px]">
       <div className="px-3 md:px-16 py-16">
@@ -54,7 +53,11 @@ export default function Footer({ contactInfo }: FooterProps) {
             <div className="w-full h-[1px] bg-[#999999] mb-6"></div>
             <ul className="space-y-0 text-[12px]">
               <li>
-                <a href="https://www.instagram.com/wasted_talent_united" target="_blank" rel="noopener noreferrer">
+                <a
+                  href="https://www.instagram.com/wasted_talent_united"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   Instagram
                 </a>
               </li>
