@@ -23,7 +23,7 @@ function SlideContent({ slide }: { slide: any }) {
           <div
             className="absolute inset-0"
             style={{
-              background: "linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.7))",
+              background: "linear-gradient(to bottom, rgba(0,0,0,0.6), rgba(0,0,0,0.6))",
             }}
           />
         </div>
