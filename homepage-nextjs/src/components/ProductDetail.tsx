@@ -313,6 +313,7 @@ export default function ProductDetail({
               </p>
 
               {/* Size Selector */}
+              {hasSizes && (
               <div className="mb-8">
                 <p className="text-sm font-bold mb-3 uppercase">Select size</p>
                 <div className="grid grid-cols-6 gap-2">
@@ -337,13 +338,14 @@ export default function ProductDetail({
                   })}
                 </div>
               </div>
+              )}
 
               {/* Add to Cart Button */}
               <button
                 onClick={handleAddToCart}
-                disabled={!selectedSize}
+                disabled={hasSizes && !selectedSize}
                 className={`w-full py-4 font-bold text-sm uppercase mb-4 transition-all border border-[#222222] ${
-                  !selectedSize
+                  hasSizes && !selectedSize
                     ? "bg-[#222222] text-white opacity-50 cursor-not-allowed"
                     : "bg-[#222222] text-white hover:bg-transparent hover:text-[#222222]"
                 }`}
