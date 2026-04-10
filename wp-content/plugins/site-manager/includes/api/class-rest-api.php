@@ -374,6 +374,61 @@ class HPM_REST_API {
                         }
                     }
                     
+                    // Get categories
+                    $categories = array();
+                    $terms = get_the_terms(get_the_ID(), 'product_cat');
+                    if ($terms && !is_wp_error($terms)) {
+                        foreach ($terms as $term) {
+                            $categories[] = array(
+                                'id' => $term->term_id,
+                                'name' => $term->name,
+                                'slug' => $term->slug
+                            );
+                        }
+                    }
+
+                    // Get attributes with term names (not just IDs)
+                    $attributes_data = array();
+                    foreach ($product->get_attributes() as $attr) {
+                        $options = array();
+                        if ($attr->is_taxonomy()) {
+                            // Taxonomy attribute — resolve term IDs to names
+                            $attr_terms = $attr->get_terms();
+                            if ($attr_terms && !is_wp_error($attr_terms)) {
+                                foreach ($attr_terms as $attr_term) {
+                                    $options[] = $attr_term->name;
+                                }
+                            }
+                        } else {
+                            // Custom attribute — options are already strings
+                            $options = $attr->get_options();
+                        }
+                        $attributes_data[] = array(
+                            'id' => $attr->get_id(),
+                            'name' => wc_attribute_label($attr->get_name()),
+                            'options' => $options,
+                            'variation' => $attr->get_variation(),
+                        );
+                    }
+
+                    // Get variations with stock info for variable products
+                    $variations_data = array();
+                    if ($product->get_type() === 'variable') {
+                        $variations = $product->get_available_variations();
+                        foreach ($variations as $variation) {
+                            $var_product = wc_get_product($variation['variation_id']);
+                            if ($var_product) {
+                                $variations_data[] = array(
+                                    'id' => $variation['variation_id'],
+                                    'price' => $var_product->get_price(),
+                                    'stock_status' => $var_product->get_stock_status(),
+                                    'stock_quantity' => $var_product->get_stock_quantity(),
+                                    'attributes' => $variation['attributes'],
+                                );
+                            }
+                        }
+                    }
+
                     $products_data[] = array(
                         'id' => $product->get_id(),
                         'name' => $product->get_name(),
@@ -382,11 +437,15 @@ class HPM_REST_API {
                         'price' => $product->get_price(),
                         'regular_price' => $product->get_regular_price(),
                         'sale_price' => $product->get_sale_price(),
+                        'price_html' => $product->get_price_html(),
                         'description' => $product->get_short_description(),
                         'images' => $images,
+                        'categories' => $categories,
                         'permalink' => get_permalink($product->get_id()),
                         'in_stock' => $product->is_in_stock(),
-                        'stock_status' => $product->get_stock_status()
+                        'stock_status' => $product->get_stock_status(),
+                        'attributes' => $attributes_data,
+                        'variations' => $variations_data,
                     );
                 }
             }
@@ -479,13 +538,24 @@ class HPM_REST_API {
                     'stock_status' => $product->get_stock_status()
                 );
 
-                // Add attributes
+                // Add attributes with term names (not just IDs)
                 $attributes_data = array();
                 foreach ($product->get_attributes() as $attr) {
+                    $options = array();
+                    if ($attr->is_taxonomy()) {
+                        $attr_terms = $attr->get_terms();
+                        if ($attr_terms && !is_wp_error($attr_terms)) {
+                            foreach ($attr_terms as $attr_term) {
+                                $options[] = $attr_term->name;
+                            }
+                        }
+                    } else {
+                        $options = $attr->get_options();
+                    }
                     $attributes_data[] = array(
                         'id' => $attr->get_id(),
-                        'name' => $attr->get_name(),
-                        'options' => $attr->get_options(),
+                        'name' => wc_attribute_label($attr->get_name()),
+                        'options' => $options,
                         'variation' => $attr->get_variation(),
                     );
                 }

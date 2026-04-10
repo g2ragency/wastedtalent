@@ -174,7 +174,8 @@ export default function ProductDetail({
     stockStatus: string;
   }) => {
     if (size.stockStatus === "outofstock") return "Sold out";
-    if (size.stockQuantity !== null && size.stockQuantity <= 0) return "Sold out";
+    if (size.stockQuantity !== null && size.stockQuantity <= 0)
+      return "Sold out";
     if (
       size.stockQuantity !== null &&
       size.stockQuantity > 0 &&
@@ -184,7 +185,10 @@ export default function ProductDetail({
     return "";
   };
 
-  const isSoldOut = (size: { stockQuantity: number | null; stockStatus: string }) => {
+  const isSoldOut = (size: {
+    stockQuantity: number | null;
+    stockStatus: string;
+  }) => {
     if (size.stockStatus === "outofstock") return true;
     if (size.stockQuantity !== null && size.stockQuantity <= 0) return true;
     return false;
@@ -234,7 +238,11 @@ export default function ProductDetail({
             <div>
               {product.images && product.images.length > 0 ? (
                 product.images.map((image, index) => (
-                  <div key={image.id} className="bg-gray-100 w-full overflow-hidden" style={{ aspectRatio: "65 / 81" }}>
+                  <div
+                    key={image.id}
+                    className="bg-gray-100 w-full overflow-hidden"
+                    style={{ aspectRatio: "65 / 81" }}
+                  >
                     <Image
                       src={image.src}
                       alt={image.alt || `${product.name} ${index + 1}`}
@@ -346,7 +354,11 @@ export default function ProductDetail({
         <div className="md:hidden pb-40">
           {product.images && product.images.length > 0 ? (
             product.images.map((image, index) => (
-              <div key={image.id} className="bg-gray-100 w-full mb-1 overflow-hidden" style={{ aspectRatio: "65 / 81" }}>
+              <div
+                key={image.id}
+                className="bg-gray-100 w-full mb-1 overflow-hidden"
+                style={{ aspectRatio: "65 / 81" }}
+              >
                 <Image
                   src={image.src}
                   alt={image.alt || `${product.name} ${index + 1}`}

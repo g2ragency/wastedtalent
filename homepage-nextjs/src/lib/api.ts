@@ -220,13 +220,17 @@ export interface WooCommerceProduct {
     variation: boolean;
     options: string[];
   }>;
-  variations?: number[] | Array<{
-    id: number;
-    price: string;
-    stock_status: string;
-    stock_quantity: number | null;
-    attributes: Record<string, string> | Array<{ name: string; option: string }>;
-  }>;
+  variations?:
+    | number[]
+    | Array<{
+        id: number;
+        price: string;
+        stock_status: string;
+        stock_quantity: number | null;
+        attributes:
+          | Record<string, string>
+          | Array<{ name: string; option: string }>;
+      }>;
 }
 
 export interface ProductVariation {

@@ -123,10 +123,7 @@ export default function ShopContent({
               if (typeof attrs === "object" && !Array.isArray(attrs)) {
                 // Object format: {"attribute_pa_taglia": "small"}
                 for (const [key, val] of Object.entries(attrs)) {
-                  if (
-                    key.includes("size") ||
-                    key.includes("taglia")
-                  ) {
+                  if (key.includes("size") || key.includes("taglia")) {
                     varSize = String(val);
                     break;
                   }
@@ -258,10 +255,10 @@ export default function ShopContent({
                         opacity: 1,
                       }}
                     />
-                    {product.images[1] && (
+                    {(product.images[2] || product.images[1]) && (
                       <Image
-                        src={product.images[1].src}
-                        alt={product.images[1].alt || product.name}
+                        src={(product.images[2] || product.images[1]).src}
+                        alt={(product.images[2] || product.images[1]).alt || product.name}
                         width={650}
                         height={810}
                         className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity duration-300"

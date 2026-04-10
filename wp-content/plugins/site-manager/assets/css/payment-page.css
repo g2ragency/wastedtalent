@@ -352,8 +352,19 @@ body.woocommerce-order-pay .woocommerce-privacy-policy-text a {
 
 /* Hide 'via {method}' next to shipping cost */
 body.woocommerce-order-pay .woocommerce table.shop_table .shipping td small,
-body.woocommerce-order-pay .woocommerce table.shop_table .shipping td .wc-item-meta,
-body.woocommerce-order-pay .woocommerce table.shop_table tfoot .shipping td small {
+body.woocommerce-order-pay
+  .woocommerce
+  table.shop_table
+  .shipping
+  td
+  .wc-item-meta,
+body.woocommerce-order-pay
+  .woocommerce
+  table.shop_table
+  tfoot
+  .shipping
+  td
+  small {
   display: none !important;
 }
 

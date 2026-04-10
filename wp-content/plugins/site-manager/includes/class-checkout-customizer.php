@@ -101,44 +101,20 @@ class HPM_Checkout_Customizer {
         ?>
         <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Traduci label tabella
-            var translations = {
-                'Subtotal:': 'Subtotale:',
-                'Subtotale:': 'Subtotale:',
-                'Shipping:': 'Spedizione:',
-                'Tax:': 'Imposte:',
-                'Imposte:': 'Imposte:',
-                'Total:': 'Totale:',
-                'Totale:': 'Totale:',
-                'Payment method:': 'Metodo di pagamento:',
-                'Metodo di pagamento:': 'Metodo di pagamento:',
-                'Product': 'Prodotto',
-                'Quantity': 'Quantità',
-                'Price': 'Prezzo',
-                'Credit Card': 'Carta di credito'
-            };
-            
-            // Traduci th e td nel footer della tabella
-            var cells = document.querySelectorAll('.shop_table tfoot th, .shop_table tfoot td, .shop_table thead th');
-            cells.forEach(function(cell) {
-                var text = cell.textContent.trim();
-                if (translations[text]) {
-                    cell.textContent = translations[text];
-                }
-            });
-
-            // Rimuovi "(ex. VAT)" e sostituisci con testo pulito
+            // Rimuovi "(ex. VAT)" e "(incl. VAT)"
             var allCells = document.querySelectorAll('.shop_table td, .shop_table th');
             allCells.forEach(function(cell) {
-                cell.innerHTML = cell.innerHTML.replace(/\(ex\.\s*VAT\)/g, '');
-                cell.innerHTML = cell.innerHTML.replace(/\(incl\.\s*VAT\)/g, '');
+                cell.innerHTML = cell.innerHTML.replace(/\s*\(ex\.\s*VAT\)/g, '');
+                cell.innerHTML = cell.innerHTML.replace(/\s*\(incl\.\s*VAT\)/g, '');
             });
 
             // Rimuovi "via Spedizione" o simili dal testo spedizione
             var shippingRows = document.querySelectorAll('.shipping td');
             shippingRows.forEach(function(td) {
                 var smalls = td.querySelectorAll('small');
-                smalls.forEach(function(s) { s.style.display = 'none'; });
+                smalls.forEach(function(s) { s.remove(); });
+                // Also remove any remaining "via ..." text
+                td.innerHTML = td.innerHTML.replace(/\s*via\s+[^<]*/g, '');
             });
         });
         </script>
