@@ -88,7 +88,7 @@ export default function ShopContent({
       });
     }
 
-    // Filter by selected sizes
+    // Filter by selected sizes — only show product if selected size is in stock
     if (selectedSizes.length > 0) {
       result = result.filter((product) => {
         if (!product.attributes) return false;
@@ -98,9 +98,57 @@ export default function ShopContent({
             a.name.toLowerCase() === "taglia",
         );
         if (!sizeAttr) return false;
-        return sizeAttr.options.some((opt) =>
+
+        // Check if the product has any of the selected sizes
+        const matchingSizes = sizeAttr.options.filter((opt) =>
           selectedSizes.includes(normalizeSize(opt)),
         );
+        if (matchingSizes.length === 0) return false;
+
+        // If variations data is available, check stock for matching sizes
+        if (
+          product.variations &&
+          Array.isArray(product.variations) &&
+          product.variations.length > 0 &&
+          typeof product.variations[0] === "object" &&
+          "stock_status" in (product.variations[0] as any)
+        ) {
+          // Check if at least one matching size variation is in stock
+          return matchingSizes.some((sizeOpt) => {
+            const sizeOptionLower = sizeOpt.toLowerCase().replace(/-/g, "");
+            return (product.variations as any[]).some((v: any) => {
+              // Match variation to this size
+              const attrs = v.attributes || {};
+              let varSize = "";
+              if (typeof attrs === "object" && !Array.isArray(attrs)) {
+                // Object format: {"attribute_pa_taglia": "small"}
+                for (const [key, val] of Object.entries(attrs)) {
+                  if (
+                    key.includes("size") ||
+                    key.includes("taglia")
+                  ) {
+                    varSize = String(val);
+                    break;
+                  }
+                }
+              }
+              if (!varSize) return false;
+              const varSizeLower = varSize.toLowerCase().replace(/-/g, "");
+              const isSameSize =
+                varSizeLower === sizeOptionLower ||
+                normalizeSize(varSize) === normalizeSize(sizeOpt);
+              if (!isSameSize) return false;
+              // Check stock
+              if (v.stock_status === "outofstock") return false;
+              if (v.stock_quantity !== null && v.stock_quantity <= 0)
+                return false;
+              return true;
+            });
+          });
+        }
+
+        // No variation data — fall back to showing the product
+        return true;
       });
     }
 
@@ -165,7 +213,8 @@ export default function ShopContent({
           )}
         </button>
         <p className="text-sm" style={{ color: "#999999" }}>
-          {filteredProducts.length} product{filteredProducts.length !== 1 ? "s" : ""}
+          {filteredProducts.length} product
+          {filteredProducts.length !== 1 ? "s" : ""}
         </p>
         <button className="text-sm" style={{ color: "#999999" }}>
           Sort by
