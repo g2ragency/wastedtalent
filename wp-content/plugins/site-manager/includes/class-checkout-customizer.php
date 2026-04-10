@@ -34,11 +34,26 @@ class HPM_Checkout_Customizer {
         add_filter('wcpay_upe_appearance', array($this, 'customize_stripe_appearance'));
         add_filter('wc_stripe_upe_appearance', array($this, 'customize_stripe_appearance'));
         
-        // Inline script per sovrascrivere le opzioni Stripe Elements
+        // Inline script per sovrascrivere le opzioni Stripe Elements (nel footer)
         add_action('wp_footer', array($this, 'stripe_font_override'));
+        
+        // Script PRIMA di Stripe.js per intercettare la creazione
+        add_action('wp_enqueue_scripts', array($this, 'enqueue_stripe_override'), 1);
         
         // Permetti pagamento su ordini pending (fix "cannot be paid for")
         add_filter('woocommerce_valid_order_statuses_for_payment', array($this, 'allow_pending_payment'), 10, 2);
+        
+        // Traduci label tabella ordine in italiano
+        add_filter('woocommerce_order_item_get_formatted_meta_data', array($this, 'hide_item_meta'), 10, 2);
+        
+        // Nascondi 'via {method}' nella riga spedizione
+        add_filter('woocommerce_order_shipping_to_display', array($this, 'clean_shipping_display'), 10, 2);
+        
+        // Privacy policy in inglese
+        add_filter('woocommerce_get_privacy_policy_text', array($this, 'english_privacy_text'), 10, 2);
+        
+        // Traduci label del footer tabella
+        add_action('wp_head', array($this, 'translate_table_labels'));
     }
 
     /**
@@ -51,6 +66,86 @@ class HPM_Checkout_Customizer {
     }
 
     /**
+     * Nascondi meta inutili dagli item dell'ordine
+     */
+    public function hide_item_meta($formatted_meta, $item) {
+        return $formatted_meta;
+    }
+
+    /**
+     * Rimuovi 'via {method_title}' dalla riga spedizione
+     */
+    public function clean_shipping_display($shipping, $order) {
+        // Rimuovi tutto dopo il prezzo (il "via Spedizione")
+        $shipping = preg_replace('/<small.*<\/small>/s', '', $shipping);
+        return $shipping;
+    }
+
+    /**
+     * Privacy policy in inglese
+     */
+    public function english_privacy_text($text, $type) {
+        if ($type === 'pay') {
+            return 'Your personal data will be used to process your order, support your experience on this website, and for other purposes described in our <a href="/privacy-policy/" class="woocommerce-privacy-policy-link" target="_blank">privacy policy</a>.';
+        }
+        return $text;
+    }
+
+    /**
+     * Traduci le label della tabella ordine tramite JS (più affidabile)
+     */
+    public function translate_table_labels() {
+        if (!is_checkout_pay_page()) {
+            return;
+        }
+        ?>
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Traduci label tabella
+            var translations = {
+                'Subtotal:': 'Subtotale:',
+                'Subtotale:': 'Subtotale:',
+                'Shipping:': 'Spedizione:',
+                'Tax:': 'Imposte:',
+                'Imposte:': 'Imposte:',
+                'Total:': 'Totale:',
+                'Totale:': 'Totale:',
+                'Payment method:': 'Metodo di pagamento:',
+                'Metodo di pagamento:': 'Metodo di pagamento:',
+                'Product': 'Prodotto',
+                'Quantity': 'Quantità',
+                'Price': 'Prezzo',
+                'Credit Card': 'Carta di credito'
+            };
+            
+            // Traduci th e td nel footer della tabella
+            var cells = document.querySelectorAll('.shop_table tfoot th, .shop_table tfoot td, .shop_table thead th');
+            cells.forEach(function(cell) {
+                var text = cell.textContent.trim();
+                if (translations[text]) {
+                    cell.textContent = translations[text];
+                }
+            });
+
+            // Rimuovi "(ex. VAT)" e sostituisci con testo pulito
+            var allCells = document.querySelectorAll('.shop_table td, .shop_table th');
+            allCells.forEach(function(cell) {
+                cell.innerHTML = cell.innerHTML.replace(/\(ex\.\s*VAT\)/g, '');
+                cell.innerHTML = cell.innerHTML.replace(/\(incl\.\s*VAT\)/g, '');
+            });
+
+            // Rimuovi "via Spedizione" o simili dal testo spedizione
+            var shippingRows = document.querySelectorAll('.shipping td');
+            shippingRows.forEach(function(td) {
+                var smalls = td.querySelectorAll('small');
+                smalls.forEach(function(s) { s.style.display = 'none'; });
+            });
+        });
+        </script>
+        <?php
+    }
+
+    /**
      * Personalizza l'aspetto di Stripe Elements (dentro l'iframe)
      */
     public function customize_stripe_appearance($appearance) {
@@ -59,6 +154,10 @@ class HPM_Checkout_Customizer {
                 'fontSize' => '14px',
                 'fontFamily' => 'Helvetica Neue, Helvetica, Arial, sans-serif',
                 'color' => '#222222',
+            ),
+            '.Input::placeholder' => array(
+                'fontSize' => '14px',
+                'color' => '#bbbbbb',
             ),
             '.Label' => array(
                 'fontSize' => '14px',
@@ -76,6 +175,12 @@ class HPM_Checkout_Customizer {
             '.Block' => array(
                 'fontSize' => '14px',
             ),
+            '.Text' => array(
+                'fontSize' => '14px',
+            ),
+            '.p-FieldLabel' => array(
+                'fontSize' => '14px',
+            ),
         );
         $appearance['variables'] = array(
             'fontFamily' => 'Helvetica Neue, Helvetica, Arial, sans-serif',
@@ -83,9 +188,11 @@ class HPM_Checkout_Customizer {
             'fontSizeSm' => '14px',
             'fontSizeLg' => '14px',
             'fontSizeXl' => '14px',
+            'fontWeightNormal' => '400',
             'colorText' => '#222222',
             'colorTextSecondary' => '#666666',
             'colorTextPlaceholder' => '#bbbbbb',
+            'spacingUnit' => '4px',
         );
         
         if (!isset($appearance['theme'])) {
@@ -96,7 +203,7 @@ class HPM_Checkout_Customizer {
     }
 
     /**
-     * Script inline per sovrascrivere font-size nell'iframe Stripe
+     * Script inline per sovrascrivere font-size nell'iframe Stripe e Klarna
      */
     public function stripe_font_override() {
         if (!is_checkout_pay_page()) {
@@ -105,24 +212,71 @@ class HPM_Checkout_Customizer {
         ?>
         <script>
         (function() {
-            // Override WooPayments/Stripe appearance settings
-            if (typeof window.wc !== 'undefined' && window.wc.wcpay) {
-                var origCreate = window.wc.wcpay;
+            // 1. Override Stripe() constructor to force font-size in Elements
+            var _origStripe = window.Stripe;
+            if (_origStripe) {
+                window.Stripe = function() {
+                    var stripe = _origStripe.apply(this, arguments);
+                    var _origElements = stripe.elements.bind(stripe);
+                    stripe.elements = function(opts) {
+                        opts = opts || {};
+                        // Force appearance with 14px font
+                        opts.appearance = opts.appearance || {};
+                        opts.appearance.variables = opts.appearance.variables || {};
+                        opts.appearance.variables.fontSizeBase = '14px';
+                        opts.appearance.variables.fontSizeSm = '14px';
+                        opts.appearance.variables.fontSizeLg = '14px';
+                        opts.appearance.variables.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
+                        opts.appearance.rules = opts.appearance.rules || {};
+                        opts.appearance.rules['.Input'] = Object.assign(opts.appearance.rules['.Input'] || {}, {
+                            fontSize: '14px',
+                            fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif'
+                        });
+                        opts.appearance.rules['.Label'] = Object.assign(opts.appearance.rules['.Label'] || {}, {
+                            fontSize: '14px',
+                            fontFamily: 'Helvetica Neue, Helvetica, Arial, sans-serif'
+                        });
+                        opts.appearance.rules['.Tab'] = Object.assign(opts.appearance.rules['.Tab'] || {}, {
+                            fontSize: '14px'
+                        });
+                        opts.appearance.rules['.TabLabel'] = Object.assign(opts.appearance.rules['.TabLabel'] || {}, {
+                            fontSize: '14px'
+                        });
+                        opts.appearance.rules['.Block'] = Object.assign(opts.appearance.rules['.Block'] || {}, {
+                            fontSize: '14px'
+                        });
+                        opts.appearance.rules['.Input::placeholder'] = Object.assign(opts.appearance.rules['.Input::placeholder'] || {}, {
+                            fontSize: '14px'
+                        });
+                        return _origElements(opts);
+                    };
+                    return stripe;
+                };
+                // Preserve static methods
+                for (var prop in _origStripe) {
+                    if (_origStripe.hasOwnProperty(prop)) {
+                        window.Stripe[prop] = _origStripe[prop];
+                    }
+                }
+                window.Stripe.version = _origStripe.version;
             }
             
-            // MutationObserver to catch when Stripe iframe loads and adjust container
+            // 2. Override WooPayments localized appearance data
+            if (typeof window.wcpayConfig !== 'undefined') {
+                window.wcpayConfig.paymentMethodsConfig = window.wcpayConfig.paymentMethodsConfig || {};
+            }
+            
+            // 3. MutationObserver for container sizing
             var observer = new MutationObserver(function(mutations) {
                 mutations.forEach(function(mutation) {
                     mutation.addedNodes.forEach(function(node) {
                         if (node.nodeType === 1) {
-                            // Look for Stripe iframe containers
-                            var stripeFrames = document.querySelectorAll(
+                            var frames = document.querySelectorAll(
                                 '.StripeElement, .__PrivateStripeElement, .wcpay-upe-element, #wcpay-upe-element, #wcpay-card-element, [data-elements-stable-field-name]'
                             );
-                            stripeFrames.forEach(function(el) {
+                            frames.forEach(function(el) {
                                 el.style.fontSize = '14px';
                                 el.style.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
-                                // Find iframes inside and adjust their container height
                                 var iframes = el.querySelectorAll('iframe');
                                 iframes.forEach(function(iframe) {
                                     iframe.style.minHeight = '44px';
@@ -135,12 +289,12 @@ class HPM_Checkout_Customizer {
             
             observer.observe(document.body, { childList: true, subtree: true });
             
-            // Also apply after a short delay for elements already loaded
+            // 4. Delayed fallback
             setTimeout(function() {
-                var stripeFrames = document.querySelectorAll(
+                var frames = document.querySelectorAll(
                     '.StripeElement, .__PrivateStripeElement, .wcpay-upe-element, #wcpay-upe-element, #wcpay-card-element, [data-elements-stable-field-name]'
                 );
-                stripeFrames.forEach(function(el) {
+                frames.forEach(function(el) {
                     el.style.fontSize = '14px';
                     el.style.fontFamily = 'Helvetica Neue, Helvetica, Arial, sans-serif';
                 });
@@ -158,6 +312,54 @@ class HPM_Checkout_Customizer {
             return false;
         }
         return $needs_payment;
+    }
+
+    /**
+     * Carica script override PRIMA di Stripe.js per intercettare la creazione degli Elements
+     */
+    public function enqueue_stripe_override() {
+        if (!is_checkout_pay_page()) {
+            return;
+        }
+        
+        // Aggiungi inline script che sovrascrive wcpayConfig dopo che viene localizzato
+        add_action('wp_print_footer_scripts', function() {
+            ?>
+            <script>
+            // Override WooPayments appearance config if it exists
+            (function() {
+                function overrideAppearance() {
+                    // WooPayments stores config in wcpay_upe_config or wcpayConfig
+                    var configs = ['wcpay_upe_config', 'wcpayConfig', 'wc_stripe_upe_params'];
+                    configs.forEach(function(configName) {
+                        if (typeof window[configName] !== 'undefined' && window[configName]) {
+                            var config = window[configName];
+                            if (config.paymentMethodsConfig) {
+                                Object.keys(config.paymentMethodsConfig).forEach(function(method) {
+                                    if (config.paymentMethodsConfig[method].upeAppearance) {
+                                        config.paymentMethodsConfig[method].upeAppearance.variables = config.paymentMethodsConfig[method].upeAppearance.variables || {};
+                                        config.paymentMethodsConfig[method].upeAppearance.variables.fontSizeBase = '14px';
+                                        config.paymentMethodsConfig[method].upeAppearance.variables.fontSizeSm = '14px';
+                                    }
+                                });
+                            }
+                            if (config.appearance) {
+                                config.appearance.variables = config.appearance.variables || {};
+                                config.appearance.variables.fontSizeBase = '14px';
+                                config.appearance.variables.fontSizeSm = '14px';
+                            }
+                        }
+                    });
+                }
+                
+                overrideAppearance();
+                // Run again after short delay in case scripts load late
+                setTimeout(overrideAppearance, 100);
+                setTimeout(overrideAppearance, 500);
+            })();
+            </script>
+            <?php
+        }, 1);
     }
 
     /**

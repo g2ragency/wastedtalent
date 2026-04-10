@@ -334,15 +334,27 @@ body.woocommerce-order-pay #payment button[type="submit"]:hover {
 body.woocommerce-order-pay .woocommerce-terms-and-conditions-wrapper,
 body.woocommerce-order-pay .woocommerce-privacy-policy-text {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  font-size: 12px !important;
+  font-size: 16px !important;
   color: #999999 !important;
   margin: 16px 0 !important;
   line-height: 1.6 !important;
 }
 
+body.woocommerce-order-pay .woocommerce-privacy-policy-text p {
+  font-size: 16px !important;
+  color: #999999 !important;
+}
+
 body.woocommerce-order-pay .woocommerce-privacy-policy-text a {
   color: #222222 !important;
   text-decoration: underline !important;
+}
+
+/* Hide 'via {method}' next to shipping cost */
+body.woocommerce-order-pay .woocommerce table.shop_table .shipping td small,
+body.woocommerce-order-pay .woocommerce table.shop_table .shipping td .wc-item-meta,
+body.woocommerce-order-pay .woocommerce table.shop_table tfoot .shipping td small {
+  display: none !important;
 }
 
 /* ===== COUPON SECTION (nascosto per ora) ===== */

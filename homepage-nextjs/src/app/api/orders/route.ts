@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     // Create order payload
     const orderData = {
       payment_method: "woocommerce_payments",
-      payment_method_title: "Credit Card",
+      payment_method_title: "Carta di credito",
       set_paid: false,
       status: "pending",
       billing: billingAddress,
