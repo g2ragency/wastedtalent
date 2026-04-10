@@ -231,7 +231,7 @@ export default function ProductDetail({
             <div>
               {product.images && product.images.length > 0 ? (
                 product.images.map((image, index) => (
-                  <div key={image.id} className="bg-gray-100 w-full">
+                  <div key={image.id} className="bg-gray-100 w-full overflow-hidden" style={{ aspectRatio: "65 / 81" }}>
                     <Image
                       src={image.src}
                       alt={image.alt || `${product.name} ${index + 1}`}
@@ -343,7 +343,7 @@ export default function ProductDetail({
         <div className="md:hidden pb-40">
           {product.images && product.images.length > 0 ? (
             product.images.map((image, index) => (
-              <div key={image.id} className="bg-gray-100 w-full mb-1">
+              <div key={image.id} className="bg-gray-100 w-full mb-1 overflow-hidden" style={{ aspectRatio: "65 / 81" }}>
                 <Image
                   src={image.src}
                   alt={image.alt || `${product.name} ${index + 1}`}
