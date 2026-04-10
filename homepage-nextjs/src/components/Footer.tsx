@@ -43,7 +43,7 @@ export default function Footer({ contactInfo }: FooterProps) {
                 <Link href="/contact">Contact</Link>
               </li>
               <li>
-                <Link href="/shipping">Shipping & Returns</Link>
+                <Link href="/shipping">Shipping</Link>
               </li>
             </ul>
           </div>
