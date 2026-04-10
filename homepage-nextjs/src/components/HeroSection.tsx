@@ -102,7 +102,7 @@ export default function HeroSection({ data }: HeroSectionProps) {
       setIsFirstLoad(false);
       setDirection("forward");
       setCurrentSlide((prev) => prev + 1);
-    }, 5000);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [slides.length]);
