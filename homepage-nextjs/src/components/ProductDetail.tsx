@@ -397,6 +397,19 @@ export default function ProductDetail({
               No image
             </div>
           )}
+
+          {/* Mobile: Product Description */}
+          {product.description && (
+            <div className="px-3 pt-6 pb-4">
+              <h3 className="font-bold text-sm mb-3 uppercase">
+                Description
+              </h3>
+              <div
+                className="text-sm leading-relaxed text-gray-700"
+                dangerouslySetInnerHTML={{ __html: product.description }}
+              />
+            </div>
+          )}
         </div>
       </div>
 
