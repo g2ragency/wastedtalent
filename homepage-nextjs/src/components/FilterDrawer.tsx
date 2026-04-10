@@ -1,23 +1,96 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useMemo } from "react";
 import { WooCommerceProduct } from "@/lib/api";
 
-// Define size groups with their labels and size options
-const SIZE_GROUPS = [
-  {
-    label: "TOPS",
-    sizes: ["XXS", "XS", "S", "M", "L", "XL", "XXL"],
-  },
-  {
-    label: "BOTTOMS",
-    sizes: ["XXS", "XS", "S", "M", "L", "XL", "XXL", "28", "30", "32", "34", "36", "38"],
-  },
-  {
-    label: "ACCESSORIES",
-    sizes: ["7", "7 1/2", "7 1/4", "7 1/8", "7 3/4", "7 3/8", "7 5/8", "7 7/8", "OS"],
-  },
-];
+/**
+ * Map WooCommerce product category slugs to filter group labels.
+ * Add new category slugs here as products are added.
+ */
+const CATEGORY_GROUP_MAP: { [slug: string]: string } = {
+  // Tops
+  hoodie: "TOPS",
+  "t-shirt": "TOPS",
+  tshirt: "TOPS",
+  shirt: "TOPS",
+  jacket: "TOPS",
+  vest: "TOPS",
+  sweater: "TOPS",
+  sweatshirt: "TOPS",
+  top: "TOPS",
+  tops: "TOPS",
+  felpa: "TOPS",
+  maglietta: "TOPS",
+  giacca: "TOPS",
+  // Bottoms
+  pants: "BOTTOMS",
+  trousers: "BOTTOMS",
+  shorts: "BOTTOMS",
+  jeans: "BOTTOMS",
+  pantaloni: "BOTTOMS",
+  bottoms: "BOTTOMS",
+  skirt: "BOTTOMS",
+  // Accessories
+  hat: "ACCESSORIES",
+  hats: "ACCESSORIES",
+  cap: "ACCESSORIES",
+  caps: "ACCESSORIES",
+  beanie: "ACCESSORIES",
+  accessories: "ACCESSORIES",
+  accessori: "ACCESSORIES",
+  bag: "ACCESSORIES",
+  bags: "ACCESSORIES",
+  scarf: "ACCESSORIES",
+};
+
+/** Preferred display order for groups */
+const GROUP_ORDER = ["TOPS", "BOTTOMS", "ACCESSORIES"];
+
+/** Preferred sort order for standard alpha sizes */
+const ALPHA_SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "XXXL"];
+
+/**
+ * Normalize a raw size option from WooCommerce to a short display label.
+ * "small" → "S", "x-large" → "XL", "28" → "28", "7 1/2" → "7 1/2"
+ */
+function normalizeSize(raw: string): string {
+  const lower = raw.toLowerCase().replace(/-/g, "").trim();
+  const map: { [key: string]: string } = {
+    xxsmall: "XXS",
+    xsmall: "XS",
+    small: "S",
+    medium: "M",
+    large: "L",
+    xlarge: "XL",
+    xxlarge: "XXL",
+    xxxlarge: "XXXL",
+  };
+  if (map[lower]) return map[lower];
+  return raw.trim();
+}
+
+/** Sort sizes: alpha sizes in predefined order first, then numeric ascending */
+function sortSizes(sizes: string[]): string[] {
+  return sizes.sort((a, b) => {
+    const aIdx = ALPHA_SIZE_ORDER.indexOf(a);
+    const bIdx = ALPHA_SIZE_ORDER.indexOf(b);
+
+    // Both are alpha sizes
+    if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+    // Only a is alpha
+    if (aIdx !== -1) return -1;
+    // Only b is alpha
+    if (bIdx !== -1) return 1;
+
+    // Try numeric comparison
+    const aNum = parseFloat(a);
+    const bNum = parseFloat(b);
+    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+
+    // Fallback: string compare
+    return a.localeCompare(b);
+  });
+}
 
 interface FilterDrawerProps {
   isOpen: boolean;
@@ -70,25 +143,67 @@ export default function FilterDrawer({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Get all available sizes from products (for highlighting which sizes actually exist)
-  const getAvailableSizes = useCallback(() => {
-    const available = new Set<string>();
+  /**
+   * Build size groups dynamically from product data.
+   * Groups sizes by the category of the product they belong to.
+   */
+  const sizeGroups = useMemo(() => {
+    const groups: { [groupLabel: string]: Set<string> } = {};
+
     products.forEach((product) => {
+      // Determine which group this product belongs to based on its categories
+      let groupLabel = "OTHER";
+      if (product.categories && product.categories.length > 0) {
+        for (const cat of product.categories) {
+          const mapped = CATEGORY_GROUP_MAP[cat.slug.toLowerCase()];
+          if (mapped) {
+            groupLabel = mapped;
+            break;
+          }
+        }
+      }
+
+      // Get sizes from product attributes
       if (product.attributes) {
         product.attributes.forEach((attr) => {
           if (
             attr.name.toLowerCase() === "size" ||
             attr.name.toLowerCase() === "taglia"
           ) {
-            attr.options.forEach((opt) => available.add(normalizeSize(opt)));
+            if (!groups[groupLabel]) groups[groupLabel] = new Set();
+            attr.options.forEach((opt) => {
+              groups[groupLabel].add(normalizeSize(String(opt)));
+            });
           }
         });
       }
     });
-    return available;
-  }, [products]);
 
-  const availableSizes = getAvailableSizes();
+    // Convert to sorted array and order by GROUP_ORDER
+    const result: { label: string; sizes: string[] }[] = [];
+
+    // Add groups in preferred order
+    for (const label of GROUP_ORDER) {
+      if (groups[label] && groups[label].size > 0) {
+        result.push({
+          label,
+          sizes: sortSizes(Array.from(groups[label])),
+        });
+      }
+    }
+
+    // Add any remaining groups not in GROUP_ORDER
+    for (const label of Object.keys(groups)) {
+      if (!GROUP_ORDER.includes(label) && groups[label].size > 0) {
+        result.push({
+          label,
+          sizes: sortSizes(Array.from(groups[label])),
+        });
+      }
+    }
+
+    return result;
+  }, [products]);
 
   return (
     <>
@@ -138,32 +253,26 @@ export default function FilterDrawer({
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-6">
           {/* Size Section */}
-          <div>
-            <div className="flex items-center justify-between mb-6">
-              <h3
-                className="text-base font-bold"
-                style={{ fontFamily: "Helvetica Neue, sans-serif" }}
-              >
-                Size
-              </h3>
-              <svg
-                width="12"
-                height="8"
-                viewBox="0 0 12 8"
-                fill="none"
-              >
-                <path d="M1 7l5-5 5 5" stroke="#222222" strokeWidth="1.5" />
-              </svg>
-            </div>
+          {sizeGroups.length > 0 && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <h3
+                  className="text-base font-bold"
+                  style={{ fontFamily: "Helvetica Neue, sans-serif" }}
+                >
+                  Size
+                </h3>
+                <svg
+                  width="12"
+                  height="8"
+                  viewBox="0 0 12 8"
+                  fill="none"
+                >
+                  <path d="M1 7l5-5 5 5" stroke="#222222" strokeWidth="1.5" />
+                </svg>
+              </div>
 
-            {SIZE_GROUPS.map((group) => {
-              // Only show the group if at least one size exists in products
-              const groupHasProducts = group.sizes.some((s) =>
-                availableSizes.has(s)
-              );
-              if (!groupHasProducts) return null;
-
-              return (
+              {sizeGroups.map((group) => (
                 <div key={group.label} className="mb-8">
                   <p
                     className="text-xs font-bold uppercase tracking-wider mb-3"
@@ -176,8 +285,6 @@ export default function FilterDrawer({
                   </p>
                   <div className="grid grid-cols-7 gap-2">
                     {group.sizes.map((size) => {
-                      const exists = availableSizes.has(size);
-                      if (!exists) return null;
                       const isSelected = selectedSizes.includes(size);
                       return (
                         <button
@@ -199,9 +306,9 @@ export default function FilterDrawer({
                     })}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          )}
 
           {/* Show only available products toggle */}
           <div className="flex items-center justify-between py-6 border-t border-gray-200">
@@ -255,26 +362,4 @@ export default function FilterDrawer({
       </div>
     </>
   );
-}
-
-/**
- * Normalize a size string to a display format for comparison.
- * E.g. "small" -> "S", "x-large" -> "XL", "28" -> "28"
- */
-function normalizeSize(raw: string): string {
-  const lower = raw.toLowerCase().replace(/-/g, "").trim();
-  const map: { [key: string]: string } = {
-    xxsmall: "XXS",
-    xsmall: "XS",
-    small: "S",
-    medium: "M",
-    large: "L",
-    xlarge: "XL",
-    xxlarge: "XXL",
-    xxxlarge: "XXXL",
-    // Pass-through for numeric and fraction sizes
-  };
-  if (map[lower]) return map[lower];
-  // Return original for numeric sizes like "28", "7 1/2", "OS"
-  return raw.trim();
 }
