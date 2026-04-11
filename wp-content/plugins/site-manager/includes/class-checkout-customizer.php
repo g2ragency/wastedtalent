@@ -380,6 +380,7 @@ class HPM_Checkout_Customizer {
             return;
         }
         ?>
+        <script id="Cookiebot" src="https://consent.cookiebot.com/uc.js" data-cbid="2f6d9367-23bf-4377-bc06-1e71337faad8" data-blockingmode="auto" type="text/javascript"></script>
         <style>
             header, .site-header, #masthead,
             footer, .site-footer, #colophon,
