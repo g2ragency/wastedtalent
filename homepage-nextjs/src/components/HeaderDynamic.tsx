@@ -118,13 +118,21 @@ export default function Header({ data }: HeaderProps) {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="uppercase transition-opacity hover:opacity-60"
-              style={{
-                fontFamily: "Helvetica Neue, sans-serif",
-                fontSize: "12px",
-                fontWeight: "bold",
-                color: isHomepage && !mobileMenuOpen && !scrolled ? "white" : "#222222",
-                mixBlendMode: isHomepage && !mobileMenuOpen && !scrolled ? "difference" : "normal",
-              } as React.CSSProperties}
+              style={
+                {
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  color:
+                    isHomepage && !mobileMenuOpen && !scrolled
+                      ? "white"
+                      : "#222222",
+                  mixBlendMode:
+                    isHomepage && !mobileMenuOpen && !scrolled
+                      ? "difference"
+                      : "normal",
+                } as React.CSSProperties
+              }
             >
               {mobileMenuOpen ? "Close" : "Menu"}
             </button>
@@ -139,8 +147,14 @@ export default function Header({ data }: HeaderProps) {
                 alt="Wasted Talent United"
                 className="block md:hidden h-[40px] w-[68px]"
                 style={{
-                  mixBlendMode: isHomepage && !mobileMenuOpen && !scrolled ? "difference" : "normal",
-                  filter: isHomepage && !mobileMenuOpen && !scrolled ? "invert(1)" : "none",
+                  mixBlendMode:
+                    isHomepage && !mobileMenuOpen && !scrolled
+                      ? "difference"
+                      : "normal",
+                  filter:
+                    isHomepage && !mobileMenuOpen && !scrolled
+                      ? "invert(1)"
+                      : "none",
                 }}
               />
               {/* Desktop logo: blend + invert for homepage */}
@@ -194,13 +208,21 @@ export default function Header({ data }: HeaderProps) {
             <button
               onClick={openDrawer}
               className="uppercase transition-opacity hover:opacity-60"
-              style={{
-                fontFamily: "Helvetica Neue, sans-serif",
-                fontSize: "12px",
-                fontWeight: "bold",
-                color: isHomepage && !mobileMenuOpen && !scrolled ? "white" : "#222222",
-                mixBlendMode: isHomepage && !mobileMenuOpen && !scrolled ? "difference" : "normal",
-              } as React.CSSProperties}
+              style={
+                {
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  color:
+                    isHomepage && !mobileMenuOpen && !scrolled
+                      ? "white"
+                      : "#222222",
+                  mixBlendMode:
+                    isHomepage && !mobileMenuOpen && !scrolled
+                      ? "difference"
+                      : "normal",
+                } as React.CSSProperties
+              }
             >
               Cart ({totalItems})
             </button>

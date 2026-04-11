@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import SmoothScroll from "@/components/SmoothScroll";
 import { CartProvider } from "@/context/CartContext";
@@ -23,6 +24,20 @@ export default function RootLayout({
 }) {
   return (
     <html lang="it">
+      <head>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-279P15BEYQ"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-279P15BEYQ');
+          `}
+        </Script>
+      </head>
       <body>
         <AuthProvider>
           <CartProvider>
