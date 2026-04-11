@@ -223,6 +223,7 @@ export default function CheckoutContent() {
             },
         email: formData.email,
         sameAsShipping,
+        cartTotal: totalPrice.toFixed(2),
       };
 
       const res = await fetch("/api/orders", {
@@ -258,7 +259,7 @@ export default function CheckoutContent() {
     }
   };
 
-  const shippingCost = 10;
+  const shippingCost = totalPrice > 99 ? 0 : 10;
   const total = totalPrice + shippingCost;
 
   return (
@@ -714,7 +715,7 @@ export default function CheckoutContent() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
-                  <span>€{shippingCost.toFixed(2)}</span>
+                  <span>{shippingCost === 0 ? 'Free' : `€${shippingCost.toFixed(2)}`}</span>
                 </div>
               </div>
 

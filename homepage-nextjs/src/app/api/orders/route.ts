@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { items, shipping, billing, email, sameAsShipping } = body;
+    const { items, shipping, billing, email, sameAsShipping, cartTotal } = body;
 
     if (!items || items.length === 0) {
       return jsonResponse({ error: "Cart is empty" }, 400);
@@ -90,6 +90,9 @@ export async function POST(request: NextRequest) {
       country: shipping.country,
     };
 
+    // Free shipping for orders over €99
+    const shippingTotal = (cartTotal && parseFloat(cartTotal) > 99) ? '0.00' : '10.00';
+
     // Create order payload
     const orderData = {
       payment_method: "woocommerce_payments",
@@ -101,9 +104,9 @@ export async function POST(request: NextRequest) {
       line_items,
       shipping_lines: [
         {
-          method_id: "flat_rate",
+          method_id: shippingTotal === '0.00' ? 'free_shipping' : 'flat_rate',
           method_title: "Spedizione",
-          total: "10.00",
+          total: shippingTotal,
         },
       ],
       // Tell WooCommerce where to redirect after payment
