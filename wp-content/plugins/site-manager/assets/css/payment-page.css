@@ -153,6 +153,15 @@ body.woocommerce-order-pay .woocommerce table.shop_table tfoot td {
   text-align: right !important;
 }
 
+/* Product rows: align price to the right */
+body.woocommerce-order-pay .woocommerce table.shop_table tbody td.product-total {
+  text-align: right !important;
+}
+
+body.woocommerce-order-pay .woocommerce table.shop_table tbody td:last-child {
+  text-align: right !important;
+}
+
 /* ===== PAYMENT METHODS ===== */
 body.woocommerce-order-pay #payment {
   background: none !important;
@@ -471,6 +480,7 @@ body.woocommerce-order-pay
 
 /* ===== ZERO TOTAL (100% coupon) ===== */
 body.woocommerce-order-pay .woocommerce-info {
+  display: none !important;
   background-color: #f5f5f5 !important;
   color: #222222 !important;
   font-size: 14px !important;

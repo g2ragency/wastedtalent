@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     // Create order payload
     const orderData = {
       payment_method: "woocommerce_payments",
-      payment_method_title: "Carta di credito",
+      payment_method_title: "Credit Card",
       set_paid: false,
       status: "pending",
       billing: billingAddress,
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
       shipping_lines: [
         {
           method_id: shippingTotal === '0.00' ? 'free_shipping' : 'flat_rate',
-          method_title: "Spedizione",
+          method_title: "Shipping",
           total: shippingTotal,
         },
       ],

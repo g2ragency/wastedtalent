@@ -116,6 +116,55 @@ class HPM_Checkout_Customizer {
                 // Also remove any remaining "via ..." text
                 td.innerHTML = td.innerHTML.replace(/\s*via\s+[^<]*/g, '');
             });
+
+            // Translate Italian labels to English
+            var translations = {
+                'Spedizione': 'Shipping',
+                'Spedizione:': 'Shipping',
+                'Imposte:': 'Tax',
+                'Imposte': 'Tax',
+                'Subtotale:': 'Subtotal',
+                'Subtotale': 'Subtotal',
+                'Totale:': 'Total',
+                'Totale': 'Total',
+                'Metodo di pagamento:': 'Payment method:',
+                'Metodo di pagamento': 'Payment method',
+                'Spedizione gratuita': 'Free Shipping',
+                'Tariffa fissa': 'Flat Rate'
+            };
+            var allCells2 = document.querySelectorAll('.shop_table td, .shop_table th');
+            allCells2.forEach(function(cell) {
+                var trimmed = cell.textContent.trim();
+                if (translations[trimmed]) {
+                    cell.textContent = translations[trimmed];
+                }
+                // Also do innerHTML replacements for nested text
+                if (cell.innerHTML.indexOf('Spedizione') !== -1) {
+                    cell.innerHTML = cell.innerHTML.replace(/Spedizione/g, 'Shipping');
+                }
+            });
+
+            // Translate payment method
+            var payMethodCells = document.querySelectorAll('.shop_table td, .shop_table th, .wc-payment-form label, #payment label');
+            payMethodCells.forEach(function(cell) {
+                if (cell.innerHTML.indexOf('Carta di credito') !== -1) {
+                    cell.innerHTML = cell.innerHTML.replace(/Carta di credito/g, 'Credit Card');
+                }
+            });
+
+            // Also check the payment method display outside table
+            var allElements = document.querySelectorAll('td, th, label, span, p');
+            allElements.forEach(function(el) {
+                if (el.childNodes.length === 1 && el.childNodes[0].nodeType === 3) {
+                    var txt = el.textContent.trim();
+                    if (txt === 'Carta di credito' || txt === 'Carta di credito:') {
+                        el.textContent = txt.replace('Carta di credito', 'Credit Card');
+                    }
+                    if (txt === 'Payment method:') {
+                        // already in English, keep it
+                    }
+                }
+            });
         });
         </script>
         <?php
