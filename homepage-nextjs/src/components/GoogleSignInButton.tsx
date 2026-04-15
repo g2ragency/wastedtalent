@@ -67,12 +67,21 @@ export default function GoogleSignInButton({
 
   // Initialize Google Sign-In when script is loaded
   useEffect(() => {
-    if (!scriptLoaded || !window.google || !buttonRef.current || !GOOGLE_CLIENT_ID) return;
+    if (
+      !scriptLoaded ||
+      !window.google ||
+      !buttonRef.current ||
+      !GOOGLE_CLIENT_ID
+    )
+      return;
 
     window.google.accounts.id.initialize({
       client_id: GOOGLE_CLIENT_ID,
       callback: handleGoogleCallback,
     });
+
+    // Get the actual container width for the Google button
+    const containerWidth = buttonRef.current.offsetWidth;
 
     window.google.accounts.id.renderButton(buttonRef.current, {
       type: "standard",
@@ -80,8 +89,8 @@ export default function GoogleSignInButton({
       size: "large",
       text: text,
       shape: "rectangular",
-      width: buttonRef.current.offsetWidth || 500,
-      logo_alignment: "left",
+      width: Math.min(containerWidth, 400),
+      logo_alignment: "center",
     });
   }, [scriptLoaded]);
 
@@ -103,7 +112,16 @@ export default function GoogleSignInButton({
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full google-signin-wrapper">
+      <style>{`
+        .google-signin-wrapper > div > div {
+          width: 100% !important;
+        }
+        .google-signin-wrapper iframe {
+          width: 100% !important;
+          min-width: 100% !important;
+        }
+      `}</style>
       {isLoading ? (
         <div
           className="w-full py-3 text-center text-sm"
@@ -117,7 +135,7 @@ export default function GoogleSignInButton({
       ) : (
         <div
           ref={buttonRef}
-          className="w-full flex justify-center"
+          className="w-full"
           style={{ minHeight: 44 }}
         />
       )}
