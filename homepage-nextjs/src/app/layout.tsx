@@ -7,8 +7,50 @@ import { AuthProvider } from "@/context/AuthContext";
 import CartDrawer from "@/components/CartDrawer";
 
 export const metadata: Metadata = {
-  title: "Wasted Talent United",
-  description: "E-commerce site powered by WordPress and Next.js",
+  metadataBase: new URL("https://www.wastedtalent.it"),
+  title: {
+    default: "Wasted Talent United — Contemporary Streetwear",
+    template: "%s | Wasted Talent United",
+  },
+  description:
+    "Wasted Talent United is a contemporary streetwear brand. Shop the latest collections, lookbooks and exclusive drops.",
+  keywords: [
+    "streetwear",
+    "contemporary fashion",
+    "wasted talent",
+    "streetwear brand",
+    "urban clothing",
+    "fashion",
+    "made in italy",
+  ],
+  authors: [{ name: "Wasted Talent United" }],
+  creator: "Wasted Talent United",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://www.wastedtalent.it",
+    siteName: "Wasted Talent United",
+    title: "Wasted Talent United — Contemporary Streetwear",
+    description:
+      "Wasted Talent United is a contemporary streetwear brand. Shop the latest collections, lookbooks and exclusive drops.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Wasted Talent United — Contemporary Streetwear",
+    description:
+      "Wasted Talent United is a contemporary streetwear brand. Shop the latest collections, lookbooks and exclusive drops.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   viewport: {
     width: "device-width",
     initialScale: 1,
@@ -23,7 +65,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="it">
+    <html lang="en">
       <head>
         <Script
           id="Cookiebot"

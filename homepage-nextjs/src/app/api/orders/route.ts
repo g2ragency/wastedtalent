@@ -91,7 +91,8 @@ export async function POST(request: NextRequest) {
     };
 
     // Free shipping for orders over €99
-    const shippingTotal = (cartTotal && parseFloat(cartTotal) > 99) ? '0.00' : '10.00';
+    const shippingTotal =
+      cartTotal && parseFloat(cartTotal) > 99 ? "0.00" : "10.00";
 
     // Create order payload
     const orderData = {
@@ -104,7 +105,7 @@ export async function POST(request: NextRequest) {
       line_items,
       shipping_lines: [
         {
-          method_id: shippingTotal === '0.00' ? 'free_shipping' : 'flat_rate',
+          method_id: shippingTotal === "0.00" ? "free_shipping" : "flat_rate",
           method_title: "Shipping",
           total: shippingTotal,
         },

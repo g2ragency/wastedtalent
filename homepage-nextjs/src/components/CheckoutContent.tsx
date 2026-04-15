@@ -715,7 +715,11 @@ export default function CheckoutContent() {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
-                  <span>{shippingCost === 0 ? 'Free' : `€${shippingCost.toFixed(2)}`}</span>
+                  <span>
+                    {shippingCost === 0
+                      ? "Free"
+                      : `€${shippingCost.toFixed(2)}`}
+                  </span>
                 </div>
               </div>
 
