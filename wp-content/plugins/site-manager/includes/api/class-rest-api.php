@@ -164,6 +164,12 @@ class HPM_REST_API {
             'callback' => array($this, 'get_user_orders'),
             'permission_callback' => '__return_true'
         ));
+
+        register_rest_route($this->namespace, '/auth/google', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'google_auth'),
+            'permission_callback' => '__return_true'
+        ));
     }
     
     public function get_site_settings($request) {
@@ -1314,6 +1320,105 @@ class HPM_REST_API {
         return rest_ensure_response(array(
             'success' => true,
             'data' => $orders_data
+        ));
+    }
+
+    /**
+     * Google OAuth — verify ID token, create or login user
+     */
+    public function google_auth($request) {
+        $params = $request->get_json_params();
+        $credential = $params['credential'] ?? '';
+
+        if (empty($credential)) {
+            return new WP_Error('missing_credential', 'Google credential is required', array('status' => 400));
+        }
+
+        // Decode the Google ID token (JWT)
+        $parts = explode('.', $credential);
+        if (count($parts) !== 3) {
+            return new WP_Error('invalid_token', 'Invalid Google token format', array('status' => 400));
+        }
+
+        $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/')), true);
+
+        if (!$payload || empty($payload['email']) || empty($payload['sub'])) {
+            return new WP_Error('invalid_token', 'Could not decode Google token', array('status' => 400));
+        }
+
+        // Verify token with Google's tokeninfo endpoint
+        $verify_response = wp_remote_get('https://oauth2.googleapis.com/tokeninfo?id_token=' . $credential);
+        
+        if (is_wp_error($verify_response)) {
+            return new WP_Error('verification_failed', 'Could not verify Google token', array('status' => 500));
+        }
+
+        $verify_body = json_decode(wp_remote_retrieve_body($verify_response), true);
+
+        if (empty($verify_body['email']) || $verify_body['email'] !== $payload['email']) {
+            return new WP_Error('invalid_token', 'Google token verification failed', array('status' => 401));
+        }
+
+        $email = sanitize_email($payload['email']);
+        $google_id = sanitize_text_field($payload['sub']);
+        $first_name = sanitize_text_field($payload['given_name'] ?? '');
+        $last_name = sanitize_text_field($payload['family_name'] ?? '');
+
+        // Check if user exists
+        $user = get_user_by('email', $email);
+
+        if ($user) {
+            // Existing user — link Google ID and log in
+            update_user_meta($user->ID, '_google_id', $google_id);
+            $token = $this->generate_auth_token($user->ID);
+
+            return rest_ensure_response(array(
+                'success' => true,
+                'data' => array(
+                    'token' => $token,
+                    'user' => array(
+                        'id' => $user->ID,
+                        'email' => $user->user_email,
+                        'firstName' => $user->first_name,
+                        'lastName' => $user->last_name,
+                    ),
+                    'isNewUser' => false,
+                )
+            ));
+        }
+
+        // New user — create account
+        $random_password = wp_generate_password(24, true, true);
+        $user_id = wp_create_user($email, $random_password, $email);
+
+        if (is_wp_error($user_id)) {
+            return new WP_Error('registration_failed', $user_id->get_error_message(), array('status' => 500));
+        }
+
+        wp_update_user(array(
+            'ID' => $user_id,
+            'first_name' => $first_name,
+            'last_name' => $last_name,
+            'display_name' => trim($first_name . ' ' . $last_name),
+            'role' => 'customer',
+        ));
+
+        update_user_meta($user_id, '_google_id', $google_id);
+
+        $token = $this->generate_auth_token($user_id);
+
+        return rest_ensure_response(array(
+            'success' => true,
+            'data' => array(
+                'token' => $token,
+                'user' => array(
+                    'id' => $user_id,
+                    'email' => $email,
+                    'firstName' => $first_name,
+                    'lastName' => $last_name,
+                ),
+                'isNewUser' => true,
+            )
         ));
     }
 

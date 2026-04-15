@@ -63,6 +63,9 @@ interface AuthContextType {
     password: string,
     rememberMe?: boolean,
   ) => Promise<{ success: boolean; message?: string }>;
+  loginWithGoogle: (
+    credential: string,
+  ) => Promise<{ success: boolean; message?: string }>;
   register: (
     firstName: string,
     lastName: string,
@@ -180,6 +183,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
 
         return { success: false, message: data.message || "Login failed" };
+      } catch {
+        return { success: false, message: "Network error. Please try again." };
+      }
+    },
+    [],
+  );
+
+  const loginWithGoogle = useCallback(
+    async (
+      credential: string,
+    ): Promise<{ success: boolean; message?: string }> => {
+      try {
+        const res = await fetch("/api/auth/google", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ credential }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok && data.success) {
+          const authToken = data.data.token;
+          setToken(authToken);
+          setUser(data.data.user);
+          localStorage.setItem(TOKEN_KEY, authToken);
+
+          return { success: true };
+        }
+
+        return {
+          success: false,
+          message: data.message || "Google login failed",
+        };
       } catch {
         return { success: false, message: "Network error. Please try again." };
       }
@@ -466,6 +502,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         token,
         isLoading,
         login,
+        loginWithGoogle,
         register,
         logout,
         forgotPassword,

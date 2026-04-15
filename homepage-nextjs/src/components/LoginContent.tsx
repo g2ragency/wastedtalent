@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import GoogleSignInButton from "@/components/GoogleSignInButton";
 import { ContactInfo } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 
@@ -225,6 +226,27 @@ export default function LoginContent({ contactInfo }: LoginContentProps) {
                 {isSubmitting ? "Loading..." : "Login"}
               </button>
             </form>
+
+            {/* Divider */}
+            <div className="flex items-center gap-4 my-6">
+              <div className="flex-1 h-px bg-[#DDD]" />
+              <span
+                className="text-xs uppercase"
+                style={{
+                  fontFamily: "Helvetica Neue, sans-serif",
+                  color: "#999",
+                }}
+              >
+                or
+              </span>
+              <div className="flex-1 h-px bg-[#DDD]" />
+            </div>
+
+            {/* Google Sign-In */}
+            <GoogleSignInButton
+              text="signin_with"
+              onError={(msg) => setApiError(msg)}
+            />
 
             <p
               className="text-center mt-6 text-sm"
