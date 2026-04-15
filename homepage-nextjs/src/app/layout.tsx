@@ -33,12 +33,21 @@ export const metadata: Metadata = {
     title: "Wasted Talent United — Contemporary Streetwear",
     description:
       "Wasted Talent United is a contemporary streetwear brand. Shop the latest collections, lookbooks and exclusive drops.",
+    images: [
+      {
+        url: "https://www.wastedtalent.it/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Wasted Talent United",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Wasted Talent United — Contemporary Streetwear",
     description:
       "Wasted Talent United is a contemporary streetwear brand. Shop the latest collections, lookbooks and exclusive drops.",
+    images: ["https://www.wastedtalent.it/og-image.png"],
   },
   robots: {
     index: true,
@@ -88,6 +97,26 @@ export default function RootLayout({
         </Script>
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Wasted Talent United",
+              url: "https://www.wastedtalent.it",
+              logo: "https://www.wastedtalent.it/logo.png",
+              sameAs: [
+                "https://www.instagram.com/wastedtalentunited",
+              ],
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "customer service",
+                email: "info@wastedtalent.it",
+              },
+            }),
+          }}
+        />
         <AuthProvider>
           <CartProvider>
             <SmoothScroll />
